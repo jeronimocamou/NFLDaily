@@ -1,3 +1,5 @@
+import { startStadium } from "./stadium.js";
+
 // NFL Daily client. Puzzles come from /api/puzzle without answers; every
 // guess is graded by /api/answer. Signed-in players' progress lives on the
 // server; anonymous progress lives in localStorage.
@@ -356,7 +358,8 @@ function renderSummary() {
   const sum = total(rounds);
   const grid = rounds.map((r) => EMOJI[tier(r.score)]).join("");
   const toast = h("p", { class: "toast", role: "status" });
-  const shareText = `NFL Daily #${puzzle.number}: ${sum}/500\n${grid}\n${location.origin}/`;
+  const code = `${puzzle.number}-${sum}-${rounds.map((r) => tier(r.score)[0]).join("")}`;
+  const shareText = `NFL Daily #${puzzle.number}: ${sum}/500\n${grid}\n${location.origin}/s/${code}`;
 
   const share = async () => {
     if (navigator.share && matchMedia("(pointer: coarse)").matches) {
@@ -660,6 +663,8 @@ $("#help-btn").addEventListener("click", () => $("#help").showModal());
 $("#profile-btn").addEventListener("click", openProfile);
 $("#leaderboard-btn").addEventListener("click", openLeaderboard);
 $("#archive-btn").addEventListener("click", openArchive);
+
+startStadium($("#stadium"));
 
 // ---- Boot ---------------------------------------------------------------------------------------------
 async function boot() {

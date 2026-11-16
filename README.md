@@ -21,12 +21,19 @@ puzzles/                    full puzzles with answers (private; never served dir
 api/                        Vercel serverless functions
 lib/                        shared server code (grading, accounts, leaderboards)
 site/                       static website (index.html, style.css, app.js)
+site/pixel.js               pixel-art stadium renderer (shared by the site background and share images)
 ```
 
 - **Answers stay on the server.** `/api/puzzle` sends each round without its answer, and `/api/answer` grades a guess and only then returns the answer and fact. Puzzles for future dates can't be loaded.
 - **Accounts** are a username and password (scrypt-hashed, httpOnly session cookie, lockout after 10 bad passwords). Signed-in players' answers are saved on the server and locked once given, so leaderboard scores are honest. Games played before signing in are imported when you sign up, but only for stats.
 - **Leaderboards** count only games finished on the day by signed-in players. Archive games count toward "played" and average, but not toward streaks or leaderboards.
 - Without a database the game still works: anonymous play, with stats saved in the browser. Accounts and leaderboards show as "not set up yet".
+
+### Look and sharing
+
+- The background is a pixel-art stadium drawn on a canvas by `site/stadium.js`: a field down the middle with crowds on both sides, and a crowd wave every 15 seconds (skipped with reduced motion). Dark mode turns it into a night game.
+- **Share previews:** the Share button links to `/s/<puzzle>-<score>-<grid>` (for example `/s/16-410-ggmlb`). That page carries Open Graph tags whose image comes from `/api/og`, a 1200×630 pixel-art scoreboard with that score and colored squares, so iMessage, Discord, X and others show the result. Visitors are sent straight on to the game.
+- `site/og.png` is the generic preview for the home page. Regenerate it with `node scripts/make-og.mjs` after changing the art. On Vercel, `scripts/build-meta.mjs` turns its URL into an absolute one, since some apps ignore relative preview URLs.
 
 ### Database (`data/nfl.sqlite`)
 

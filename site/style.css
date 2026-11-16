@@ -30,12 +30,13 @@
 
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
+html { background: #2f6f2c; }
 body {
   margin: 0;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  background: var(--bg);
+  background: transparent;
   color: var(--text);
   font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
@@ -298,3 +299,44 @@ dialog h2 { margin-top: 0; }
 }
 .auth input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .auth .link { margin-top: 12px; display: block; }
+
+/* ---- Retro stadium theme ---- */
+:root { --pixel: "Press Start 2P", ui-monospace, monospace; --edge: #10261a; }
+@media (prefers-color-scheme: dark) { :root { --edge: #000; } }
+
+#stadium {
+  position: fixed; top: 0; left: 0; z-index: -1;
+  image-rendering: pixelated; image-rendering: crisp-edges;
+  pointer-events: none;
+}
+@media (prefers-color-scheme: dark) {
+  /* Night game */
+  #stadium { filter: brightness(.55) saturate(.9); }
+}
+
+.topbar {
+  background: #0f141c; color: #f4f4ec;
+  border-bottom: 4px solid #000;
+  position: sticky; top: 0; z-index: 5;
+}
+.brand h1 { font-family: var(--pixel); font-weight: 400; font-size: 1rem; letter-spacing: 0; color: #ffd23f; line-height: 1.4; }
+.meta { color: #b9c2cc; }
+.icon-btn { background: #1e2430; border-color: #343c4c; color: #f4f4ec; }
+
+.progress { background: rgb(0 0 0 / .4); padding: 6px; border-radius: 6px; }
+.progress li { background: rgb(255 255 255 / .25); }
+
+.card, dialog {
+  border: 3px solid var(--edge);
+  border-radius: 8px;
+  box-shadow: 0 6px 0 rgb(0 0 0 / .35);
+}
+.season-chip, .summary .big { font-family: var(--pixel); font-weight: 400; }
+.season-chip { font-size: .62rem; padding: 5px 8px; letter-spacing: 0; }
+.summary .big { font-size: 2.6rem; margin: 14px 0 6px; }
+.btn.primary { box-shadow: 0 4px 0 rgb(0 0 0 / .3); }
+.btn.primary:active:not(:disabled) { translate: 0 2px; box-shadow: 0 2px 0 rgb(0 0 0 / .3); }
+.banner { border: 3px solid var(--edge); }
+
+.foot { color: #f4f4ec; text-shadow: 0 1px 2px #000; }
+.foot a { color: #ffd23f; }
