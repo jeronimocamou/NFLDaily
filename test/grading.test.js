@@ -54,3 +54,20 @@ test("future puzzles are not playable", () => {
   assert.equal(isPlayable(index.launch), true);
   assert.equal(isPlayable("../etc"), false);
 });
+
+test("no season points questions, and plenty of all-time questions, from 2026-11-16 on", () => {
+  const recent = puzzles.filter((p) => p.date >= "2026-11-16");
+  let allTime = 0;
+  let total = 0;
+  for (const p of recent) {
+    for (const r of p.rounds) {
+      total++;
+      assert.ok(!/points did the .* score|points scored/.test(r.prompt), `${p.date}: ${r.prompt}`);
+      if (r.season === "Since 1999") {
+        allTime++;
+        assert.ok(r.prompt.includes("1999"), `${p.date}: all-time prompts say "since 1999": ${r.prompt}`);
+      }
+    }
+  }
+  assert.ok(allTime / total > 0.35, `all-time share ${allTime}/${total}`);
+});

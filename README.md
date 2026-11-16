@@ -6,9 +6,11 @@ A daily football trivia game played as one drive. **2:00 left in the 4th, down 2
 |---|---|---|---|
 | Quick pass | **Head to head**: better record, or bigger stat (always close) | 7 yds | incomplete |
 | Slant route | **Odd one out**: which team missed (or made) the playoffs | 12 yds | incomplete |
-| Deep shot | **Guess the number**: wins/points or a player's yards, TDs, catches | up to 22 yds (partial credit) | sack −5 |
+| Deep shot | **Guess the number**: a team's wins, a player's yards/TDs/catches, a career total or a franchise record | up to 22 yds (partial credit) | sack −5 |
 | Run up the middle | **Rank four**: order a division, 4 teams or 4 players | up to 15 yds | stuffed −2 |
 | Flea flicker | **Who am I?**: name the player from a stat line (2 tries) | 30 yds (12 on the 2nd try) | sack −7 |
+
+About half the plays are **all-time** questions instead of single-season ones: career totals (passing, rushing, receiving), franchise records (wins, playoff trips and wins, winning seasons, Super Bowl titles), and "whose career is this?". The stats data starts in 1999, so these are always worded "since 1999" (a player whose career began earlier only counts from 1999 on, and the fact says so). There are no questions about a team's points scored in a season.
 
 Answering a gain within 6 seconds adds 2 hurry-up yards. Every snap uses 3 seconds of clock, and a play with the ball in play uses 6 more. Incompletions stop the clock. Field goals need any credit from 35 yards or less, at least half credit from 36–45 and a perfect answer from 46–55. Results rank by **points, then yards, then time left**.
 
@@ -79,6 +81,8 @@ Add puzzles. This keeps every existing day as it is and appends new days through
 ```bash
 python3 scripts/generate_puzzles.py
 ```
+
+A question can come back after a year (`REUSE_DAYS`), never sooner, and no answer repeats among the all-time questions within one drive. To redo days nobody has played yet, use `--from YYYY-MM-DD`.
 
 A GitHub Action (`.github/workflows/puzzles.yml`) does this on the 1st of every month. It refreshes the trivia data (so new seasons show up after each Super Bowl), adds puzzles, runs the tests and commits to `main`, which redeploys the site. You can also run it from the repo's **Actions** tab. `--rebuild` regenerates every day from launch (puzzle #1 = 2026-11-01) and changes past puzzles, so avoid it once players have played.
 
