@@ -32,14 +32,22 @@ PLAYOFF_EXIT = {"WC": "lost in the Wild Card round", "DIV": "lost in the Divisio
                 "CON": "lost in the conference championship", "SB": "lost the Super Bowl"}
 
 
+PLAYER_URL = "https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_reg_{season}.csv"
+
+
+def download(name, url, refresh):
+    path = RAW / name
+    if path.exists() and not refresh:
+        return
+    path.parent.mkdir(parents=True, exist_ok=True)
+    print(f"downloading {name}")
+    urllib.request.urlretrieve(url, path)
+
+
 def fetch(refresh: bool) -> None:
     RAW.mkdir(parents=True, exist_ok=True)
     for name, url in SOURCES.items():
-        path = RAW / name
-        if path.exists() and not refresh:
-            continue
-        print(f"downloading {name}")
-        urllib.request.urlretrieve(url, path)
+        download(name, url, refresh)
 
 
 def read(name):
@@ -89,7 +97,18 @@ def main() -> None:
         division_rank INT, made_playoffs INT, playoff_wins INT,
         playoff_exit TEXT, won_super_bowl INT, lost_super_bowl INT,
         start_record TEXT, longest_win_streak INT, longest_loss_streak INT,
+        head_coach TEXT, qb TEXT, one_score_record TEXT, one_score_wins INT, one_score_losses INT,
+        division_record TEXT, home_record TEXT, away_record TEXT,
+        biggest_win TEXT, biggest_win_margin INT, worst_loss TEXT, worst_loss_margin INT,
         PRIMARY KEY (season, team));
+    DROP TABLE IF EXISTS player_seasons;
+    CREATE TABLE player_seasons (
+        season INT, player_id TEXT, name TEXT, position TEXT, team TEXT, franchise TEXT, team_name TEXT,
+        games INT, completions INT, attempts INT, passing_yards INT, passing_tds INT, interceptions INT,
+        carries INT, rushing_yards INT, rushing_tds INT,
+        targets INT, receptions INT, receiving_yards INT, receiving_tds INT,
+        passing_yards_rank INT, passing_tds_rank INT, rushing_yards_rank INT, receiving_yards_rank INT,
+        PRIMARY KEY (season, player_id));
     """)
 
     for code in sorted({FRANCHISE.get(t, t) for t in meta}):
@@ -112,12 +131,35 @@ def main() -> None:
         for team, pf, pa in ((g["home_team"], hs, as_), (g["away_team"], as_, hs)):
             s = stats.setdefault((season, team), {
                 "w": 0, "l": 0, "t": 0, "pf": 0, "pa": 0, "results": [],
-                "po_wins": 0, "po_last": None, "po_last_won": False})
+                "po_wins": 0, "po_last": None, "po_last_won": False,
+                "coaches": defaultdict(int), "qbs": defaultdict(int),
+                "one": [0, 0], "div": [0, 0, 0], "home": [0, 0, 0], "away": [0, 0, 0],
+                "best": None, "worst": None})
             res = "W" if pf > pa else "L" if pf < pa else "T"
+            is_home = team == g["home_team"]
+            opp = g["away_team"] if is_home else g["home_team"]
             if g["game_type"] == "REG":
                 s["w"] += res == "W"; s["l"] += res == "L"; s["t"] += res == "T"
                 s["pf"] += pf; s["pa"] += pa
                 s["results"].append((int(g["week"]), res))
+                idx = "WLT".index(res)
+                s["home" if is_home else "away"][idx] += 1
+                if g["div_game"] == "1":
+                    s["div"][idx] += 1
+                if res != "T" and abs(pf - pa) <= 8:
+                    s["one"][idx] += 1
+                coach = g["home_coach"] if is_home else g["away_coach"]
+                qb = g["home_qb_name"] if is_home else g["away_qb_name"]
+                if coach:
+                    s["coaches"][coach] += 1
+                if qb:
+                    s["qbs"][qb] += 1
+                margin = pf - pa
+                game = (margin, int(g["week"]), opp, pf, pa)
+                if res == "W" and (s["best"] is None or margin > s["best"][0]):
+                    s["best"] = game
+                if res == "L" and (s["worst"] is None or margin < s["worst"][0]):
+                    s["worst"] = game
             else:
                 s["po_wins"] += res == "W"
                 if s["po_last"] is None or ROUND_ORDER[g["game_type"]] >= ROUND_ORDER[s["po_last"]]:
@@ -125,6 +167,13 @@ def main() -> None:
 
     def rec(w, l, t):
         return f"{w}-{l}" + (f"-{t}" if t else "")
+
+    def game_text(game, season):
+        if not game:
+            return None
+        margin, week, opp, pf, pa = game
+        hi, lo = max(pf, pa), min(pf, pa)
+        return f"{hi}-{lo} vs the {full_name(season, opp)} in Week {week}"
 
     def streak(results, kind):
         best = cur_ = 0
@@ -158,6 +207,13 @@ def main() -> None:
             lost_super_bowl=int(s["po_last"] == "SB" and not s["po_last_won"]),
             start_record=rec(first8.count("W"), first8.count("L"), first8.count("T")),
             longest_win_streak=streak(results, "W"), longest_loss_streak=streak(results, "L"),
+            head_coach=max(s["coaches"], key=s["coaches"].get) if s["coaches"] else None,
+            qb=max(s["qbs"], key=s["qbs"].get) if s["qbs"] else None,
+            one_score_record=rec(*s["one"], 0), one_score_wins=s["one"][0], one_score_losses=s["one"][1],
+            division_record=rec(*s["div"]) if sum(s["div"]) else None,
+            home_record=rec(*s["home"]), away_record=rec(*s["away"]),
+            biggest_win=game_text(s["best"], season), biggest_win_margin=s["best"][0] if s["best"] else None,
+            worst_loss=game_text(s["worst"], season), worst_loss_margin=-s["worst"][0] if s["worst"] else None,
         ))
 
     # Ranks within each season (1 = best; ties share a rank).
@@ -187,6 +243,38 @@ def main() -> None:
     cols = [c[1] for c in cur.execute("PRAGMA table_info(team_seasons)")]
     cur.executemany(f"INSERT INTO team_seasons VALUES ({','.join('?' * len(cols))})",
                     [[r[c] for c in cols] for r in rows])
+    # ---- Players -----------------------------------------------------------
+    pcols = [c[1] for c in cur.execute("PRAGMA table_info(player_seasons)")]
+    nplayers = 0
+    for season in complete:
+        name = f"players/stats_player_reg_{season}.csv"
+        download(name, PLAYER_URL.format(season=season), "--refresh" in sys.argv)
+        prow = []
+        for r in read(name):
+            if r["season_type"] != "REG" or r["position"] not in ("QB", "RB", "WR", "TE", "FB"):
+                continue
+            team = r["recent_team"]
+            if (season, team) not in stats:
+                continue
+            num = lambda k: int(float(r.get(k) or 0))
+            prow.append(dict(
+                season=season, player_id=r["player_id"], name=r["player_display_name"],
+                position=r["position"], team=team, franchise=FRANCHISE.get(team, team),
+                team_name=full_name(season, team), games=num("games"),
+                completions=num("completions"), attempts=num("attempts"),
+                passing_yards=num("passing_yards"), passing_tds=num("passing_tds"),
+                interceptions=num("passing_interceptions") or num("interceptions"),
+                carries=num("carries"), rushing_yards=num("rushing_yards"), rushing_tds=num("rushing_tds"),
+                targets=num("targets"), receptions=num("receptions"),
+                receiving_yards=num("receiving_yards"), receiving_tds=num("receiving_tds"),
+            ))
+        for stat in ("passing_yards", "passing_tds", "rushing_yards", "receiving_yards"):
+            rank(prow, stat, True, f"{stat}_rank")
+        cur.executemany(f"INSERT INTO player_seasons VALUES ({','.join('?' * len(pcols))})",
+                        [[r[c] for c in pcols] for r in prow])
+        nplayers += len(prow)
+    print(f"{nplayers} player-seasons")
+
     con.commit()
     con.execute("VACUUM")
     con.close()
