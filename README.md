@@ -1,31 +1,31 @@
 # Fourth & Daily
 
-A daily football trivia game played as one drive. **2:00 left in the 4th, down 21–17, ball on your own 25.** Every question is a play: better answers gain more yards. You have 4 downs to gain 10 yards and a 25-second play clock (running it out is delay of game, −5). The game clock runs while you think. On 4th down you go for it or kick a field goal if you're in range. A touchdown wins it, then you choose a 1-point kick (an easier question) or a 2-point try (a harder one).
+A daily football trivia game played as one drive. **2:00 left in the 4th, down 21–17, ball on your own 25.** You call every play, and the call decides the kind of question:
 
-| Play call | Question | Right answer | Wrong |
-|---|---|---|---|
-| Quick pass | **Head to head**: better record, or bigger stat (always close) | 7 yds | incomplete |
-| Slant route | **Odd one out**: which team missed (or made) the playoffs | 12 yds | incomplete |
-| Deep shot | **Guess the number**: a team's wins, a player's yards/TDs/catches, a career total or a franchise record | up to 22 yds (partial credit) | sack −5 |
-| Run up the middle | **Rank four**: order a division, 4 teams or 4 players | up to 15 yds | stuffed −2 |
-| Flea flicker | **Who am I?**: name the player from a stat line (2 tries) | 30 yds (12 on the 2nd try) | sack −7 |
+| Call | Question | Yards |
+|---|---|---|
+| **Run** | Guess a number (a team's wins, a player's season or career stat, a franchise record) | Closer = more, up to 12. Way off: −3 |
+| **Pass** | Name one of several right answers ("Name a QB who started for the Browns since 1999") | 4–18. **Rarer answers gain more**. Wrong: incomplete |
+| **Deep shot** | Name one of a few, or the only one ("Who led the NFL in rushing in 2004?", "Whose career is this?") | 12–30 for rarer picks. Miss: sack −6 |
 
-About half the plays are **all-time** questions instead of single-season ones: career totals (passing, rushing, receiving), franchise records (wins, playoff trips and wins, winning seasons, Super Bowl titles), and "whose career is this?". The stats data starts in 1999, so these are always worded "since 1999" (a player whose career began earlier only counts from 1999 on, and the fact says so). There are no questions about a team's points scored in a season.
+Answers are typed with autocomplete over every player and team (1999–2025), so the list doesn't give anything away. **Rarity is Krillion-style:** each right answer starts with a built-in estimate of how obvious it is (career fame, starts, team success), and real answers take over as people play. The more players who named the same answer before you, the fewer yards it's worth. After each play you see every right answer and how often players named it.
 
-Answering a gain within 6 seconds adds 2 hurry-up yards. Every snap uses 3 seconds of clock, and a play with the ball in play uses 6 more. Incompletions stop the clock. Field goals need any credit from 35 yards or less, at least half credit from 36–45 and a perfect answer from 46–55. Results rank by **points, then yards, then time left**.
+You have 4 downs to gain 10 yards and a 25-second play clock (running it out is delay of game, −5). The game clock runs while you think. Answering a gain within 8 seconds adds 2 hurry-up yards. On 4th down you can go for it or kick a field goal, which uses a run question: any credit from 35 yards or less, half credit from 36–45, 80% from 46–55. A touchdown wins it, then you choose a 1-point kick or a 2-point try (quick multiple choice). Results rank by **points, then yards, then time left**. About 40% of questions are about careers, franchises or decades rather than a single season. All-time questions say "since 1999", because the stats data starts there.
 
-Players also get a pixel-art broadcast field that animates every play, a shareable drive chart (🟩🟨⬜🟥🏈✅) with a link preview, streaks and stats, "how everyone else did" after every play, a calendar of past drives, optional accounts with daily and all-time leaderboards, friends leagues, and an installable home-screen app.
+Players also get a pixel-art broadcast field that animates every play, a shareable drive chart (🟩🟨⬜🟥🏈✅) with a link preview, streaks and stats, "how everyone else did", a calendar of past drives, optional accounts with daily and all-time leaderboards, friends leagues, and an installable home-screen app.
 
 ## How it works
 
 ```
 scripts/build_db.py         downloads nflverse data -> data/nfl.sqlite
-scripts/generate_puzzles.py data/nfl.sqlite + data/facts.json -> puzzles/YYYY-MM-DD.json (24 plays + 2 point-after questions a day)
+scripts/generate_puzzles.py data/nfl.sqlite + data/facts.json -> puzzles/YYYY-MM-DD.json (a playbook: 10 runs, 8 passes, 6 deep shots + 2 point-after questions a day) and site/names.json (autocomplete)
+scripts/playbook.py         the open-ended "name one" question types
 puzzles/                    full puzzles with answers (private; never served directly)
 api/                        Vercel serverless functions
 lib/                        shared server code (grading, accounts, leaderboards)
 site/                       static website (index.html, style.css, app.js)
-site/drive.js               the rules of a drive (downs, yards, clock, scoring), shared by browser and server
+site/drive.js               the rules of a drive (play calls, yards from closeness and rarity, downs, clock, scoring), shared by browser and server
+lib/plays.js                grading a play, including answer rarity from the answer_counts table
 site/fieldview.js           the animated broadcast field
 site/pixel.js               pixel-art stadium renderer (shared by the site background and share images)
 ```
@@ -54,6 +54,7 @@ This is the trivia data used to generate puzzles (separate from the Postgres dat
 - `games`: every game since 1999 (regular season and playoffs), with scores.
 - `team_seasons`: one row per team per completed season, with record, points for/against, league ranks, division rank, playoff result, head coach, main starting QB, record in one-score games, division record, home/away record, biggest win, worst loss, start record and streaks.
 - `player_seasons`: regular-season stats for QBs, RBs, WRs and TEs, with league ranks.
+- `qb_starts`: every quarterback who started a game, by team and season (for "name a QB who started for…").
 - `franchises`: the current 32 franchises, with colors.
 
 `data/facts.json` holds hand-written facts for about 60 famous team-seasons (the 2007 Patriots, 2008 Lions, 28-3, …), each checked against the game data. Other facts are generated from the data above.

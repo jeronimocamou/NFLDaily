@@ -25,17 +25,19 @@ import random
 import sqlite3
 from pathlib import Path
 
+from playbook import NameOneMixin
+
 ROOT = Path(__file__).resolve().parent.parent
 DB = ROOT / "data" / "nfl.sqlite"
 FACTS = ROOT / "data" / "facts.json"
 OUT = ROOT / "puzzles"
 LAUNCH = dt.date(2026, 11, 1)  # Puzzle #1
 
-PLAYS = 24  # questions available per drive (the clock usually ends it well before)
-# How often each play call shows up in a drive.
-PLAY_MIX = {"head_to_head": 6, "odd_one_out": 4, "guess_number": 6, "rank_four": 4, "who_am_i": 3}
-CALLS = {"head_to_head": "Quick pass", "odd_one_out": "Slant route", "guess_number": "Deep shot",
-         "rank_four": "Run up the middle", "who_am_i": "Flea flicker"}
+# The daily playbook: how many plays of each call a drive can use.
+#   run  - closest-number questions (steady yards; closer = more)
+#   pass - name-one questions with many right answers (rarer = more yards)
+#   deep - name-one questions with few right answers or one (big gains; a miss is a sack)
+PLAYBOOK = {"run": 10, "pass": 8, "deep": 6}
 
 POS_LABEL = {"QB": "quarterback", "RB": "running back", "WR": "wide receiver", "TE": "tight end"}
 
@@ -62,19 +64,27 @@ GUESS = {
 
 # ---- All-time questions (the data starts in 1999, so these say "since 1999") ----
 REUSE_DAYS = 365  # a question can come back after a year
+ALL_TIME_REUSE_DAYS = 180  # all-time pools are smaller, so they come back sooner
+ALL_TIME_KEYS = {"ath", "ato", "atg", "atr", "atw", "dwc", "dfe", "n1c", "n1k", "n1q", "n1f"}
 ALL_TIME = 0.6  # share of plays that ask about careers or franchises instead of one season
 ERA = "Since 1999"
 CAREER_STATS = {
-    "passing_yards": dict(label="passing yards", unit="yds", pos=("QB",), min=25000, odd=50000, gap=2500,
+    "passing_yards": dict(label="passing yards", unit="yds", pos=("QB",), min=15000, odd=50000, gap=2500,
                           guess=dict(min=10000, max=95000, step=100, bump=1000, scoring={"type": "linear", "exact": 1000, "zero_at": 12000})),
-    "passing_tds": dict(label="touchdown passes", unit="TD", pos=("QB",), min=150, odd=300, gap=15,
+    "passing_tds": dict(label="touchdown passes", unit="TD", pos=("QB",), min=100, odd=300, gap=15,
                         guess=dict(min=50, max=700, step=1, bump=5, scoring={"type": "linear", "exact": 8, "zero_at": 100})),
-    "rushing_yards": dict(label="rushing yards", unit="yds", pos=("RB",), min=6000, odd=10000, gap=500,
+    "rushing_yards": dict(label="rushing yards", unit="yds", pos=("RB",), min=4000, odd=10000, gap=500,
                           guess=dict(min=2000, max=18000, step=50, bump=250, scoring={"type": "linear", "exact": 300, "zero_at": 3500})),
-    "receiving_yards": dict(label="receiving yards", unit="yds", pos=("WR", "TE"), min=7000, odd=12000, gap=500,
+    "receiving_yards": dict(label="receiving yards", unit="yds", pos=("WR", "TE"), min=5000, odd=12000, gap=500,
                             guess=dict(min=3000, max=19000, step=50, bump=250, scoring={"type": "linear", "exact": 300, "zero_at": 3500})),
-    "receptions": dict(label="receptions", unit="catches", pos=("WR", "TE"), min=550, odd=1000, gap=40,
-                       guess=dict(min=300, max=1700, step=5, bump=20, scoring={"type": "linear", "exact": 25, "zero_at": 300})),
+    "receptions": dict(label="receptions", unit="catches", pos=("WR", "TE"), min=400, odd=1000, gap=40,
+                       guess=dict(min=200, max=1700, step=5, bump=20, scoring={"type": "linear", "exact": 25, "zero_at": 300})),
+    "rushing_tds": dict(label="rushing touchdowns", unit="TD", pos=("RB",), min=40, odd=100, gap=8,
+                        guess=dict(min=10, max=180, step=1, bump=2, scoring={"type": "linear", "exact": 3, "zero_at": 40})),
+    "receiving_tds": dict(label="receiving touchdowns", unit="TD", pos=("WR", "TE"), min=40, odd=100, gap=8,
+                          guess=dict(min=10, max=180, step=1, bump=2, scoring={"type": "linear", "exact": 3, "zero_at": 40})),
+    "interceptions": dict(label="interceptions thrown", unit="INT", pos=("QB",), min=60, odd=200, gap=10,
+                          guess=dict(min=20, max=300, step=1, bump=2, scoring={"type": "linear", "exact": 4, "zero_at": 50})),
 }
 FRANCHISE_STATS = {
     "wins": dict(label="regular-season wins", gap=8, close=(1, 15),
@@ -85,6 +95,12 @@ FRANCHISE_STATS = {
                          guess=dict(min=0, max=45, step=1, bump=1, scoring={"type": "steps", "steps": [100, 60, 30, 10]})),
     "winning_seasons": dict(label="winning seasons", gap=1, close=(1, 2),
                             guess=dict(min=0, max=27, step=1, bump=1, scoring={"type": "steps", "steps": [100, 60, 30, 10]})),
+    "losing_seasons": dict(label="losing seasons", gap=1, close=(1, 2),
+                           guess=dict(min=0, max=27, step=1, bump=1, scoring={"type": "steps", "steps": [100, 60, 30, 10]})),
+    "ten_win_seasons": dict(label="10-win seasons", gap=1, close=(1, 2),
+                            guess=dict(min=0, max=27, step=1, bump=1, scoring={"type": "steps", "steps": [100, 60, 30, 10]})),
+    "qb_count": dict(label="different starting quarterbacks", gap=2, close=(1, 4),
+                     guess=dict(min=3, max=50, step=1, bump=1, scoring={"type": "linear", "exact": 1, "zero_at": 8})),
 }
 
 
@@ -114,6 +130,11 @@ class Data:
         names = {r["franchise"]: r["name"] for r in con.execute("SELECT franchise, name FROM franchises")}
         self.careers = self._careers()
         self.franchises = self._franchises(names, colors)
+        self.career_by_id = {c["player_id"]: c for c in self.careers}
+        self.franchise_by_code = {f["franchise"]: f for f in self.franchises}
+        self.qb_starts = [dict(r) for r in con.execute("SELECT * FROM qb_starts")]
+        for f in self.franchises:
+            f["qb_count"] = len({r["player_id"] for r in self.qb_starts if r["franchise"] == f["franchise"]})
 
     def _careers(self):
         by = {}
@@ -151,8 +172,12 @@ class Data:
             f["playoff_apps"] += r["made_playoffs"]; f["playoff_wins"] += r["playoff_wins"]
             f["sb_wins"] += r["won_super_bowl"]; f["sb_apps"] += r["won_super_bowl"] + r["lost_super_bowl"]
             f["winning_seasons"] += r["wins"] > r["losses"]
+            f["losing_seasons"] = f.get("losing_seasons", 0) + (r["wins"] < r["losses"])
+            f["ten_win_seasons"] = f.get("ten_win_seasons", 0) + (r["wins"] >= 10)
             if r["name"].split()[-1] == f["name"].split()[-1] and r["name"] != f["name"]:
                 f["old_names"].add(r["name"])
+            if r["name"] != f["name"]:
+                f.setdefault("aliases", set()).add(r["name"])
         return list(out.values())
 
     def career_pool(self, stat):
@@ -302,7 +327,7 @@ def player_fact(d, p, stat=None):
 
 # ---- Generator ------------------------------------------------------------------
 
-class Generator:
+class Generator(NameOneMixin):
     def __init__(self, data):
         self.d = data
         self.used = {}  # question key -> date it was used
@@ -316,10 +341,28 @@ class Generator:
         self.today.add(subject)
         return True
 
-    def fresh(self, key):
-        """True (and marks it used) if this question hasn't been asked in the last REUSE_DAYS days."""
+    # Helpers the name-one playbook uses.
+    def player_fact(self, p):
+        return player_fact(self.d, p)
+
+    def player_line(self, p):
+        return player_line(p)
+
+    def career_fact(self, c):
+        return career_fact(self.d, c)
+
+    def career_line(self, c):
+        return career_line(c)
+
+    def fresh(self, key, reuse=None):
+        """True (and marks it used) if this question hasn't been asked in the last `reuse` days."""
         last = self.used.get(key)
-        if last is not None and (self.date - last).days < REUSE_DAYS:
+        window = reuse or REUSE_DAYS
+        if key and key[0] in ALL_TIME_KEYS:
+            window = min(window, ALL_TIME_REUSE_DAYS)
+        if getattr(self, "relax", False):
+            window = min(window, 30)
+        if last is not None and (self.date - last).days < window:
             return False
         self.used[key] = self.date
         return True
@@ -699,7 +742,7 @@ class Generator:
                     continue
                 self.day_fresh("p", c["player_id"])
                 verb = {"passing_yards": "throw for", "passing_tds": "throw", "rushing_yards": "run for",
-                        "receiving_yards": "have", "receptions": "have"}[stat]
+                        "rushing_tds": "score", "interceptions": "throw"}.get(stat, "have")
                 return {"type": "guess_number", "metric": f"career_{stat}", "season": ERA,
                         "prompt": f"How many regular-season {cfg['label']} did {c['name']} {verb} from {d.first} through {d.last}?",
                         "hint": f"{POS_LABEL.get(c['position'], c['position']).capitalize()}, {c['n_seasons']} seasons ({c['start']}–{c['end']}).",
@@ -716,7 +759,7 @@ class Generator:
             self.day_fresh("f", f["franchise"])
             n = len(d.seasons)
             games = f["wins"] + f["losses"] + f["ties"]
-            hi = n if stat in ("playoff_apps", "winning_seasons") else g["max"]
+            hi = n if stat in ("playoff_apps", "winning_seasons", "losing_seasons", "ten_win_seasons") else g["max"]
             return {"type": "guess_number", "metric": f"franchise_{stat}", "season": ERA,
                     "prompt": f"How many {cfg['label']} have the {f['name']} had from {d.first} through {d.last}?",
                     "hint": f"That's {n} seasons and {games} regular-season games.",
@@ -738,7 +781,7 @@ class Generator:
                 key = lambda c: c[stat]
                 ident = lambda c: c["player_id"]
                 opt, fact, unit = career_opt, career_fact, cfg["unit"]
-                who = {"passing_yards": "quarterbacks", "passing_tds": "quarterbacks", "rushing_yards": "running backs"}.get(stat, "receivers")
+                who = "quarterbacks" if CAREER_STATS[stat]["pos"] == ("QB",) else "running backs" if CAREER_STATS[stat]["pos"] == ("RB",) else "receivers"
                 prompt = f"Rank these {who} by career {cfg['label']} since {d.first}, most first."
             else:
                 stat = rng.choice(list(FRANCHISE_STATS))
@@ -791,36 +834,44 @@ class Generator:
 
     # A day ------------------------------------------------------------------
     def day(self, date):
-        """A drive: a fixed list of plays (everyone gets the same plays in the same
-        order; how many you use depends on how the drive goes) plus the two
-        point-after questions."""
+        """One drive's playbook: run, pass and deep-shot questions (players pick the
+        call each down and get the next question of that kind), plus the two
+        point-after questions. Everyone gets the same questions in the same order."""
         rng = random.Random(f"nfldaily-{date.isoformat()}")
         self.today = set()
         self.date = date
-        kinds = rng.choices(list(PLAY_MIX), weights=list(PLAY_MIX.values()), k=PLAYS)
-        seasons = rng.sample(self.d.seasons, min(PLAYS, len(self.d.seasons)))
-        seasons += rng.choices(self.d.seasons, k=PLAYS - len(seasons))
-        make = {
-            "head_to_head": self.head_to_head,
-            "odd_one_out": self.odd_one_out,
-            "guess_number": self.guess_number,
-            "rank_four": self.rank_four,
-            "who_am_i": self.who_am_i,
-        }
-        rounds = []
-        for kind, season in zip(kinds, seasons):
-            r = None
-            for k in [kind] + [k for k in make if k != kind]:
-                try:
-                    r = make[k](rng, season)
-                    break
-                except RuntimeError:
-                    continue
-            if r is None:
-                raise RuntimeError(f"no question left for {season}")
-            r["role"] = "play"
-            r["call"] = CALLS[r["type"]]
-            rounds.append(r)
+        makers = {"run": self.guess_number, "pass": self.pass_play, "deep": self.deep_play}
+        rounds, layout = [], {}
+        for call, count in PLAYBOOK.items():
+            layout[call] = [len(rounds), count]
+            seasons = rng.sample(self.d.seasons, min(count, len(self.d.seasons)))
+            for season in seasons:
+                r = None
+                for attempt in range(8):
+                    try:
+                        r = makers[call](rng, season if attempt == 0 else rng.choice(self.d.seasons))
+                    except RuntimeError:
+                        r = None
+                    if r:
+                        break
+                if r is None:
+                    # Running low on fresh questions: let older ones come back sooner.
+                    self.relax = True
+                    try:
+                        for _ in range(8):
+                            try:
+                                r = makers[call](rng, rng.choice(self.d.seasons))
+                            except RuntimeError:
+                                r = None
+                            if r:
+                                break
+                    finally:
+                        self.relax = False
+                if r is None:
+                    raise RuntimeError(f"no {call} question left")
+                r["role"] = call
+                rounds.append(r)
+
         def first_of(makers):
             for _ in range(20):
                 season = rng.choice(self.d.seasons)
@@ -833,13 +884,17 @@ class Generator:
                         return r
             raise RuntimeError("no point-after question left")
 
-        # Single-answer questions only, so the try is one guess.
+        # Single-answer multiple choice: the try is one quick guess.
         pat1 = first_of([self.h2h_teams, self.h2h_players, self.odd_one_out])
-        pat1.update(role="pat1", call="Extra point")
+        pat1.update(role="pat1")
+        layout["pat1"] = len(rounds)
+        rounds.append(pat1)
         pat2 = first_of([self.odd_one_out, self.h2h_players, self.h2h_teams])
-        pat2.update(role="pat2", call="Two-point try")
-        rounds += [pat1, pat2]
-        return {"date": date.isoformat(), "number": (date - LAUNCH).days + 1, "format": "drive", "rounds": rounds}
+        pat2.update(role="pat2")
+        layout["pat2"] = len(rounds)
+        rounds.append(pat2)
+        return {"date": date.isoformat(), "number": (date - LAUNCH).days + 1, "format": "playbook",
+                "layout": layout, "rounds": rounds}
 
 
 STATE = OUT / "state.json"  # every question key used so far, so new days never repeat old ones
@@ -887,8 +942,8 @@ def main():
             if dt.date.fromisoformat(old.stem) >= start:
                 old.unlink()
         last = start - dt.timedelta(days=1)
-        # Keep every question ever used off-limits, including the replaced days'.
-        gen.used = load_state()
+        # Forget questions that were only used on the days being replaced.
+        gen.used = {k: d for k, d in load_state().items() if d < start}
     else:
         last = existing[-1]
         if STATE.exists():
@@ -912,6 +967,10 @@ def main():
         {"launch": LAUNCH.isoformat(), "last": last.isoformat()}, indent=1) + "\n", encoding="utf-8")
     STATE.write_text(json.dumps({"used": sorted([d.isoformat(), *k] for k, d in gen.used.items())},
                                 separators=(",", ":")) + "\n")
+    names = gen.names_index()
+    for t in names["teams"]:
+        t[2] = sorted(set(t[2]) | gen.d.franchise_by_code[t[0]].get("aliases", set()))
+    (ROOT / "site" / "names.json").write_text(json.dumps(names, separators=(",", ":"), ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"added {added} puzzles; puzzles now run {LAUNCH} .. {last}")
 
 

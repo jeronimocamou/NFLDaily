@@ -18,7 +18,7 @@ export default handler(["GET", "POST"], async (req, res) => {
   const pool = await db();
   if (req.method === "POST") {
     if (await currentUser(pool, req)) return send(res, 200, { recorded: false }); // signed-in drives record themselves
-    const sum = replayDrive(date, req.body.log);
+    const sum = await replayDrive(pool, date, req.body.log);
     if (!sum) return send(res, 400, { error: "That drive doesn't add up." });
     await recordDay(pool, date, driveRank(sum));
     return send(res, 200, { recorded: true, rank: driveRank(sum) });
