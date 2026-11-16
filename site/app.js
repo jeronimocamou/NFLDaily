@@ -1,6 +1,6 @@
 import { startStadium } from "./stadium.js";
 
-// NFL Daily client. Puzzles come from /api/puzzle without answers; every
+// Fourth & Daily client. Puzzles come from /api/puzzle without answers; every
 // guess is graded by /api/answer. Signed-in players' progress lives on the
 // server; anonymous progress lives in localStorage.
 
@@ -105,6 +105,7 @@ let puzzle = null;
 let rounds = []; // per-round state: { done, score, attempts, guesses, hint, reveal }
 let current = 0;
 let busy = false;
+let crowd = null; // how everyone else did: { rounds, players, avg, beat }
 
 const signedIn = () => Boolean(account.user);
 
@@ -160,14 +161,42 @@ function roundShell(round, i, ...body) {
   );
 }
 
-function resultBox(score, line, fact) {
+function crowdLine(i) {
+  const c = crowd?.rounds?.[i];
+  if (!c) return null;
+  const type = puzzle.rounds[i].type;
+  const players = `${c.plays.toLocaleString()} player${c.plays === 1 ? "" : "s"}`;
+  let text;
+  if (c.plays === 1) text = "You're the first to answer this one!";
+  else if (type === "guess_number" || type === "rank_four") text = `Players averaged ${c.avg} pts · ${c.perfectPct}% got full points (${players})`;
+  else if (type === "who_am_i") text = `${c.perfectPct}% got it on the first try (${players})`;
+  else text = `${c.perfectPct}% of players got this right (${players})`;
+  return h("p", { class: "crowd" }, "👥 ", text);
+}
+
+function resultBox(score, line, fact, i) {
   return h(
     "div",
     { class: "result", style: { "--tier": `var(--${tier(score)})` } },
     h("div", { class: "pts" }, `${EMOJI[tier(score)]} +${score} points`),
     line ? h("p", {}, line) : null,
+    i != null ? crowdLine(i) : null,
     h("p", { class: "fact" }, fact),
   );
+}
+
+async function refreshCrowd() {
+  if (!account.enabled || !puzzle) return;
+  const scoreParam = isComplete(rounds) ? `&score=${total(rounds)}` : "";
+  try {
+    const data = await api(`stats?date=${date}${scoreParam}`);
+    if (data.enabled) {
+      crowd = data;
+      render();
+    }
+  } catch {
+    /* stats are a nice-to-have */
+  }
 }
 
 function nextButton(i) {
@@ -189,12 +218,17 @@ async function answer(i, guess) {
   busy = true;
   const prev = rounds[i] || { attempts: 0, guesses: [] };
   try {
-    const view = await api("answer", { date, round: i, guess, attempt: prev.attempts + 1 });
+    // When this answer finishes an anonymous game, send the other rounds'
+    // guesses so the server can add the final score to today's results.
+    const othersDone = rounds.every((r, k) => k === i || r?.done);
+    const history = !signedIn() && othersDone ? rounds.map((r, k) => (k === i ? [] : r.guesses)) : undefined;
+    const view = await api("answer", { date, round: i, guess, attempt: prev.attempts + 1, history });
     // Anonymous responses only know about this guess; keep local history.
     if (!signedIn()) view.guesses = [...(prev.guesses || []), guess];
     rounds[i] = view;
     persistLocal();
     if (isComplete(rounds) && signedIn()) refreshAccount();
+    if (view.done) refreshCrowd();
   } catch (e) {
     rounds[i] = { ...prev, error: e.message };
   } finally {
@@ -219,7 +253,7 @@ function renderChoice(round, i) {
   if (st?.error) body.push(errorLine(st.error));
   if (done) {
     const ok = pick === rv.answer;
-    body.push(resultBox(st.score, ok ? "Correct!" : `The answer was ${round.options[rv.answer].name}.`, rv.fact), nextButton(i));
+    body.push(resultBox(st.score, ok ? "Correct!" : `The answer was ${round.options[rv.answer].name}.`, rv.fact, i), nextButton(i));
   }
   return roundShell(round, i, ...body);
 }
@@ -249,7 +283,7 @@ function renderWho(round, i) {
   if (done) {
     const got = (st.guesses || []).at(-1) === rv.answer;
     const line = got ? (st.attempts === 1 ? "Got it on the first try!" : "Got it on the second try.") : `It was ${round.options[rv.answer].name}.`;
-    body.push(resultBox(st.score, line, rv.fact), nextButton(i));
+    body.push(resultBox(st.score, line, rv.fact, i), nextButton(i));
   }
   return roundShell(round, i, ...body);
 }
@@ -292,7 +326,7 @@ function renderNumber(round, i) {
   if (done) {
     const diff = Math.abs(st.guesses.at(-1) - st.reveal.answer);
     const line = diff === 0 ? `Exactly right: ${st.reveal.answer_label}.` : `Answer: ${st.reveal.answer_label}. You were ${diff.toLocaleString()} off.`;
-    body.push(resultBox(st.score, line, st.reveal.fact), nextButton(i));
+    body.push(resultBox(st.score, line, st.reveal.fact, i), nextButton(i));
   } else {
     body.push(h("button", { type: "button", class: "btn primary", onclick: () => answer(i, value) }, "Lock it in"));
   }
@@ -346,7 +380,7 @@ function renderRank(round, i) {
   if (st?.error) card.append(errorLine(st.error));
   if (done) {
     const n = Math.round(st.score / 25);
-    card.append(resultBox(st.score, `You placed ${n} of 4 correctly.`, st.reveal.fact), nextButton(i));
+    card.append(resultBox(st.score, `You placed ${n} of 4 correctly.`, st.reveal.fact, i), nextButton(i));
   } else {
     card.append(submit);
   }
@@ -359,7 +393,7 @@ function renderSummary() {
   const grid = rounds.map((r) => EMOJI[tier(r.score)]).join("");
   const toast = h("p", { class: "toast", role: "status" });
   const code = `${puzzle.number}-${sum}-${rounds.map((r) => tier(r.score)[0]).join("")}`;
-  const shareText = `NFL Daily #${puzzle.number}: ${sum}/500\n${grid}\n${location.origin}/s/${code}`;
+  const shareText = `Fourth & Daily #${puzzle.number}: ${sum}/500\n${grid}\n${location.origin}/s/${code}`;
 
   const share = async () => {
     if (navigator.share && matchMedia("(pointer: coarse)").matches) {
@@ -390,6 +424,13 @@ function renderSummary() {
   clearInterval(renderSummary.timer);
   renderSummary.timer = setInterval(tick, 1000);
 
+  let crowdText = null;
+  if (crowd?.players > 1 && crowd.beat != null) {
+    crowdText = `You beat ${crowd.beat}% of ${crowd.players.toLocaleString()} players. Average: ${crowd.avg}.`;
+  } else if (crowd?.players === 1) {
+    crowdText = "You're the first to finish this puzzle!";
+  }
+
   const cta = account.enabled && !signedIn()
     ? h("p", { class: "cta" }, "Want to be on the leaderboard? ", h("button", { type: "button", class: "link", onclick: openProfile }, "Create a free account"), " before tomorrow's puzzle.")
     : null;
@@ -401,6 +442,7 @@ function renderSummary() {
     h("p", { class: "big" }, String(sum)),
     h("p", { class: "out-of" }, "out of 500"),
     h("div", { class: "grid", "aria-label": "Result grid" }, grid),
+    crowdText ? h("p", { class: "crowd center" }, "👥 ", crowdText) : null,
     h("button", { type: "button", class: "btn primary", onclick: share }, "Share result"),
     toast,
     cta,
@@ -414,14 +456,16 @@ function renderSummary() {
       ),
     ),
     h("div", { class: "row-btns" },
-      h("button", { type: "button", class: "btn", onclick: openLeaderboard }, "Leaderboard"),
+      h("button", { type: "button", class: "btn", onclick: () => openLeaderboard() }, "Leaderboard"),
       h("button", { type: "button", class: "btn", onclick: openArchive }, "Past puzzles")),
+    installPrompt(),
     date === today ? nextIn : null,
   );
 }
 
 // ---- Flow ---------------------------------------------------------------------------------------
 function render() {
+  if (!puzzle) return;
   renderProgress();
   const stage = $("#stage");
   if (current >= ROUNDS) {
@@ -459,8 +503,10 @@ async function loadPuzzle() {
   current = rounds.findIndex((r) => !r?.done);
   if (current === -1) current = ROUNDS;
   $("#puzzle-meta").textContent = `#${puzzle.number} · ${prettyDate(date)}`;
+  crowd = null;
   renderBanner();
   render();
+  refreshCrowd();
 }
 
 // ---- Stats & account ------------------------------------------------------------------------------
@@ -535,6 +581,7 @@ function authForm() {
       await refreshAccount();
       await loadPuzzle();
       renderProfile();
+      handleJoinLink();
     } catch (ex) {
       err.textContent = ex.message;
     } finally {
@@ -562,7 +609,8 @@ function renderProfile() {
   } else if (account.enabled) {
     parts.push(h("p", { class: "hint center" }, "These stats are saved on this device only."), authForm());
   }
-  $("#profile-body").replaceChildren(...parts);
+  parts.push(installPrompt());
+  $("#profile-body").replaceChildren(...parts.filter(Boolean));
 }
 
 async function openProfile() {
@@ -573,13 +621,27 @@ async function openProfile() {
 }
 
 // ---- Leaderboard ------------------------------------------------------------------------------------
-async function openLeaderboard() {
+let lbScope = null; // league id, or null for everyone
+
+async function openLeaderboard(scope = lbScope) {
+  lbScope = scope;
   const body = $("#leaderboard-body");
   body.replaceChildren(h("p", { class: "hint center" }, "Loading…"));
-  $("#leaderboard").showModal();
+  if (!$("#leaderboard").open) $("#leaderboard").showModal();
+
+  let leagues = [];
+  if (signedIn()) {
+    try {
+      leagues = (await api("leagues")).leagues;
+    } catch {
+      /* leagues are optional */
+    }
+  }
+  if (lbScope && !leagues.some((l) => l.id === lbScope)) lbScope = null;
+
   let data;
   try {
-    data = await api(`leaderboard?date=${date}`);
+    data = await api(`leaderboard?date=${date}${lbScope ? `&league=${lbScope}` : ""}`);
   } catch (e) {
     body.replaceChildren(errorLine(e.message));
     return;
@@ -588,6 +650,13 @@ async function openLeaderboard() {
     body.replaceChildren(h("p", { class: "hint center" }, "Leaderboards aren't switched on yet. Check back soon!"));
     return;
   }
+
+  const scopes = leagues.length
+    ? h("div", { class: "scopes" },
+        [{ id: null, name: "Everyone" }, ...leagues].map((l) =>
+          h("button", { type: "button", "aria-pressed": String(lbScope === l.id), onclick: () => openLeaderboard(l.id) }, l.name)))
+    : null;
+
   let tab = "daily";
   const tabs = h("div", { class: "tabs", role: "tablist" });
   const list = h("div", {});
@@ -603,16 +672,107 @@ async function openLeaderboard() {
       const row = (r) => h("li", { class: r.me ? "me" : "" },
         h("span", { class: "rank" }, String(r.rank)),
         h("span", { class: "who" }, r.username),
-        h("span", { class: "pts" }, tab === "daily" ? String(r.total) : `${r.total.toLocaleString()}`),
+        h("span", { class: "pts" }, r.total.toLocaleString()),
         tab === "allTime" ? h("span", { class: "extra" }, `${r.games} games · avg ${r.avg}`) : null);
       const rows = board.top.map(row);
       if (board.me && !board.top.some((r) => r.me)) rows.push(h("li", { class: "gap" }, "…"), row(board.me));
       list.replaceChildren(h("ol", { class: "board" }, rows), h("p", { class: "hint center" }, `${board.count} player${board.count === 1 ? "" : "s"}`));
     }
-    if (!signedIn()) list.append(h("p", { class: "cta" }, h("button", { type: "button", class: "link", onclick: () => { $("#leaderboard").close(); openProfile(); } }, "Create an account"), " to get on the board."));
   };
   draw();
-  body.replaceChildren(tabs, list);
+  const parts = [scopes, tabs, list];
+  if (signedIn()) parts.push(leaguePanel(leagues));
+  else parts.push(h("p", { class: "cta" }, h("button", { type: "button", class: "link", onclick: () => { $("#leaderboard").close(); openProfile(); } }, "Create an account"), " to get on the board and start a league with friends."));
+  body.replaceChildren(...parts.filter(Boolean));
+}
+
+// ---- Leagues -----------------------------------------------------------------------------------------
+const inviteLink = (code) => `${location.origin}/?join=${code}`;
+
+function leaguePanel(leagues) {
+  const err = h("p", { class: "error", role: "alert" });
+  const status = h("p", { class: "toast", role: "status" });
+  const current = leagues.find((l) => l.id === lbScope);
+
+  const invite = current
+    ? h("div", { class: "invite" },
+        h("p", {}, h("strong", {}, current.name), ` · ${current.members} member${current.members === 1 ? "" : "s"}`),
+        h("p", {}, "Invite code: ", h("code", {}, current.code)),
+        h("div", { class: "row-btns" },
+          h("button", { type: "button", class: "btn", onclick: async () => {
+            const text = `Join my Fourth & Daily league "${current.name}": ${inviteLink(current.code)}`;
+            if (navigator.share && matchMedia("(pointer: coarse)").matches) {
+              try { await navigator.share({ text }); return; } catch (e) { if (e.name === "AbortError") return; }
+            }
+            try { await navigator.clipboard.writeText(text); status.textContent = "Invite link copied!"; }
+            catch { status.textContent = `Share this link: ${inviteLink(current.code)}`; }
+          } }, "Invite friends"),
+          h("button", { type: "button", class: "btn", onclick: async () => {
+            if (!confirm(`Leave "${current.name}"?`)) return;
+            await api("leagues", { action: "leave", id: current.id }).catch(() => {});
+            openLeaderboard(null);
+          } }, "Leave league")),
+        status)
+    : null;
+
+  const nameInput = h("input", { placeholder: "League name", maxlength: 30, minlength: 3, required: true, "aria-label": "League name" });
+  const create = h("form", { class: "inline-form" }, nameInput, h("button", { type: "submit", class: "btn primary" }, "Create"));
+  create.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    err.textContent = "";
+    try {
+      const { league } = await api("leagues", { action: "create", name: nameInput.value });
+      openLeaderboard(league.id);
+    } catch (ex) {
+      err.textContent = ex.message;
+    }
+  });
+
+  const codeInput = h("input", { placeholder: "Invite code", maxlength: 6, required: true, autocapitalize: "characters", "aria-label": "Invite code" });
+  const join = h("form", { class: "inline-form" }, codeInput, h("button", { type: "submit", class: "btn" }, "Join"));
+  join.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    err.textContent = "";
+    try {
+      const { league } = await api("leagues", { action: "join", code: codeInput.value });
+      openLeaderboard(league.id);
+    } catch (ex) {
+      err.textContent = ex.message;
+    }
+  });
+
+  return h("section", { class: "leagues" },
+    invite,
+    h("h3", {}, "Leagues"),
+    h("p", { class: "hint" }, "Compete with friends on a private leaderboard."),
+    create, join, err);
+}
+
+/** Handle ?join=CODE invite links: join now, or after signing in. */
+async function handleJoinLink() {
+  let code = params.get("join");
+  if (code) {
+    history.replaceState(null, "", location.pathname + (date !== today ? `?date=${date}` : ""));
+    try { sessionStorage.setItem("nfldaily:join", code); } catch { /* ignore */ }
+  } else {
+    try { code = sessionStorage.getItem("nfldaily:join"); } catch { code = null; }
+  }
+  if (!code || !account.enabled) return;
+  if (!signedIn()) {
+    let name = "a league";
+    try { name = `"${(await api(`leagues?code=${encodeURIComponent(code)}`)).league.name}"`; } catch { /* unknown code */ }
+    await openProfile();
+    $("#profile-body").prepend(h("p", { class: "banner" }, `Sign in or create an account to join ${name}.`));
+    return;
+  }
+  try { sessionStorage.removeItem("nfldaily:join"); } catch { /* ignore */ }
+  try {
+    const { league } = await api("leagues", { action: "join", code });
+    if ($("#profile").open) $("#profile").close();
+    await openLeaderboard(league.id);
+  } catch (e) {
+    alert(e.message);
+  }
 }
 
 // ---- Archive ----------------------------------------------------------------------------------------
@@ -647,6 +807,56 @@ async function openArchive() {
   body.replaceChildren(h("ul", { class: "archive-list" }, items));
 }
 
+// ---- Add to home screen ---------------------------------------------------------------------------
+let deferredInstall = null; // Chromium's beforeinstallprompt event, if offered
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredInstall = e;
+  render();
+});
+window.addEventListener("appinstalled", () => {
+  deferredInstall = null;
+  render();
+});
+
+const isStandalone = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+/** "Add to home screen" button, or iPhone instructions, or nothing if the browser can't install. */
+function installPrompt() {
+  if (isStandalone()) return null;
+  const status = h("p", { class: "toast", role: "status" });
+  const canInstall = typeof Navigator.prototype.install === "function" || deferredInstall;
+  if (canInstall) {
+    const btn = h("button", { type: "button", class: "btn install" }, "📲 Add to home screen");
+    btn.addEventListener("click", async () => {
+      if (btn.getAttribute("aria-disabled") === "true") return;
+      btn.setAttribute("aria-disabled", "true");
+      try {
+        if (typeof Navigator.prototype.install === "function") {
+          await navigator.install(); // must run inside the click handler
+          status.textContent = "Installed! Find Fourth & Daily on your home screen.";
+        } else {
+          deferredInstall.prompt();
+          const { outcome } = await deferredInstall.userChoice;
+          if (outcome === "accepted") status.textContent = "Installed! Find Fourth & Daily on your home screen.";
+          deferredInstall = null;
+        }
+      } catch (e) {
+        if (e.name !== "AbortError") console.error(e);
+      } finally {
+        btn.removeAttribute("aria-disabled");
+      }
+    });
+    return h("div", {}, btn, status);
+  }
+  if (isIOS()) {
+    return h("p", { class: "install-ios" }, "📲 Play every day from your home screen: tap ",
+      h("strong", {}, "Share"), " then ", h("strong", {}, "Add to Home Screen"), ".");
+  }
+  return null;
+}
+
 // ---- Dialogs ----------------------------------------------------------------------------------------
 // Light-dismiss fallback where <dialog closedby> isn't supported yet.
 if (!("closedBy" in HTMLDialogElement.prototype)) {
@@ -661,10 +871,17 @@ if (!("closedBy" in HTMLDialogElement.prototype)) {
 }
 $("#help-btn").addEventListener("click", () => $("#help").showModal());
 $("#profile-btn").addEventListener("click", openProfile);
-$("#leaderboard-btn").addEventListener("click", openLeaderboard);
+$("#leaderboard-btn").addEventListener("click", () => openLeaderboard());
 $("#archive-btn").addEventListener("click", openArchive);
 
 startStadium($("#stadium"));
+
+// Vercel Web Analytics (page views only, no cookies). Only on the real site;
+// it does nothing until Analytics is enabled in the Vercel project.
+if (!["localhost", "127.0.0.1"].includes(location.hostname)) {
+  window.va = window.va || function (...args) { (window.vaq = window.vaq || []).push(args); };
+  document.head.append(h("script", { src: "/_vercel/insights/script.js", defer: true }));
+}
 
 // ---- Boot ---------------------------------------------------------------------------------------------
 async function boot() {
@@ -678,6 +895,7 @@ async function boot() {
     );
     return;
   }
+  if (params.get("join")) return handleJoinLink();
   try {
     if (!localStorage.getItem("nfldaily:seen-help")) {
       localStorage.setItem("nfldaily:seen-help", "1");

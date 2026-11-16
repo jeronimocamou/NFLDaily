@@ -1,6 +1,6 @@
-# NFL Daily
+# Fourth & Daily
 
-A daily NFL trivia game. Every day has 5 rounds, each from a different season (1999–2025):
+A daily football trivia game. Every day has 5 rounds, each from a different season (1999–2025):
 
 | Round | Type | Scoring |
 |---|---|---|
@@ -10,7 +10,7 @@ A daily NFL trivia game. Every day has 5 rounds, each from a different season (1
 | 4 | **Rank four**: order a division, 4 teams or 4 players | 25 per correct spot |
 | 5 | **Who am I?**: name the player from a stat line. A miss reveals his team for one more try | 100, then 50 |
 
-Max score is 500. Players get a shareable emoji grid (🟩🟨🟧🟥), streaks, stats, a calendar of past puzzles, and optional accounts with daily and all-time leaderboards.
+Max score is 500. Players get a shareable emoji grid (🟩🟨🟧🟥) with a pixel-art link preview, streaks, stats, "how everyone else did" after every round, a calendar of past puzzles, optional accounts with daily and all-time leaderboards, private friends leagues, and an installable home-screen app.
 
 ## How it works
 
@@ -27,7 +27,11 @@ site/pixel.js               pixel-art stadium renderer (shared by the site backg
 - **Answers stay on the server.** `/api/puzzle` sends each round without its answer, and `/api/answer` grades a guess and only then returns the answer and fact. Puzzles for future dates can't be loaded.
 - **Accounts** are a username and password (scrypt-hashed, httpOnly session cookie, lockout after 10 bad passwords). Signed-in players' answers are saved on the server and locked once given, so leaderboard scores are honest. Games played before signing in are imported when you sign up, but only for stats.
 - **Leaderboards** count only games finished on the day by signed-in players. Archive games count toward "played" and average, but not toward streaks or leaderboards.
-- Without a database the game still works: anonymous play, with stats saved in the browser. Accounts and leaderboards show as "not set up yet".
+- **Friends leagues:** any signed-in player can create a league, which gets a 6-character invite code and a link like `/?join=ABC234`. Opening the link signs the player in if needed and then joins. Each league has its own daily and all-time board. When the owner leaves, the longest-standing member takes over, and empty leagues are deleted.
+- **How everyone did:** every finished round, signed in or not, adds to per-round totals, so players see "38% got this right" after each answer and "You beat 71% of 1,204 players" at the end. Anonymous players send their other guesses with their final answer so the server can grade the whole game itself. These counts aren't tamper-proof, which is fine for a fun stat; leaderboards still use only signed-in games.
+- Without a database the game still works: anonymous play, with stats saved in the browser. Accounts, leagues and crowd stats are hidden or show as "not set up yet".
+- **Installable:** `site/manifest.webmanifest` and pixel icons (`node scripts/make-icons.mjs`) let players add the game to their home screen. The results and profile screens offer an install button where the browser supports one, and instructions on iPhone.
+- **Analytics:** the site loads Vercel Web Analytics (page views only, no cookies) on the real domain. It does nothing until Analytics is turned on in the Vercel project.
 
 ### Look and sharing
 
@@ -54,6 +58,8 @@ This is the trivia data used to generate puzzles (separate from the Postgres dat
 
 The tables are created automatically on the first request. Any Postgres works, too: set `DATABASE_URL` yourself.
 
+To see visitor numbers, open the Vercel project's **Analytics** tab and click **Enable**.
+
 ## Commands
 
 Rebuild the trivia data (add `--refresh` to re-download):
@@ -62,11 +68,13 @@ Rebuild the trivia data (add `--refresh` to re-download):
 python3 scripts/build_db.py
 ```
 
-Regenerate puzzles. The defaults are 380 days starting from launch (puzzle #1 = 2026-11-01). Regenerating changes past puzzles, so only do it to extend the range or before launch:
+Add puzzles. This keeps every existing day as it is and appends new days through a year from today (or `--through YYYY-MM-DD`). `puzzles/state.json` remembers every question already used, so nothing repeats:
 
 ```bash
 python3 scripts/generate_puzzles.py
 ```
+
+A GitHub Action (`.github/workflows/puzzles.yml`) does this on the 1st of every month. It refreshes the trivia data (so new seasons show up after each Super Bowl), adds puzzles, runs the tests and commits to `main`, which redeploys the site. You can also run it from the repo's **Actions** tab. `--rebuild` regenerates every day from launch (puzzle #1 = 2026-11-01) and changes past puzzles, so avoid it once players have played.
 
 Install dependencies:
 
@@ -90,6 +98,6 @@ Then open http://localhost:3000. Add `?date=2026-11-05` to play a past day.
 
 ## Notes
 
-- Puzzles are generated in advance and deterministically, and no question repeats within the generated range.
+- Puzzles are generated in advance. Once all of a season's star players have been used, a player can reappear in "Who am I?" or a team as the odd one out, but never with the same answer choices.
 - Anonymous players are graded statelessly, so someone could probe the API for answers. That's why only signed-in, same-day games reach leaderboards.
 - Data comes from [nflverse](https://github.com/nflverse) (CC-BY 4.0).

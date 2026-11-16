@@ -6,7 +6,7 @@ import { extname, join, normalize } from "node:path";
 
 const ROOT = new URL("..", import.meta.url).pathname;
 const PORT = Number(process.argv[2] || process.env.PORT || 3000);
-const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png" };
+const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png", ".webmanifest": "application/manifest+json" };
 
 http.createServer(async (req, res) => {
   const url = new URL(req.url, "http://localhost");
@@ -33,4 +33,4 @@ http.createServer(async (req, res) => {
     res.writeHead(404, { "Content-Type": "text/plain" });
     res.end("Not found");
   }
-}).listen(PORT, () => console.log(`NFL Daily dev server on http://localhost:${PORT}`));
+}).listen(PORT, () => console.log(`Fourth & Daily dev server on http://localhost:${PORT}`));
