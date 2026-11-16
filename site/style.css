@@ -410,3 +410,55 @@ table.yards small { display: block; color: var(--muted); }
 
 .season-chip { white-space: nowrap; flex: none; }
 .round-label { gap: 8px; }
+
+/* ---- Play calls ---- */
+.calls { display: grid; gap: 8px; margin-top: 10px; }
+.call {
+  display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; align-items: center; text-align: left;
+  padding: 12px 14px; border-radius: 12px; cursor: pointer;
+  border: 3px solid var(--edge); background: var(--surface-2); box-shadow: 0 4px 0 rgb(0 0 0 / .25);
+}
+.call:active:not(:disabled) { translate: 0 2px; box-shadow: 0 2px 0 rgb(0 0 0 / .25); }
+.call:disabled { opacity: .45; cursor: not-allowed; }
+.call-name { font-family: var(--pixel); font-size: .78rem; }
+.call-left { grid-row: 1; grid-column: 2; font-size: .75rem; color: var(--muted); font-weight: 700; }
+.call-blurb { grid-column: 1 / -1; font-size: .85rem; color: var(--muted); }
+.call-run { border-left: 8px solid #2fbf5f; }
+.call-pass { border-left: 8px solid #4aa3ff; }
+.call-deep { border-left: 8px solid #ff6b5a; }
+.decide .btn { margin-top: 10px; }
+
+/* ---- Type-ahead answers ---- */
+.answer-box { position: relative; margin-top: 14px; }
+.answer-input {
+  width: 100%; font: inherit; font-size: 1.1rem; padding: 14px; border-radius: 12px;
+  border: 2px solid var(--border); background: var(--surface-2); color: var(--text);
+}
+.answer-input:focus-visible { outline: none; border-color: var(--accent); }
+.suggestions {
+  list-style: none; margin: 4px 0 0; padding: 0; position: absolute; left: 0; right: 0; z-index: 3;
+  background: var(--surface); border: 2px solid var(--border); border-radius: 12px; overflow: hidden;
+  box-shadow: 0 8px 20px rgb(0 0 0 / .2);
+}
+.suggestions:empty { display: none; }
+.suggestions li { display: flex; justify-content: space-between; gap: 8px; padding: 10px 14px; cursor: pointer; }
+.suggestions li.active, .suggestions li:hover { background: var(--surface-2); }
+.suggestions .n { font-weight: 700; }
+.suggestions .s { color: var(--muted); font-size: .85rem; white-space: nowrap; }
+
+/* ---- Right answers and how often players named them ---- */
+.answers { margin-top: 16px; }
+.answers ol { list-style: none; padding: 0; margin: 6px 0 0; }
+.answers li {
+  position: relative; display: grid; grid-template-columns: 1fr auto; gap: 0 8px;
+  padding: 8px 10px; border-top: 1px solid var(--border); overflow: hidden;
+}
+.answers li.yours { background: color-mix(in srgb, var(--good) 16%, transparent); border-radius: 8px; }
+.answers .a-name { font-weight: 700; position: relative; }
+.answers .a-pct { font-weight: 800; font-variant-numeric: tabular-nums; position: relative; }
+.answers .a-note { grid-column: 1; font-size: .82rem; color: var(--muted); position: relative; }
+.answers .a-bar { position: absolute; inset: auto auto 0 0; height: 3px; width: var(--w); background: var(--accent); opacity: .6; }
+.answers summary { cursor: pointer; font-weight: 700; color: var(--accent); padding: 8px 0; }
+
+.card.live { overflow: visible; }
+.playclock { border-radius: 5px 5px 0 0; overflow: hidden; }

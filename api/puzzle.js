@@ -14,7 +14,7 @@ export default handler(["GET"], async (req, res) => {
   // Signed-in players get their questions one play at a time from /api/drive.
   const pub = publicPuzzle(puzzle);
   send(res, 200, {
-    puzzle: user ? { date: pub.date, number: pub.number, plays: pub.rounds.filter((r) => r.role === "play").length } : pub,
+    puzzle: user ? { date: pub.date, number: pub.number, layout: pub.layout } : pub,
     onTime: isOnTime(date),
     user: user ? { username: user.username } : null,
   });

@@ -1,239 +1,272 @@
 {
  "date": "2026-11-20",
  "number": 20,
- "format": "drive",
+ "format": "playbook",
+ "layout": {
+  "run": [
+   0,
+   10
+  ],
+  "pass": [
+   10,
+   8
+  ],
+  "deep": [
+   18,
+   6
+  ],
+  "pat1": 24,
+  "pat2": 25
+ },
  "rounds": [
   {
-   "type": "odd_one_out",
-   "kind": "franchise",
-   "season": "Since 1999",
-   "prompt": "Only one of these franchises has won a Super Bowl since 1999. Which one?",
-   "options": [
-    {
-     "name": "Cleveland Browns",
-     "color": "#FF3C00",
-     "color2": "#311D00"
-    },
-    {
-     "name": "Chicago Bears",
-     "color": "#0B162A",
-     "color2": "#E64100"
-    },
-    {
-     "name": "Kansas City Chiefs",
-     "color": "#E31837",
-     "color2": "#FFB612"
-    },
-    {
-     "name": "Jacksonville Jaguars",
-     "color": "#006778",
-     "color2": "#000000"
-    }
-   ],
-   "reveal": {
-    "answer": 2,
-    "notes": [
-     "0 titles · 0 Super Bowl trips",
-     "0 titles · 1 Super Bowl trip",
-     "3 titles · 5 Super Bowl trips",
-     "0 titles · 0 Super Bowl trips"
-    ],
-    "fact": "From 1999 to 2025, the Kansas City Chiefs went 247-190 with 14 playoff trips, 18 playoff wins and 3 Super Bowl titles."
+   "type": "guess_number",
+   "metric": "rushing_yards",
+   "season": 2008,
+   "prompt": "How many rushing yards did Steve Slaton run for in 2008?",
+   "hint": "He played 16 games that season.",
+   "subject": {
+    "name": "Steve Slaton",
+    "sub": "RB · Houston Texans",
+    "color": "#03202F",
+    "color2": "#A71930"
    },
-   "role": "play",
-   "call": "Slant route"
-  },
-  {
-   "type": "who_am_i",
-   "kind": "career",
-   "season": "Since 1999",
-   "prompt": "Whose career is this? (running back, 1999–2025 regular seasons)",
-   "clues": [
-    "9 seasons",
-    "6,173 rushing yds",
-    "35 rushing TD",
-    "4.3 yds/carry",
-    "68 catches"
-   ],
-   "options": [
-    {
-     "name": "Jonathan Stewart"
-    },
-    {
-     "name": "Alfred Morris"
-    },
-    {
-     "name": "Dalvin Cook"
-    },
-    {
-     "name": "James Conner"
-    }
-   ],
-   "max_attempts": 2,
+   "min": 500,
+   "max": 2200,
+   "start": 1350,
+   "step": 10,
+   "bump": 50,
    "scoring": {
-    "type": "attempts",
-    "points": [
-     100,
-     50
-    ]
+    "type": "linear",
+    "exact": 50,
+    "zero_at": 650
    },
    "reveal": {
-    "answer": 1,
-    "hint": "He played most of his career for the Washington Redskins.",
-    "notes": [
-     "RB · 2008–2018",
-     "RB · 2012–2020",
-     "RB · 2017–2024",
-     "RB · 2017–2025"
-    ],
-    "fact": "From 1999 to 2025, Alfred Morris ran for 6,173 yards and 35 TDs in 9 seasons (2012–2020), mostly with the Washington Redskins."
+    "answer": 1282,
+    "answer_label": "1,282 rushing yards",
+    "fact": "Steve Slaton ran for 1,282 yards and 9 TDs for the 2008 Houston Texans (6th in the NFL in rushing yards). The team went 8-8."
    },
-   "role": "play",
-   "call": "Flea flicker"
-  },
-  {
-   "type": "rank_four",
-   "kind": "team",
-   "season": 2010,
-   "prompt": "Rank these 2010 teams by regular-season record, best first.",
-   "options": [
-    {
-     "name": "New York Giants",
-     "color": "#0B2265",
-     "color2": "#A71930"
-    },
-    {
-     "name": "Buffalo Bills",
-     "color": "#00338D",
-     "color2": "#C60C30"
-    },
-    {
-     "name": "Dallas Cowboys",
-     "color": "#002244",
-     "color2": "#B0B7BC"
-    },
-    {
-     "name": "Chicago Bears",
-     "color": "#0B162A",
-     "color2": "#E64100"
-    }
-   ],
-   "reveal": {
-    "answer": [
-     3,
-     0,
-     2,
-     1
-    ],
-    "notes": [
-     "10-6",
-     "4-12",
-     "6-10",
-     "11-5"
-    ],
-    "fact": "Under Lovie Smith, with Jay Cutler at QB, the 2010 Chicago Bears went 11-5. They lost in the conference championship."
-   },
-   "role": "play",
-   "call": "Run up the middle"
-  },
-  {
-   "type": "head_to_head",
-   "kind": "career",
-   "season": "Since 1999",
-   "prompt": "Since 1999, who has more career passing yards?",
-   "options": [
-    {
-     "name": "Matthew Stafford",
-     "sub": "QB · 2009–2025",
-     "color": "#0076B6",
-     "color2": "#B0B7BC"
-    },
-    {
-     "name": "Peyton Manning",
-     "sub": "QB · 1999–2015",
-     "color": "#002C5F",
-     "color2": "#a5acaf"
-    }
-   ],
-   "reveal": {
-    "answer": 1,
-    "notes": [
-     "64,578 yds",
-     "68,201 yds"
-    ],
-    "fact": "From 1999 to 2025, Peyton Manning threw for 68,201 yards and 513 TDs in 16 seasons (1999–2015), mostly with the Indianapolis Colts. Totals count regular-season games from 1999 on."
-   },
-   "role": "play",
-   "call": "Quick pass"
-  },
-  {
-   "type": "head_to_head",
-   "kind": "franchise",
-   "season": "Since 1999",
-   "prompt": "Since 1999, which franchise has more playoff appearances?",
-   "options": [
-    {
-     "name": "Buffalo Bills",
-     "color": "#00338D",
-     "color2": "#C60C30"
-    },
-    {
-     "name": "Tennessee Titans",
-     "color": "#4495D2",
-     "color2": "#D50A0A"
-    }
-   ],
-   "reveal": {
-    "answer": 1,
-    "notes": [
-     "9 playoff appearances",
-     "10 playoff appearances"
-    ],
-    "fact": "From 1999 to 2025, the Tennessee Titans went 215-222 with 10 playoff trips, 8 playoff wins and no Super Bowl titles."
-   },
-   "role": "play",
-   "call": "Quick pass"
+   "role": "run"
   },
   {
    "type": "guess_number",
-   "metric": "career_receiving_yards",
+   "metric": "career_passing_tds",
    "season": "Since 1999",
-   "prompt": "How many regular-season receiving yards did Tyler Lockett have from 1999 through 2025?",
-   "hint": "Wide receiver, 11 seasons (2015–2025).",
+   "prompt": "How many regular-season touchdown passes did Joe Flacco throw from 1999 through 2025?",
+   "hint": "Quarterback, 18 seasons (2008–2025).",
    "subject": {
-    "name": "Tyler Lockett",
-    "sub": "WR · 2015–2025",
-    "color": "#002244",
-    "color2": "#69be28"
+    "name": "Joe Flacco",
+    "sub": "QB · 2008–2025",
+    "color": "#241773",
+    "color2": "#9E7C0C"
    },
-   "min": 3000,
-   "max": 19000,
-   "start": 11000,
-   "step": 50,
-   "bump": 250,
+   "min": 50,
+   "max": 700,
+   "start": 375,
+   "step": 1,
+   "bump": 5,
    "scoring": {
     "type": "linear",
-    "exact": 300,
-    "zero_at": 3500
+    "exact": 8,
+    "zero_at": 100
    },
    "reveal": {
-    "answer": 8885,
-    "answer_label": "8,885 receiving yards",
-    "fact": "From 1999 to 2025, Tyler Lockett caught 693 passes for 8,885 yards and 62 TDs in 11 seasons (2015–2025), mostly with the Seattle Seahawks."
+    "answer": 272,
+    "answer_label": "272 touchdown passes",
+    "fact": "From 1999 to 2025, Joe Flacco threw for 48,176 yards and 272 TDs in 18 seasons (2008–2025), mostly with the Baltimore Ravens."
    },
-   "role": "play",
-   "call": "Deep shot"
+   "role": "run"
+  },
+  {
+   "type": "guess_number",
+   "metric": "career_rushing_tds",
+   "season": "Since 1999",
+   "prompt": "How many regular-season rushing touchdowns did Dalvin Cook score from 1999 through 2025?",
+   "hint": "Running back, 8 seasons (2017–2024).",
+   "subject": {
+    "name": "Dalvin Cook",
+    "sub": "RB · 2017–2024",
+    "color": "#4F2683",
+    "color2": "#FFC62F"
+   },
+   "min": 10,
+   "max": 180,
+   "start": 95,
+   "step": 1,
+   "bump": 2,
+   "scoring": {
+    "type": "linear",
+    "exact": 3,
+    "zero_at": 40
+   },
+   "reveal": {
+    "answer": 47,
+    "answer_label": "47 rushing touchdowns",
+    "fact": "From 1999 to 2025, Dalvin Cook ran for 6,227 yards and 47 TDs in 8 seasons (2017–2024), mostly with the Minnesota Vikings."
+   },
+   "role": "run"
+  },
+  {
+   "type": "guess_number",
+   "metric": "franchise_losing_seasons",
+   "season": "Since 1999",
+   "prompt": "How many losing seasons have the Minnesota Vikings had from 1999 through 2025?",
+   "hint": "That's 27 seasons and 437 regular-season games.",
+   "subject": {
+    "name": "Minnesota Vikings",
+    "color": "#4F2683",
+    "color2": "#FFC62F"
+   },
+   "min": 0,
+   "max": 27,
+   "start": 13,
+   "step": 1,
+   "bump": 1,
+   "scoring": {
+    "type": "steps",
+    "steps": [
+     100,
+     60,
+     30,
+     10
+    ]
+   },
+   "reveal": {
+    "answer": 10,
+    "answer_label": "10 losing seasons",
+    "fact": "From 1999 to 2025, the Minnesota Vikings went 233-202-2 with 11 playoff trips, 6 playoff wins and no Super Bowl titles."
+   },
+   "role": "run"
+  },
+  {
+   "type": "guess_number",
+   "metric": "franchise_winning_seasons",
+   "season": "Since 1999",
+   "prompt": "How many winning seasons have the Tennessee Titans had from 1999 through 2025?",
+   "hint": "That's 27 seasons and 437 regular-season games.",
+   "subject": {
+    "name": "Tennessee Titans",
+    "color": "#4495D2",
+    "color2": "#D50A0A"
+   },
+   "min": 0,
+   "max": 27,
+   "start": 13,
+   "step": 1,
+   "bump": 1,
+   "scoring": {
+    "type": "steps",
+    "steps": [
+     100,
+     60,
+     30,
+     10
+    ]
+   },
+   "reveal": {
+    "answer": 13,
+    "answer_label": "13 winning seasons",
+    "fact": "From 1999 to 2025, the Tennessee Titans went 215-222 with 10 playoff trips, 8 playoff wins and no Super Bowl titles."
+   },
+   "role": "run"
+  },
+  {
+   "type": "guess_number",
+   "metric": "receptions",
+   "season": 2019,
+   "prompt": "How many receptions did Michael Thomas have in 2019?",
+   "hint": "He played 16 games that season.",
+   "subject": {
+    "name": "Michael Thomas",
+    "sub": "WR · New Orleans Saints",
+    "color": "#D3BC8D",
+    "color2": "#000000"
+   },
+   "min": 40,
+   "max": 150,
+   "start": 95,
+   "step": 1,
+   "bump": 1,
+   "scoring": {
+    "type": "linear",
+    "exact": 3,
+    "zero_at": 35
+   },
+   "reveal": {
+    "answer": 149,
+    "answer_label": "149 receptions",
+    "fact": "Michael Thomas caught 149 passes for 1,725 yards and 9 TDs for the 2019 New Orleans Saints, leading the NFL in receiving yards. The team went 13-3 and lost in the Wild Card round."
+   },
+   "role": "run"
+  },
+  {
+   "type": "guess_number",
+   "metric": "receptions",
+   "season": 2005,
+   "prompt": "How many receptions did Chad Johnson have in 2005?",
+   "hint": "He played 16 games that season.",
+   "subject": {
+    "name": "Chad Johnson",
+    "sub": "WR · Cincinnati Bengals",
+    "color": "#FB4F14",
+    "color2": "#000000"
+   },
+   "min": 40,
+   "max": 150,
+   "start": 95,
+   "step": 1,
+   "bump": 1,
+   "scoring": {
+    "type": "linear",
+    "exact": 3,
+    "zero_at": 35
+   },
+   "reveal": {
+    "answer": 97,
+    "answer_label": "97 receptions",
+    "fact": "Chad Johnson caught 97 passes for 1,432 yards and 9 TDs for the 2005 Cincinnati Bengals (3rd in the NFL in receiving yards). The team went 11-5 and lost in the Wild Card round."
+   },
+   "role": "run"
+  },
+  {
+   "type": "guess_number",
+   "metric": "passing_tds",
+   "season": 2012,
+   "prompt": "How many touchdown passes did Matt Ryan throw in 2012?",
+   "hint": "He played 16 games that season.",
+   "subject": {
+    "name": "Matt Ryan",
+    "sub": "QB · Atlanta Falcons",
+    "color": "#A71930",
+    "color2": "#000000"
+   },
+   "min": 5,
+   "max": 60,
+   "start": 32,
+   "step": 1,
+   "bump": 1,
+   "scoring": {
+    "type": "linear",
+    "exact": 1,
+    "zero_at": 12
+   },
+   "reveal": {
+    "answer": 32,
+    "answer_label": "32 touchdown passes",
+    "fact": "Matt Ryan threw for 4,719 yards and 32 TDs for the 2012 Atlanta Falcons (5th in the NFL in TD passes). The team went 13-3 and lost in the conference championship."
+   },
+   "role": "run"
   },
   {
    "type": "guess_number",
    "metric": "wins",
-   "season": 2017,
-   "prompt": "How many regular-season games did the 2017 Dallas Cowboys win?",
+   "season": 2016,
+   "prompt": "How many regular-season games did the 2016 Los Angeles Rams win?",
    "hint": "They played 16 games.",
    "subject": {
-    "name": "Dallas Cowboys",
-    "color": "#002244",
-    "color2": "#B0B7BC"
+    "name": "Los Angeles Rams",
+    "color": "#003594",
+    "color2": "#FFD100"
    },
    "min": 0,
    "max": 16,
@@ -250,741 +283,824 @@
     ]
    },
    "reveal": {
-    "answer": 9,
-    "answer_label": "9 wins (9-7)",
-    "fact": "The 2017 Dallas Cowboys (9-7) beat the San Francisco 49ers 40-10 in Week 7."
+    "answer": 4,
+    "answer_label": "4 wins (4-12)",
+    "fact": "The 2016 Los Angeles Rams (4-12) lost 44-6 to the Arizona Cardinals in Week 17."
    },
-   "role": "play",
-   "call": "Deep shot"
+   "role": "run"
   },
   {
-   "type": "rank_four",
-   "kind": "all_time",
+   "type": "guess_number",
+   "metric": "career_passing_tds",
    "season": "Since 1999",
-   "prompt": "Rank these franchises by playoff appearances since 1999, most first.",
-   "options": [
-    {
-     "name": "Los Angeles Chargers",
-     "color": "#007BC7",
-     "color2": "#ffc20e"
-    },
-    {
-     "name": "Indianapolis Colts",
-     "color": "#002C5F",
-     "color2": "#a5acaf"
-    },
-    {
-     "name": "Pittsburgh Steelers",
-     "color": "#000000",
-     "color2": "#FFB612"
-    },
-    {
-     "name": "Los Angeles Rams",
-     "color": "#003594",
-     "color2": "#FFD100"
-    }
-   ],
-   "reveal": {
-    "answer": [
-     2,
-     1,
-     3,
-     0
-    ],
-    "notes": [
-     "10 playoff appearances",
-     "16 playoff appearances",
-     "17 playoff appearances",
-     "12 playoff appearances"
-    ],
-    "fact": "From 1999 to 2025, the Pittsburgh Steelers went 271-163-3 with 17 playoff trips, 15 playoff wins and 2 Super Bowl titles."
+   "prompt": "How many regular-season touchdown passes did Trent Green throw from 1999 through 2025?",
+   "hint": "Quarterback, 7 seasons (2001–2007).",
+   "subject": {
+    "name": "Trent Green",
+    "sub": "QB · 2001–2007",
+    "color": "#E31837",
+    "color2": "#FFB612"
    },
-   "role": "play",
-   "call": "Run up the middle"
-  },
-  {
-   "type": "rank_four",
-   "kind": "all_time",
-   "season": "Since 1999",
-   "prompt": "Rank these franchises by regular-season wins since 1999, most first.",
-   "options": [
-    {
-     "name": "Seattle Seahawks",
-     "color": "#002244",
-     "color2": "#69be28"
-    },
-    {
-     "name": "Carolina Panthers",
-     "color": "#0085CA",
-     "color2": "#000000"
-    },
-    {
-     "name": "Tennessee Titans",
-     "color": "#4495D2",
-     "color2": "#D50A0A"
-    },
-    {
-     "name": "Minnesota Vikings",
-     "color": "#4F2683",
-     "color2": "#FFC62F"
-    }
-   ],
-   "reveal": {
-    "answer": [
-     0,
-     3,
-     2,
-     1
-    ],
-    "notes": [
-     "252 regular-season wins",
-     "197 regular-season wins",
-     "215 regular-season wins",
-     "233 regular-season wins"
-    ],
-    "fact": "From 1999 to 2025, the Seattle Seahawks went 252-184-1 with 17 playoff trips, 17 playoff wins and 2 Super Bowl titles."
-   },
-   "role": "play",
-   "call": "Run up the middle"
-  },
-  {
-   "type": "odd_one_out",
-   "season": 2007,
-   "prompt": "Which of these teams did NOT make the 2007 playoffs?",
-   "options": [
-    {
-     "name": "Dallas Cowboys",
-     "color": "#002244",
-     "color2": "#B0B7BC"
-    },
-    {
-     "name": "Minnesota Vikings",
-     "color": "#4F2683",
-     "color2": "#FFC62F"
-    },
-    {
-     "name": "Indianapolis Colts",
-     "color": "#002C5F",
-     "color2": "#a5acaf"
-    },
-    {
-     "name": "Tennessee Titans",
-     "color": "#4495D2",
-     "color2": "#D50A0A"
-    }
-   ],
-   "reveal": {
-    "answer": 1,
-    "notes": [
-     "13-3 · lost in the Divisional round",
-     "8-8 · missed playoffs",
-     "13-3 · lost in the Divisional round",
-     "10-6 · lost in the Wild Card round"
-    ],
-    "fact": "The 2007 Minnesota Vikings (8-8) beat the Detroit Lions 42-10 in Week 13."
-   },
-   "role": "play",
-   "call": "Slant route"
-  },
-  {
-   "type": "head_to_head",
-   "kind": "career",
-   "season": "Since 1999",
-   "prompt": "Since 1999, who has more career passing yards?",
-   "options": [
-    {
-     "name": "Kirk Cousins",
-     "sub": "QB · 2012–2025",
-     "color": "#5A1414",
-     "color2": "#FFB612"
-    },
-    {
-     "name": "Jared Goff",
-     "sub": "QB · 2016–2025",
-     "color": "#003594",
-     "color2": "#FFD100"
-    }
-   ],
-   "reveal": {
-    "answer": 0,
-    "notes": [
-     "44,700 yds",
-     "39,622 yds"
-    ],
-    "fact": "From 1999 to 2025, Kirk Cousins threw for 44,700 yards and 298 TDs in 14 seasons (2012–2025), mostly with the Washington Redskins."
-   },
-   "role": "play",
-   "call": "Quick pass"
-  },
-  {
-   "type": "odd_one_out",
-   "kind": "career",
-   "season": "Since 1999",
-   "prompt": "Which of these players has NOT reached 300 career touchdown passes since 1999?",
-   "options": [
-    {
-     "name": "Ben Roethlisberger",
-     "sub": "QB · 2004–2021",
-     "color": "#000000",
-     "color2": "#FFB612"
-    },
-    {
-     "name": "Peyton Manning",
-     "sub": "QB · 1999–2015",
-     "color": "#002C5F",
-     "color2": "#a5acaf"
-    },
-    {
-     "name": "Tom Brady",
-     "sub": "QB · 2000–2022",
-     "color": "#002244",
-     "color2": "#C60C30"
-    },
-    {
-     "name": "Kirk Cousins",
-     "sub": "QB · 2012–2025",
-     "color": "#5A1414",
-     "color2": "#FFB612"
-    }
-   ],
-   "reveal": {
-    "answer": 3,
-    "notes": [
-     "418 TD",
-     "513 TD",
-     "649 TD",
-     "298 TD"
-    ],
-    "fact": "From 1999 to 2025, Kirk Cousins threw for 44,700 yards and 298 TDs in 14 seasons (2012–2025), mostly with the Washington Redskins."
-   },
-   "role": "play",
-   "call": "Slant route"
-  },
-  {
-   "type": "head_to_head",
-   "kind": "career",
-   "season": "Since 1999",
-   "prompt": "Since 1999, who has more career receptions?",
-   "options": [
-    {
-     "name": "Amani Toomer",
-     "sub": "WR · 1999–2008",
-     "color": "#0B2265",
-     "color2": "#A71930"
-    },
-    {
-     "name": "Eric Moulds",
-     "sub": "WR · 1999–2007",
-     "color": "#00338D",
-     "color2": "#C60C30"
-    }
-   ],
-   "reveal": {
-    "answer": 1,
-    "notes": [
-     "624 catches",
-     "644 catches"
-    ],
-    "fact": "From 1999 to 2025, Eric Moulds caught 644 passes for 8,003 yards and 38 TDs in 9 seasons (1999–2007), mostly with the Buffalo Bills. Totals count regular-season games from 1999 on."
-   },
-   "role": "play",
-   "call": "Quick pass"
-  },
-  {
-   "type": "head_to_head",
-   "kind": "franchise",
-   "season": "Since 1999",
-   "prompt": "Since 1999, which franchise has more playoff wins?",
-   "options": [
-    {
-     "name": "Buffalo Bills",
-     "color": "#00338D",
-     "color2": "#C60C30"
-    },
-    {
-     "name": "Atlanta Falcons",
-     "color": "#A71930",
-     "color2": "#000000"
-    }
-   ],
-   "reveal": {
-    "answer": 0,
-    "notes": [
-     "8 playoff wins",
-     "6 playoff wins"
-    ],
-    "fact": "From 1999 to 2025, the Buffalo Bills went 221-215 with 9 playoff trips, 8 playoff wins and no Super Bowl titles."
-   },
-   "role": "play",
-   "call": "Quick pass"
-  },
-  {
-   "type": "head_to_head",
-   "kind": "career",
-   "season": "Since 1999",
-   "prompt": "Since 1999, who has more career passing yards?",
-   "options": [
-    {
-     "name": "Baker Mayfield",
-     "sub": "QB · 2018–2025",
-     "color": "#FF3C00",
-     "color2": "#311D00"
-    },
-    {
-     "name": "Matt Schaub",
-     "sub": "QB · 2004–2020",
-     "color": "#A71930",
-     "color2": "#000000"
-    }
-   ],
-   "reveal": {
-    "answer": 0,
-    "notes": [
-     "28,525 yds",
-     "25,409 yds"
-    ],
-    "fact": "From 1999 to 2025, Baker Mayfield threw for 28,525 yards and 197 TDs in 8 seasons (2018–2025), mostly with the Cleveland Browns."
-   },
-   "role": "play",
-   "call": "Quick pass"
-  },
-  {
-   "type": "head_to_head",
-   "kind": "player",
-   "season": 2006,
-   "prompt": "In 2006, who had more receiving yards?",
-   "options": [
-    {
-     "name": "Lee Evans",
-     "sub": "WR · Buffalo Bills",
-     "color": "#00338D",
-     "color2": "#C60C30"
-    },
-    {
-     "name": "Terrell Owens",
-     "sub": "WR · Dallas Cowboys",
-     "color": "#002244",
-     "color2": "#B0B7BC"
-    }
-   ],
-   "reveal": {
-    "answer": 0,
-    "notes": [
-     "1,291 yds",
-     "1,180 yds"
-    ],
-    "fact": "Lee Evans caught 82 passes for 1,291 yards and 8 TDs for the 2006 Buffalo Bills (5th in the NFL in receiving yards). The team went 7-9."
-   },
-   "role": "play",
-   "call": "Quick pass"
-  },
-  {
-   "type": "odd_one_out",
-   "kind": "career",
-   "season": "Since 1999",
-   "prompt": "Which of these players has NOT reached 12,000 career receiving yards since 1999?",
-   "options": [
-    {
-     "name": "Randy Moss",
-     "sub": "WR · 1999–2012",
-     "color": "#4F2683",
-     "color2": "#FFC62F"
-    },
-    {
-     "name": "Anquan Boldin",
-     "sub": "WR · 2003–2016",
-     "color": "#97233F",
-     "color2": "#000000"
-    },
-    {
-     "name": "Marques Colston",
-     "sub": "WR · 2006–2015",
-     "color": "#D3BC8D",
-     "color2": "#000000"
-    },
-    {
-     "name": "Steve Smith",
-     "sub": "WR · 2001–2016",
-     "color": "#0085CA",
-     "color2": "#000000"
-    }
-   ],
-   "reveal": {
-    "answer": 2,
-    "notes": [
-     "12,421 yds",
-     "13,780 yds",
-     "9,780 yds",
-     "14,727 yds"
-    ],
-    "fact": "From 1999 to 2025, Marques Colston caught 713 passes for 9,780 yards and 72 TDs in 10 seasons (2006–2015), mostly with the New Orleans Saints."
-   },
-   "role": "play",
-   "call": "Slant route"
-  },
-  {
-   "type": "rank_four",
-   "kind": "all_time",
-   "season": "Since 1999",
-   "prompt": "Rank these franchises by playoff wins since 1999, most first.",
-   "options": [
-    {
-     "name": "Carolina Panthers",
-     "color": "#0085CA",
-     "color2": "#000000"
-    },
-    {
-     "name": "Indianapolis Colts",
-     "color": "#002C5F",
-     "color2": "#a5acaf"
-    },
-    {
-     "name": "San Francisco 49ers",
-     "color": "#AA0000",
-     "color2": "#B3995D"
-    },
-    {
-     "name": "Minnesota Vikings",
-     "color": "#4F2683",
-     "color2": "#FFC62F"
-    }
-   ],
-   "reveal": {
-    "answer": [
-     2,
-     1,
-     0,
-     3
-    ],
-    "notes": [
-     "8 playoff wins",
-     "13 playoff wins",
-     "15 playoff wins",
-     "6 playoff wins"
-    ],
-    "fact": "From 1999 to 2025, the San Francisco 49ers went 211-225-1 with 10 playoff trips, 15 playoff wins and no Super Bowl titles."
-   },
-   "role": "play",
-   "call": "Run up the middle"
-  },
-  {
-   "type": "odd_one_out",
-   "kind": "career",
-   "season": "Since 1999",
-   "prompt": "Which of these players has NOT reached 1,000 career receptions since 1999?",
-   "options": [
-    {
-     "name": "Reggie Wayne",
-     "sub": "WR · 2001–2014",
-     "color": "#002C5F",
-     "color2": "#a5acaf"
-    },
-    {
-     "name": "Keenan Allen",
-     "sub": "WR · 2017–2025",
-     "color": "#007BC7",
-     "color2": "#ffc20e"
-    },
-    {
-     "name": "Davante Adams",
-     "sub": "WR · 2014–2025",
-     "color": "#203731",
-     "color2": "#FFB612"
-    },
-    {
-     "name": "Anquan Boldin",
-     "sub": "WR · 2003–2016",
-     "color": "#97233F",
-     "color2": "#000000"
-    }
-   ],
-   "reveal": {
-    "answer": 1,
-    "notes": [
-     "1,070 catches",
-     "834 catches",
-     "1,017 catches",
-     "1,077 catches"
-    ],
-    "fact": "From 1999 to 2025, Keenan Allen caught 834 passes for 9,434 yards and 54 TDs in 9 seasons (2017–2025), mostly with the Los Angeles Chargers."
-   },
-   "role": "play",
-   "call": "Slant route"
-  },
-  {
-   "type": "rank_four",
-   "kind": "all_time",
-   "season": "Since 1999",
-   "prompt": "Rank these receivers by career receiving yards since 1999, most first.",
-   "options": [
-    {
-     "name": "Tyreek Hill",
-     "sub": "WR · 2016–2025",
-     "color": "#E31837",
-     "color2": "#FFB612"
-    },
-    {
-     "name": "Anquan Boldin",
-     "sub": "WR · 2003–2016",
-     "color": "#97233F",
-     "color2": "#000000"
-    },
-    {
-     "name": "Chris Godwin Jr.",
-     "sub": "WR · 2017–2025",
-     "color": "#A71930",
-     "color2": "#322F2B"
-    },
-    {
-     "name": "T.J. Houshmandzadeh",
-     "sub": "WR · 2001–2010",
-     "color": "#FB4F14",
-     "color2": "#000000"
-    }
-   ],
-   "reveal": {
-    "answer": [
-     1,
-     0,
-     2,
-     3
-    ],
-    "notes": [
-     "11,363 yds",
-     "13,780 yds",
-     "7,626 yds",
-     "7,091 yds"
-    ],
-    "fact": "From 1999 to 2025, Anquan Boldin caught 1,077 passes for 13,780 yards and 83 TDs in 14 seasons (2003–2016), mostly with the Arizona Cardinals."
-   },
-   "role": "play",
-   "call": "Run up the middle"
-  },
-  {
-   "type": "odd_one_out",
-   "kind": "franchise",
-   "season": "Since 1999",
-   "prompt": "Only one of these franchises has won a Super Bowl since 1999. Which one?",
-   "options": [
-    {
-     "name": "Arizona Cardinals",
-     "color": "#97233F",
-     "color2": "#000000"
-    },
-    {
-     "name": "Jacksonville Jaguars",
-     "color": "#006778",
-     "color2": "#000000"
-    },
-    {
-     "name": "Pittsburgh Steelers",
-     "color": "#000000",
-     "color2": "#FFB612"
-    },
-    {
-     "name": "Los Angeles Chargers",
-     "color": "#007BC7",
-     "color2": "#ffc20e"
-    }
-   ],
-   "reveal": {
-    "answer": 2,
-    "notes": [
-     "0 titles · 1 Super Bowl trip",
-     "0 titles · 0 Super Bowl trips",
-     "2 titles · 3 Super Bowl trips",
-     "0 titles · 0 Super Bowl trips"
-    ],
-    "fact": "From 1999 to 2025, the Pittsburgh Steelers went 271-163-3 with 17 playoff trips, 15 playoff wins and 2 Super Bowl titles."
-   },
-   "role": "play",
-   "call": "Slant route"
-  },
-  {
-   "type": "who_am_i",
-   "kind": "career",
-   "season": "Since 1999",
-   "prompt": "Whose career is this? (quarterback, 1999–2025 regular seasons)",
-   "clues": [
-    "10 seasons",
-    "39,622 passing yds",
-    "256 TD",
-    "102 INT",
-    "65.8% completions"
-   ],
-   "options": [
-    {
-     "name": "Andy Dalton"
-    },
-    {
-     "name": "Ryan Tannehill"
-    },
-    {
-     "name": "Jared Goff"
-    },
-    {
-     "name": "Kirk Cousins"
-    }
-   ],
-   "max_attempts": 2,
+   "min": 50,
+   "max": 700,
+   "start": 375,
+   "step": 1,
+   "bump": 5,
    "scoring": {
-    "type": "attempts",
-    "points": [
-     100,
-     50
-    ]
+    "type": "linear",
+    "exact": 8,
+    "zero_at": 100
    },
    "reveal": {
-    "answer": 2,
-    "hint": "He played most of his career for the Los Angeles Rams.",
-    "notes": [
-     "QB · 2011–2025",
-     "QB · 2012–2023",
-     "QB · 2016–2025",
-     "QB · 2012–2025"
-    ],
-    "fact": "From 1999 to 2025, Jared Goff threw for 39,622 yards and 256 TDs in 10 seasons (2016–2025), mostly with the Los Angeles Rams."
+    "answer": 123,
+    "answer_label": "123 touchdown passes",
+    "fact": "From 1999 to 2025, Trent Green threw for 22,444 yards and 123 TDs in 7 seasons (2001–2007), mostly with the Kansas City Chiefs."
    },
-   "role": "play",
-   "call": "Flea flicker"
+   "role": "run"
   },
   {
-   "type": "head_to_head",
-   "kind": "player",
-   "season": 2012,
-   "prompt": "In 2012, who had more receiving yards?",
-   "options": [
-    {
-     "name": "Roddy White",
-     "sub": "WR · Atlanta Falcons",
-     "color": "#A71930",
-     "color2": "#000000"
-    },
-    {
-     "name": "Julio Jones",
-     "sub": "WR · Atlanta Falcons",
-     "color": "#A71930",
-     "color2": "#000000"
-    }
-   ],
-   "reveal": {
-    "answer": 0,
-    "notes": [
-     "1,351 yds",
-     "1,198 yds"
-    ],
-    "fact": "Roddy White caught 92 passes for 1,351 yards and 7 TDs for the 2012 Atlanta Falcons (9th in the NFL in receiving yards). The team went 13-3 and lost in the conference championship."
-   },
-   "role": "play",
-   "call": "Quick pass"
-  },
-  {
-   "type": "odd_one_out",
-   "kind": "franchise",
+   "type": "name_one",
+   "answer_kind": "player",
    "season": "Since 1999",
-   "prompt": "Only one of these franchises has won a Super Bowl since 1999. Which one?",
-   "options": [
-    {
-     "name": "Seattle Seahawks",
-     "color": "#002244",
-     "color2": "#69be28"
-    },
-    {
-     "name": "Los Angeles Chargers",
-     "color": "#007BC7",
-     "color2": "#ffc20e"
-    },
-    {
-     "name": "New York Jets",
-     "color": "#003F2D",
-     "color2": "#000000"
-    },
-    {
-     "name": "Buffalo Bills",
-     "color": "#00338D",
-     "color2": "#C60C30"
-    }
-   ],
+   "prompt": "Name a player who ran for 1,000+ yards in a season for the Buffalo Bills since 1999.",
+   "hint": "There are 7 right answers.",
+   "answers": 7,
    "reveal": {
-    "answer": 0,
-    "notes": [
-     "2 titles · 4 Super Bowl trips",
-     "0 titles · 0 Super Bowl trips",
-     "0 titles · 0 Super Bowl trips",
-     "0 titles · 0 Super Bowl trips"
-    ],
-    "fact": "From 1999 to 2025, the Seattle Seahawks went 252-184-1 with 17 playoff trips, 17 playoff wins and 2 Super Bowl titles."
+    "valid": {
+     "00-0020471": {
+      "name": "Travis Henry",
+      "note": "1,438 in 2002, 1,353 in 2003"
+     },
+     "00-0022178": {
+      "name": "Willis McGahee",
+      "note": "1,128 in 2004, 1,247 in 2005"
+     },
+     "00-0025399": {
+      "name": "Marshawn Lynch",
+      "note": "1,115 in 2007, 1,047 in 2008"
+     },
+     "00-0024204": {
+      "name": "Fred Jackson",
+      "note": "1,062 in 2009"
+     },
+     "00-0027861": {
+      "name": "C.J. Spiller",
+      "note": "1,244 in 2012"
+     },
+     "00-0027029": {
+      "name": "LeSean McCoy",
+      "note": "1,267 in 2016, 1,138 in 2017"
+     },
+     "00-0037248": {
+      "name": "James Cook",
+      "note": "1,122 in 2023, 1,009 in 2024, 1,621 in 2025"
+     }
+    },
+    "prior": {
+     "00-0020471": 18.85,
+     "00-0022178": 29.16,
+     "00-0025399": 32.37,
+     "00-0024204": 17.48,
+     "00-0027861": 9.39,
+     "00-0027029": 42.1,
+     "00-0037248": 12.06
+    },
+    "fact": "The best of these seasons: James Cook with 1,621 yards in 2025."
    },
-   "role": "play",
-   "call": "Slant route"
+   "role": "pass"
+  },
+  {
+   "type": "name_one",
+   "answer_kind": "player",
+   "season": "Since 1999",
+   "prompt": "Name a QB who started a game for the Houston Texans since 1999.",
+   "hint": "There are 21 right answers.",
+   "answers": 21,
+   "reveal": {
+    "valid": {
+     "00-0022787": {
+      "name": "Matt Schaub",
+      "note": "88 starts (2007–2013)"
+     },
+     "00-0020608": {
+      "name": "David Carr",
+      "note": "74 starts (2002–2006)"
+     },
+     "00-0033537": {
+      "name": "Deshaun Watson",
+      "note": "53 starts (2017–2020)"
+     },
+     "00-0039163": {
+      "name": "C.J. Stroud",
+      "note": "45 starts (2023–2025)"
+     },
+     "00-0036898": {
+      "name": "Davis Mills",
+      "note": "30 starts (2021–2025)"
+     },
+     "00-0029682": {
+      "name": "Brock Osweiler",
+      "note": "15 starts (2016)"
+     },
+     "00-0028986": {
+      "name": "Case Keenum",
+      "note": "12 starts (2013–2023)"
+     },
+     "00-0023682": {
+      "name": "Ryan Fitzpatrick",
+      "note": "12 starts (2014)"
+     },
+     "00-0020480": {
+      "name": "Sage Rosenfels",
+      "note": "10 starts (2007–2008)"
+     },
+     "00-0028090": {
+      "name": "T.J. Yates",
+      "note": "9 starts (2011–2017)"
+     },
+     "00-0026625": {
+      "name": "Brian Hoyer",
+      "note": "9 starts (2015)"
+     },
+     "00-0031064": {
+      "name": "Tom Savage",
+      "note": "8 starts (2016–2017)"
+     },
+     "00-0028012": {
+      "name": "Ryan Mallett",
+      "note": "6 starts (2014–2015)"
+     },
+     "00-0028118": {
+      "name": "Tyrod Taylor",
+      "note": "6 starts (2021)"
+     },
+     "00-0000722": {
+      "name": "Tony Banks",
+      "note": "4 starts (2003–2005)"
+     },
+     "00-0022091": {
+      "name": "Dave Ragone",
+      "note": "2 starts (2003)"
+     },
+     "00-0034577": {
+      "name": "Kyle Allen",
+      "note": "2 starts (2022)"
+     },
+     "00-0024225": {
+      "name": "Matt Leinart",
+      "note": "1 start (2011)"
+     },
+     "00-0004161": {
+      "name": "Jake Delhomme",
+      "note": "1 start (2011)"
+     },
+     "00-0029677": {
+      "name": "Brandon Weeden",
+      "note": "1 start (2015)"
+     },
+     "00-0031288": {
+      "name": "A.J. McCarron",
+      "note": "1 start (2019)"
+     }
+    },
+    "prior": {
+     "00-0022787": 30.74,
+     "00-0020608": 22.71,
+     "00-0033537": 18.77,
+     "00-0039163": 14.23,
+     "00-0036898": 9.35,
+     "00-0029682": 5.69,
+     "00-0028986": 7.17,
+     "00-0023682": 16.1,
+     "00-0020480": 3.6,
+     "00-0028090": 2.91,
+     "00-0026625": 5.24,
+     "00-0031064": 2.65,
+     "00-0028012": 2.11,
+     "00-0028118": 5.21,
+     "00-0000722": 2.82,
+     "00-0022091": 0.82,
+     "00-0034577": 1.75,
+     "00-0024225": 1.31,
+     "00-0004161": 7.02,
+     "00-0029677": 1.93,
+     "00-0031288": 0.74
+    },
+    "fact": "21 different quarterbacks started for the Houston Texans since 1999. Matt Schaub started the most (88)."
+   },
+   "role": "pass"
+  },
+  {
+   "type": "name_one",
+   "answer_kind": "player",
+   "season": "Since 1999",
+   "prompt": "Name a QB who started a game for the Jacksonville Jaguars since 1999.",
+   "hint": "There are 20 right answers.",
+   "answers": 20,
+   "reveal": {
+    "valid": {
+     "00-0036971": {
+      "name": "Trevor Lawrence",
+      "note": "77 starts (2021–2025)"
+     },
+     "00-0021231": {
+      "name": "David Garrard",
+      "note": "75 starts (2002–2010)"
+     },
+     "00-0031407": {
+      "name": "Blake Bortles",
+      "note": "73 starts (2014–2018)"
+     },
+     "00-0002110": {
+      "name": "Mark Brunell",
+      "note": "64 starts (1999–2003)"
+     },
+     "00-0022177": {
+      "name": "Byron Leftwich",
+      "note": "44 starts (2003–2006)"
+     },
+     "00-0027948": {
+      "name": "Blaine Gabbert",
+      "note": "27 starts (2011–2013)"
+     },
+     "00-0026197": {
+      "name": "Chad Henne",
+      "note": "22 starts (2012–2014)"
+     },
+     "00-0035289": {
+      "name": "Gardner Minshew",
+      "note": "20 starts (2019–2020)"
+     },
+     "00-0036972": {
+      "name": "Mac Jones",
+      "note": "7 starts (2024)"
+     },
+     "00-0020613": {
+      "name": "Quinn Gray",
+      "note": "5 starts (2006–2007)"
+     },
+     "00-0030520": {
+      "name": "Mike Glennon",
+      "note": "5 starts (2020)"
+     },
+     "00-0033104": {
+      "name": "Cody Kessler",
+      "note": "4 starts (2018)"
+     },
+     "00-0029567": {
+      "name": "Nick Foles",
+      "note": "4 starts (2019)"
+     },
+     "00-0036312": {
+      "name": "Jake Luton",
+      "note": "3 starts (2020)"
+     },
+     "00-0022864": {
+      "name": "Luke McCown",
+      "note": "2 starts (2011)"
+     },
+     "00-0005180": {
+      "name": "Jay Fiedler",
+      "note": "1 start (1999)"
+     },
+     "00-0013338": {
+      "name": "Jonathan Quinn",
+      "note": "1 start (2001)"
+     },
+     "00-0001545": {
+      "name": "Todd Bouman",
+      "note": "1 start (2010)"
+     },
+     "00-0025479": {
+      "name": "Trent Edwards",
+      "note": "1 start (2010)"
+     },
+     "00-0033936": {
+      "name": "C.J. Beathard",
+      "note": "1 start (2023)"
+     }
+    },
+    "prior": {
+     "00-0036971": 24.74,
+     "00-0021231": 23.53,
+     "00-0031407": 23.67,
+     "00-0002110": 22.19,
+     "00-0022177": 13.87,
+     "00-0027948": 9.3,
+     "00-0026197": 9.29,
+     "00-0035289": 8.35,
+     "00-0036972": 5.36,
+     "00-0020613": 1.77,
+     "00-0030520": 3.07,
+     "00-0033104": 1.69,
+     "00-0029567": 4.41,
+     "00-0036312": 1.15,
+     "00-0022864": 1.22,
+     "00-0005180": 3.48,
+     "00-0013338": 0.67,
+     "00-0001545": 0.88,
+     "00-0025479": 1.82,
+     "00-0033936": 1.29
+    },
+    "fact": "20 different quarterbacks started for the Jacksonville Jaguars since 1999. Trevor Lawrence started the most (77)."
+   },
+   "role": "pass"
+  },
+  {
+   "type": "name_one",
+   "answer_kind": "player",
+   "season": "Since 1999",
+   "prompt": "Name a player who had 1,000+ receiving yards in a season for the New England Patriots since 1999.",
+   "hint": "There are 8 right answers.",
+   "answers": 8,
+   "reveal": {
+    "valid": {
+     "00-0006043": {
+      "name": "Terry Glenn",
+      "note": "1,147 in 1999"
+     },
+     "00-0002068": {
+      "name": "Troy Brown",
+      "note": "1,199 in 2001"
+     },
+     "00-0011754": {
+      "name": "Randy Moss",
+      "note": "1,493 in 2007, 1,008 in 2008, 1,264 in 2009"
+     },
+     "00-0022427": {
+      "name": "Wes Welker",
+      "note": "1,175 in 2007, 1,165 in 2008, 1,348 in 2009, 1,569 in 2011, 1,354 in 2012"
+     },
+     "00-0027656": {
+      "name": "Rob Gronkowski",
+      "note": "1,327 in 2011, 1,124 in 2014, 1,176 in 2015, 1,084 in 2017"
+     },
+     "00-0027150": {
+      "name": "Julian Edelman",
+      "note": "1,056 in 2013, 1,106 in 2016, 1,117 in 2019"
+     },
+     "00-0031236": {
+      "name": "Brandin Cooks",
+      "note": "1,082 in 2017"
+     },
+     "00-0031588": {
+      "name": "Stefon Diggs",
+      "note": "1,013 in 2025"
+     }
+    },
+    "prior": {
+     "00-0006043": 20.41,
+     "00-0002068": 14.74,
+     "00-0011754": 49.17,
+     "00-0022427": 35.6,
+     "00-0027656": 32.99,
+     "00-0027150": 21.88,
+     "00-0031236": 35.55,
+     "00-0031588": 44.22
+    },
+    "fact": "The best of these seasons: Wes Welker with 1,569 receiving yards in 2011."
+   },
+   "role": "pass"
+  },
+  {
+   "type": "name_one",
+   "answer_kind": "player",
+   "season": "Since 1999",
+   "prompt": "Name a player who had 1,000+ receiving yards in a season for the Tampa Bay Buccaneers since 1999.",
+   "hint": "There are 8 right answers.",
+   "answers": 8,
+   "reveal": {
+    "valid": {
+     "00-0008561": {
+      "name": "Keyshawn Johnson",
+      "note": "1,266 in 2001, 1,088 in 2002"
+     },
+     "00-0010668": {
+      "name": "Keenan McCardell",
+      "note": "1,179 in 2003"
+     },
+     "00-0022725": {
+      "name": "Michael Clayton",
+      "note": "1,193 in 2004"
+     },
+     "00-0005720": {
+      "name": "Joey Galloway",
+      "note": "1,287 in 2005, 1,057 in 2006, 1,014 in 2007"
+     },
+     "00-0021191": {
+      "name": "Antonio Bryant",
+      "note": "1,248 in 2008"
+     },
+     "00-0023496": {
+      "name": "Vincent Jackson",
+      "note": "1,384 in 2012, 1,224 in 2013, 1,002 in 2014"
+     },
+     "00-0031408": {
+      "name": "Mike Evans",
+      "note": "1,051 in 2014, 1,206 in 2015, 1,321 in 2016, 1,001 in 2017, 1,524 in 2018, 1,157 in 2019, 1,006 in 2020, 1,035 in 2021, 1,124 in 2022, 1,255 in 2023, 1,004 in 2024"
+     },
+     "00-0033921": {
+      "name": "Chris Godwin Jr.",
+      "note": "1,333 in 2019, 1,103 in 2021, 1,023 in 2022, 1,024 in 2023"
+     }
+    },
+    "prior": {
+     "00-0008561": 25.37,
+     "00-0010668": 15.86,
+     "00-0022725": 7.87,
+     "00-0005720": 21.9,
+     "00-0021191": 17.34,
+     "00-0023496": 12.29,
+     "00-0031408": 52.68,
+     "00-0033921": 25.33
+    },
+    "fact": "The best of these seasons: Mike Evans with 1,524 receiving yards in 2018."
+   },
+   "role": "pass"
+  },
+  {
+   "type": "name_one",
+   "answer_kind": "player",
+   "season": 2023,
+   "prompt": "Name a player who caught 100+ passes in 2023.",
+   "hint": "There are 12 right answers.",
+   "answers": 12,
+   "reveal": {
+    "valid": {
+     "00-0036358": {
+      "name": "CeeDee Lamb",
+      "note": "135 catches, Dallas Cowboys"
+     },
+     "00-0033040": {
+      "name": "Tyreek Hill",
+      "note": "119 catches, Miami Dolphins"
+     },
+     "00-0036963": {
+      "name": "Amon-Ra St. Brown",
+      "note": "119 catches, Detroit Lions"
+     },
+     "00-0033881": {
+      "name": "Evan Engram",
+      "note": "114 catches, Jacksonville Jaguars"
+     },
+     "00-0036252": {
+      "name": "Michael Pittman",
+      "note": "109 catches, Indianapolis Colts"
+     },
+     "00-0030279": {
+      "name": "Keenan Allen",
+      "note": "108 catches, Los Angeles Chargers"
+     },
+     "00-0031588": {
+      "name": "Stefon Diggs",
+      "note": "107 catches, Buffalo Bills"
+     },
+     "00-0035676": {
+      "name": "A.J. Brown",
+      "note": "106 catches, Philadelphia Eagles"
+     },
+     "00-0039075": {
+      "name": "Puka Nacua",
+      "note": "105 catches, Los Angeles Rams"
+     },
+     "00-0030035": {
+      "name": "Adam Thielen",
+      "note": "103 catches, Carolina Panthers"
+     },
+     "00-0031381": {
+      "name": "Davante Adams",
+      "note": "103 catches, Las Vegas Raiders"
+     },
+     "00-0036900": {
+      "name": "Ja'Marr Chase",
+      "note": "100 catches, Cincinnati Bengals"
+     }
+    },
+    "prior": {
+     "00-0036358": 24.42,
+     "00-0033040": 43.47,
+     "00-0036963": 19.53,
+     "00-0033881": 16.13,
+     "00-0036252": 15.64,
+     "00-0030279": 33.7,
+     "00-0031588": 44.22,
+     "00-0035676": 27.13,
+     "00-0039075": 11.83,
+     "00-0030035": 29.27,
+     "00-0031381": 50.34,
+     "00-0036900": 21.94
+    },
+    "fact": "CeeDee Lamb led this list with 135 for the Dallas Cowboys."
+   },
+   "role": "pass"
+  },
+  {
+   "type": "name_one",
+   "answer_kind": "player",
+   "season": 2024,
+   "prompt": "Name a running back who ran for 15+ touchdowns in 2024.",
+   "hint": "There are 4 right answers.",
+   "answers": 4,
+   "reveal": {
+    "valid": {
+     "00-0032764": {
+      "name": "Derrick Henry",
+      "note": "16 TD, Baltimore Ravens"
+     },
+     "00-0037248": {
+      "name": "James Cook",
+      "note": "16 TD, Buffalo Bills"
+     },
+     "00-0039139": {
+      "name": "Jahmyr Gibbs",
+      "note": "16 TD, Detroit Lions"
+     },
+     "00-0035700": {
+      "name": "Josh Jacobs",
+      "note": "15 TD, Green Bay Packers"
+     }
+    },
+    "prior": {
+     "00-0032764": 52.48,
+     "00-0037248": 12.06,
+     "00-0039139": 9.8,
+     "00-0035700": 21.17
+    },
+    "fact": "Derrick Henry led this list with 16 for the Baltimore Ravens."
+   },
+   "role": "pass"
+  },
+  {
+   "type": "name_one",
+   "answer_kind": "player",
+   "season": "Since 1999",
+   "prompt": "Name a player who had 1,000+ receiving yards in a season for the New York Giants since 1999.",
+   "hint": "There are 8 right answers.",
+   "answers": 8,
+   "reveal": {
+    "valid": {
+     "00-0016550": {
+      "name": "Amani Toomer",
+      "note": "1,183 in 1999, 1,094 in 2000, 1,054 in 2001, 1,343 in 2002, 1,057 in 2003"
+     },
+     "00-0019642": {
+      "name": "Plaxico Burress",
+      "note": "1,214 in 2005, 1,025 in 2007"
+     },
+     "00-0025438": {
+      "name": "Steve Smith",
+      "note": "1,220 in 2009"
+     },
+     "00-0027005": {
+      "name": "Hakeem Nicks",
+      "note": "1,052 in 2010, 1,192 in 2011"
+     },
+     "00-0027265": {
+      "name": "Victor Cruz",
+      "note": "1,536 in 2011, 1,092 in 2012"
+     },
+     "00-0031235": {
+      "name": "Odell Beckham Jr.",
+      "note": "1,305 in 2014, 1,450 in 2015, 1,367 in 2016, 1,052 in 2018"
+     },
+     "00-0039337": {
+      "name": "Malik Nabers",
+      "note": "1,204 in 2024"
+     },
+     "00-0038117": {
+      "name": "Wan'Dale Robinson",
+      "note": "1,014 in 2025"
+     }
+    },
+    "prior": {
+     "00-0016550": 30.97,
+     "00-0019642": 29.28,
+     "00-0025438": 6.58,
+     "00-0027005": 15.0,
+     "00-0027265": 13.07,
+     "00-0031235": 26.94,
+     "00-0039337": 3.89,
+     "00-0038117": 6.45
+    },
+    "fact": "The best of these seasons: Victor Cruz with 1,536 receiving yards in 2011."
+   },
+   "role": "pass"
+  },
+  {
+   "type": "name_one",
+   "answer_kind": "player",
+   "season": 2020,
+   "prompt": "Name a QB who started a game for the 2020 New York Giants.",
+   "hint": "There are 2 right answers.",
+   "answers": 2,
+   "reveal": {
+    "valid": {
+     "00-0035710": {
+      "name": "Daniel Jones",
+      "note": "14 starts"
+     },
+     "00-0027688": {
+      "name": "Colt McCoy",
+      "note": "2 starts"
+     }
+    },
+    "prior": {
+     "00-0035710": 8.81,
+     "00-0027688": 1.7
+    },
+    "fact": "The 2020 New York Giants went 6-10 using 2 starting quarterbacks; Daniel Jones started 14."
+   },
+   "role": "deep"
+  },
+  {
+   "type": "name_one",
+   "answer_kind": "player",
+   "season": 2001,
+   "prompt": "Who led the NFL in receptions in 2001?",
+   "hint": "Type his name.",
+   "answers": 1,
+   "reveal": {
+    "valid": {
+     "00-0015290": {
+      "name": "Rod Smith",
+      "note": "113 catches, Denver Broncos"
+     }
+    },
+    "prior": {
+     "00-0015290": 29.74
+    },
+    "fact": "Rod Smith caught 113 passes for 1,343 yards and 11 TDs for the 2001 Denver Broncos (5th in the NFL in receiving yards). The team went 8-8."
+   },
+   "role": "deep"
+  },
+  {
+   "type": "name_one",
+   "answer_kind": "player",
+   "season": "Since 1999",
+   "prompt": "Whose career is this? (QB, 1999–2025 regular seasons)",
+   "hint": "Type his name.",
+   "clues": [
+    "8 seasons",
+    "22,608 passing yds",
+    "187 TD",
+    "56 INT",
+    "64.8% completions"
+   ],
+   "answers": 1,
+   "reveal": {
+    "valid": {
+     "00-0034796": {
+      "name": "Lamar Jackson",
+      "note": "2018–2025"
+     }
+    },
+    "prior": {
+     "00-0034796": 1
+    },
+    "fact": "From 1999 to 2025, Lamar Jackson threw for 22,608 yards and 187 TDs in 8 seasons (2018–2025), mostly with the Baltimore Ravens."
+   },
+   "role": "deep"
+  },
+  {
+   "type": "name_one",
+   "answer_kind": "player",
+   "season": 2016,
+   "prompt": "Whose 2016 season is this? (running back)",
+   "hint": "Type his name.",
+   "clues": [
+    "1,631 rushing yds",
+    "15 rushing TD",
+    "5.1 yds/carry",
+    "32 catches",
+    "363 receiving yds"
+   ],
+   "answers": 1,
+   "reveal": {
+    "valid": {
+     "00-0033045": {
+      "name": "Ezekiel Elliott",
+      "note": "Dallas Cowboys"
+     }
+    },
+    "prior": {
+     "00-0033045": 1
+    },
+    "fact": "Ezekiel Elliott ran for 1,631 yards and 15 TDs for the 2016 Dallas Cowboys, leading the NFL in rushing yards. The team went 13-3 and lost in the Divisional round."
+   },
+   "role": "deep"
+  },
+  {
+   "type": "name_one",
+   "answer_kind": "player",
+   "season": 2009,
+   "prompt": "Name a QB who started a game for the 2009 New York Jets.",
+   "hint": "There are 2 right answers.",
+   "answers": 2,
+   "reveal": {
+    "valid": {
+     "00-0026898": {
+      "name": "Mark Sanchez",
+      "note": "15 starts"
+     },
+     "00-0024264": {
+      "name": "Kellen Clemens",
+      "note": "1 start"
+     }
+    },
+    "prior": {
+     "00-0026898": 9.01,
+     "00-0024264": 0.7
+    },
+    "fact": "The 2009 New York Jets went 9-7 using 2 starting quarterbacks; Mark Sanchez started 15."
+   },
+   "role": "deep"
+  },
+  {
+   "type": "name_one",
+   "answer_kind": "player",
+   "season": 2003,
+   "prompt": "Who led the NFL in receiving yards in 2003?",
+   "hint": "Type his name.",
+   "answers": 1,
+   "reveal": {
+    "valid": {
+     "00-0011754": {
+      "name": "Randy Moss",
+      "note": "1,632 yds, Minnesota Vikings"
+     }
+    },
+    "prior": {
+     "00-0011754": 49.17
+    },
+    "fact": "Randy Moss caught 111 passes for 1,632 yards and 17 TDs for the 2003 Minnesota Vikings, leading the NFL in receiving yards. The team went 9-7."
+   },
+   "role": "deep"
   },
   {
    "type": "head_to_head",
    "kind": "team",
-   "season": 2020,
-   "prompt": "In 2020, who had the better regular-season record?",
+   "season": 2001,
+   "prompt": "In 2001, who had the better regular-season record?",
    "options": [
     {
-     "name": "Indianapolis Colts",
-     "color": "#002C5F",
-     "color2": "#a5acaf"
-    },
-    {
-     "name": "Green Bay Packers",
-     "color": "#203731",
-     "color2": "#FFB612"
-    }
-   ],
-   "reveal": {
-    "answer": 1,
-    "notes": [
-     "11-5",
-     "13-3"
-    ],
-    "fact": "The 2020 Green Bay Packers (13-3) led the NFL with 509 points, with Aaron Rodgers at quarterback. They lost in the conference championship."
-   },
-   "role": "pat1",
-   "call": "Extra point"
-  },
-  {
-   "type": "odd_one_out",
-   "kind": "franchise",
-   "season": "Since 1999",
-   "prompt": "Which of these franchises has NOT won a Super Bowl since 1999?",
-   "options": [
-    {
-     "name": "New York Giants",
-     "color": "#0B2265",
-     "color2": "#A71930"
+     "name": "Tampa Bay Buccaneers",
+     "color": "#A71930",
+     "color2": "#322F2B"
     },
     {
      "name": "Baltimore Ravens",
      "color": "#241773",
      "color2": "#9E7C0C"
-    },
-    {
-     "name": "Chicago Bears",
-     "color": "#0B162A",
-     "color2": "#E64100"
-    },
-    {
-     "name": "Green Bay Packers",
-     "color": "#203731",
-     "color2": "#FFB612"
     }
    ],
    "reveal": {
-    "answer": 2,
+    "answer": 1,
     "notes": [
-     "2 titles · 3 Super Bowl trips",
-     "2 titles · 2 Super Bowl trips",
-     "0 titles · 1 Super Bowl trip",
-     "1 title · 1 Super Bowl trip"
+     "9-7",
+     "10-6"
     ],
-    "fact": "From 1999 to 2025, the Chicago Bears went 203-234 with 7 playoff trips, 4 playoff wins and no Super Bowl titles."
+    "fact": "Under Brian Billick, with Elvis Grbac at QB, the 2001 Baltimore Ravens went 10-6. They lost in the Divisional round."
    },
-   "role": "pat2",
-   "call": "Two-point try"
+   "role": "pat1"
+  },
+  {
+   "type": "odd_one_out",
+   "kind": "franchise",
+   "season": "Since 1999",
+   "prompt": "Only one of these franchises has won a Super Bowl since 1999. Which one?",
+   "options": [
+    {
+     "name": "New Orleans Saints",
+     "color": "#D3BC8D",
+     "color2": "#000000"
+    },
+    {
+     "name": "Detroit Lions",
+     "color": "#0076B6",
+     "color2": "#B0B7BC"
+    },
+    {
+     "name": "Houston Texans",
+     "color": "#03202F",
+     "color2": "#A71930"
+    },
+    {
+     "name": "Carolina Panthers",
+     "color": "#0085CA",
+     "color2": "#000000"
+    }
+   ],
+   "reveal": {
+    "answer": 0,
+    "notes": [
+     "1 title · 1 Super Bowl trip",
+     "0 titles · 0 Super Bowl trips",
+     "0 titles · 0 Super Bowl trips",
+     "0 titles · 2 Super Bowl trips"
+    ],
+    "fact": "From 1999 to 2025, the New Orleans Saints went 234-203 with 10 playoff trips, 10 playoff wins and 1 Super Bowl title."
+   },
+   "role": "pat2"
   }
  ]
 }

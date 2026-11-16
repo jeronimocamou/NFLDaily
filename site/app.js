@@ -1,7 +1,8 @@
 import { startStadium } from "./stadium.js";
 import { createFieldView } from "./fieldview.js";
 import {
-  RULES, canKick, clockText, downText, driveRank, fgDistance, fieldSpot, newDrive, resolve, snap, summary, CODE_EMOJI,
+  RULES, CALLS, CALL_BLURB, CALL_LABEL, canKick, clockText, downText, driveRank, fgDistance, fieldSpot, newDrive,
+  playsLeft, resolve, snap, summary, CODE_EMOJI,
 } from "./drive.js";
 
 // Fourth & Daily client. Each day is one drive: 2:00 left, down 21-17, ball
@@ -102,7 +103,7 @@ let showFinal = false;
 let crowd = null;
 
 const signedIn = () => Boolean(account.user);
-const nPlays = () => (puzzle.rounds ? puzzle.rounds.filter((r) => r.role === "play").length : puzzle.plays);
+const layout = () => puzzle.layout;
 const roundAt = (i) => (puzzle.rounds ? puzzle.rounds[i] : qcache[i]);
 
 const field = createFieldView($("#field"));
@@ -174,9 +175,15 @@ function optionButton(opt, { onclick, note, disabled, cls, badge } = {}) {
   );
 }
 
+function callFor(i) {
+  if (drive.phase === "live" && drive.live.round === i) return drive.live.kind;
+  return drive.log.findLast?.((e) => e.round === i)?.kind || [...drive.log].reverse().find((e) => e.round === i)?.kind || roundAt(i)?.role;
+}
+
 function roundShell(round, i, ...body) {
-  const label = round.role === "play" ? `Play ${i + 1} · ${round.call}` : round.call;
+  const call = callFor(i);
   const live = drive.phase === "live" && drive.live.round === i;
+  const label = call === "fg" ? `Field goal · ${live ? fgDistance(drive) + " yds" : ""}` : `${CALL_LABEL[call] || "Play"} · ${live ? downText(drive) : `Play ${drive.log.findIndex((e) => e.round === i) + 1}`}`;
   return h(
     "article",
     { class: `card ${live ? "live" : ""}` },
@@ -197,6 +204,7 @@ function crowdLine(i) {
   if (c.plays === 1) text = "You're the first to run this play!";
   else if (round.type === "guess_number" || round.type === "rank_four") text = `Players averaged ${c.avg}/100 on this one · ${c.perfectPct}% nailed it (${players})`;
   else if (round.type === "who_am_i") text = `${c.perfectPct}% got it on the first try (${players})`;
+  else if (round.type === "name_one") text = `${c.perfectPct}% of players named a right answer (${players})`;
   else text = `${c.perfectPct}% of players got this right (${players})`;
   return h("p", { class: "crowd" }, "👥 ", text);
 }
@@ -221,21 +229,28 @@ function errorLine(msg) {
   return h("p", { class: "error", role: "alert" }, msg);
 }
 
-/** Buttons for what happens next (after a play, or when resuming). */
+/** Play-call buttons and other choices for what happens next. */
 function driveButtons() {
   const dis = busy || animating;
   const btn = (label, onclick, primary = true) => h("button", { type: "button", class: `btn ${primary ? "primary" : ""}`, disabled: dis, onclick }, label);
+  const callButtons = () => {
+    const left = playsLeft(drive, layout());
+    return h("div", { class: "calls" }, CALLS.map((c) =>
+      h("button", { type: "button", class: `call call-${c}`, disabled: dis || !left[c], onclick: () => act(c) },
+        h("span", { class: "call-name" }, CALL_LABEL[c]),
+        h("span", { class: "call-blurb" }, CALL_BLURB[c]),
+        h("span", { class: "call-left" }, left[c] ? `${left[c]} left` : "none left"))));
+  };
   switch (drive.phase) {
     case "ready":
-      return btn(drive.log.length ? "Next play ▶" : "Snap the ball ▶", () => act("play"));
+      return h("div", { class: "decide" }, h("p", { class: "hint" }, `${downText(drive)} at ${fieldSpot(drive.yl)}. Call the play:`), callButtons());
     case "decide": {
       const kick = canKick(drive) ? btn(`Kick a ${fgDistance(drive)}-yd field goal`, () => act("fg"), false) : null;
-      const go = btn(drive.down === 4 ? `Go for it on ${downText(drive)}` : "Run another play ▶", () => act("play"));
       return h("div", { class: "decide" },
         h("p", { class: "hint" }, drive.down === 4
-          ? (kick ? "4th down. A field goal only cuts it to 21-20. Go for it?" : "4th down. Out of field goal range: go for it or the drive is over.")
-          : `${clockText(drive.clock)} left and you're in field goal range.`),
-        go, kick);
+          ? (kick ? `4th & ${drive.toGo}. A field goal only cuts it to 21-20 (it's a number guess: longer kicks need closer answers). Or go for it:` : `4th & ${drive.toGo}. Out of field goal range: go for it or the drive is over.`)
+          : `${clockText(drive.clock)} left and you're in field goal range. Kick, or call a play:`),
+        kick, callButtons());
     }
     case "pat_choice":
       return h("div", { class: "decide" },
@@ -266,7 +281,7 @@ async function act(kind) {
     if (signedIn()) {
       applyServer(await api("drive", { date, action: kind }));
     } else {
-      const next = snap(drive, kind, Date.now(), nPlays());
+      const next = snap(drive, kind, Date.now(), layout());
       if (!next) throw new Error("You can't do that right now.");
       drive = next;
       liveStart = drive.live.servedAt;
@@ -293,14 +308,14 @@ async function answer(i, guess) {
       const r = await api("drive", { date, action: "answer", guess });
       if (r.event) {
         const entry = r.state.log.at(-1);
-        await finishPlay(i, r.state, r.event, r.reveal, entry?.guesses || []);
+        await finishPlay(i, r.state, r.event, r.reveal, entry?.guesses || [], r.popular);
         return;
       }
       applyServer(r);
       qdata[i] = { done: false, attempts: r.state.live.attempts, guesses: r.state.live.guesses, hint: r.hint };
     } else if (guess == null) {
       const s = structuredClone(drive);
-      const { state, event } = resolve(s, roundAt(i), null, RULES.playClock + 1, nPlays());
+      const { state, event } = resolve(s, roundAt(i), null, RULES.playClock + 1, layout());
       await finishPlay(i, state, event, null, []);
       return;
     } else {
@@ -315,8 +330,8 @@ async function answer(i, guess) {
         const secs = (Date.now() - liveStart) / 1000;
         const s = structuredClone(drive);
         s.live.guesses = guesses;
-        const { state, event } = resolve(s, roundAt(i), view.score, secs, nPlays());
-        await finishPlay(i, state, event, view.reveal, guesses);
+        const { state, event } = resolve(s, roundAt(i), view.result, secs, layout());
+        await finishPlay(i, state, event, view.reveal, guesses, view.popular);
         return;
       }
     }
@@ -328,10 +343,10 @@ async function answer(i, guess) {
   }
 }
 
-async function finishPlay(i, state, event, reveal, guesses) {
+async function finishPlay(i, state, event, reveal, guesses, popular = null) {
   clearInterval(ticker);
   const before = drive;
-  qdata[i] = { done: true, score: event.score, guesses, attempts: guesses.length, reveal, timedOut: guesses.length === 0 };
+  qdata[i] = { done: true, score: event.score, hit: event.hit, rarity: event.rarity, guesses, attempts: guesses.length, reveal, popular, timedOut: guesses.length === 0 };
   drive = state;
   lastPlay = { idx: i, event };
   persistLocal();
@@ -353,6 +368,129 @@ async function onDriveOver() {
   } else if (account.enabled) {
     api("stats", { date, log: drive.log }).catch(() => {});
   }
+}
+
+// ---- Type-ahead answers ("name one" plays) -------------------------------------------------
+let names = null;
+const MIN_FOR_PCT = 5; // show "how often players named it" once enough people have answered
+const normName = (x) => x.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ").trim();
+
+async function loadNames() {
+  if (names) return names;
+  const data = await (await fetch("/names.json")).json();
+  names = {
+    player: data.players.map(([id, name, pos, start, end]) => ({
+      id, name, sub: `${pos} · ${start === end ? start : `${start}–${end}`}`, key: normName(name), span: end - start,
+    })),
+    team: data.teams.flatMap(([id, name, aliases]) => [
+      { id, name, sub: "", key: normName(name), span: 99 },
+      ...aliases.map((a) => ({ id, name: a, sub: `now the ${name}`, key: normName(a), span: 0 })),
+    ]),
+  };
+  return names;
+}
+
+function searchNames(kind, q) {
+  const qn = normName(q);
+  if (!qn || !names) return [];
+  const parts = qn.split(" ");
+  const out = names[kind].filter((n) => {
+    const words = n.key.split(" ");
+    return parts.every((part) => words.some((w) => w.startsWith(part)));
+  });
+  out.sort((a, b) => (b.key.startsWith(qn) - a.key.startsWith(qn)) || (b.span - a.span) || a.name.localeCompare(b.name));
+  return out.slice(0, 7);
+}
+
+const nameFor = (kind, id) => names?.[kind]?.find((n) => n.id === id)?.name;
+
+function answersList(round, st) {
+  const pop = st.popular?.answers
+    || (st.reveal ? Object.entries(st.reveal.valid).map(([id, v]) => ({ id, name: v.name, note: v.note, pct: 0, n: 0 })) : []);
+  if (!pop.length) return null;
+  const total = st.popular?.total >= MIN_FOR_PCT ? st.popular.total : 0;
+  const row = (a) => h("li", { class: a.yours ? "yours" : "" },
+    h("span", { class: "a-name" }, a.name),
+    h("span", { class: "a-note" }, a.note || ""),
+    total ? h("span", { class: "a-pct" }, `${a.pct}%`) : null,
+    total ? h("span", { class: "a-bar", style: { "--w": `${a.pct}%` } }) : null);
+  const top = pop.slice(0, 8);
+  const rest = pop.slice(8);
+  return h("div", { class: "answers" },
+    h("p", { class: "hint" }, pop.length === 1 ? "The answer" : total ? `All ${pop.length} right answers, by how often players named them` : `All ${pop.length} right answers`),
+    h("ol", {}, top.map(row)),
+    rest.length ? h("details", {}, h("summary", {}, `Show ${rest.length} more`), h("ol", { start: 9 }, rest.map(row))) : null);
+}
+
+function renderNameOne(round, i) {
+  const st = qdata[i] || {};
+  const done = st.done;
+  const body = [];
+  if (round.clues) body.push(h("ul", { class: "clues" }, round.clues.map((c) => h("li", {}, c))));
+  if (!done) {
+    let picked = null;
+    let results = [];
+    let active = 0;
+    const listId = `sugg-${i}`;
+    const input = h("input", {
+      type: "text", class: "answer-input", placeholder: round.answer_kind === "team" ? "Type a team…" : "Type a player…",
+      autocomplete: "off", autocapitalize: "words", spellcheck: "false", enterkeyhint: "go",
+      role: "combobox", "aria-label": "Your answer", "aria-expanded": "false", "aria-controls": listId, "aria-autocomplete": "list",
+    });
+    const list = h("ul", { class: "suggestions", id: listId, role: "listbox" });
+    const submit = h("button", { type: "button", class: "btn primary", disabled: true }, drive.live?.kind === "deep" ? "Let it fly ▶" : "Throw it ▶");
+    const choose = (n) => {
+      picked = n;
+      input.value = n.name;
+      results = [];
+      draw();
+      submit.disabled = false;
+    };
+    const draw = () => {
+      list.replaceChildren(...results.map((n, k) => h("li", {
+        role: "option", id: `${listId}-${k}`, class: k === active ? "active" : "", "aria-selected": String(k === active),
+        onmousedown: (e) => { e.preventDefault(); choose(n); },
+      }, h("span", { class: "n" }, n.name), n.sub ? h("span", { class: "s" }, n.sub) : null)));
+      input.setAttribute("aria-expanded", String(results.length > 0));
+      if (results.length) input.setAttribute("aria-activedescendant", `${listId}-${active}`);
+      else input.removeAttribute("aria-activedescendant");
+    };
+    input.addEventListener("input", async () => {
+      picked = null;
+      submit.disabled = true;
+      await loadNames().catch(() => null);
+      results = searchNames(round.answer_kind, input.value);
+      active = 0;
+      draw();
+    });
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown") { active = Math.min(results.length - 1, active + 1); draw(); e.preventDefault(); }
+      else if (e.key === "ArrowUp") { active = Math.max(0, active - 1); draw(); e.preventDefault(); }
+      else if (e.key === "Enter") {
+        e.preventDefault();
+        if (picked) answer(i, picked.id);
+        else if (results[active]) choose(results[active]);
+      }
+    });
+    submit.addEventListener("click", () => picked && answer(i, picked.id));
+    body.push(h("div", { class: "answer-box" }, input, list), submit);
+    if (st.error) body.push(errorLine(st.error));
+    setTimeout(() => input.focus({ preventScroll: true }), 50);
+  } else {
+    const guess = st.guesses?.at(-1);
+    const yours = guess ? (st.popular?.answers.find((a) => a.id === guess)?.name || nameFor(round.answer_kind, guess) || "Your answer") : null;
+    let line;
+    if (st.timedOut) line = "The play clock ran out.";
+    else if (st.hit) {
+      const mine = st.popular?.answers.find((a) => a.yours);
+      line = `${yours} is right!`;
+      if (st.popular?.total >= MIN_FOR_PCT && mine) line += ` ${mine.pct}% of players said that.`;
+      if (st.rarity >= 0.6) line += " A rare pull!";
+      else if (st.rarity <= 0.15) line += " A popular pick.";
+    } else line = `${yours} isn't one of the right answers.`;
+    body.push(resultBox(st.score, line, st.reveal?.fact, i), driveButtons(), answersList(round, st));
+  }
+  return roundShell(round, i, ...body);
 }
 
 // ---- Question cards --------------------------------------------------------------------------
@@ -491,7 +629,8 @@ function renderRank(round, i) {
 function questionCard(i) {
   const round = roundAt(i);
   if (!round) return null;
-  const card = round.type === "guess_number" ? renderNumber(round, i)
+  const card = round.type === "name_one" ? renderNameOne(round, i)
+    : round.type === "guess_number" ? renderNumber(round, i)
     : round.type === "rank_four" ? renderRank(round, i)
     : round.type === "who_am_i" ? renderWho(round, i)
     : renderChoice(round, i);
@@ -514,7 +653,7 @@ function huddleCard() {
     intro
       ? h("div", {},
           h("h2", { class: "prompt" }, "2:00 left. Down 21-17. Your ball on the 25."),
-          h("p", {}, "Every question is a play. Better answers gain more yards, quicker answers burn less clock, and wrong answers are incompletions or sacks. You have 25 seconds per play."),
+          h("p", {}, "You call every play. RUN: guess a number, closer gains more. PASS: name one right answer, rarer answers gain more. DEEP SHOT: name one of a few for a big gain, but a miss is a sack. 25 seconds per play, and the clock runs while you think."),
           h("p", {}, "Score a touchdown to win it. You can kick a field goal, but that still loses by one."))
       : h("h2", { class: "prompt" }, `${downText(drive)} at ${fieldSpot(drive.yl)}, ${clockText(drive.clock)} left.`),
     driveButtons());
@@ -570,8 +709,8 @@ function renderSummary() {
 
   const plays = drive.log.map((e) => {
     const round = roundAt(e.round);
-    const what = e.kind === "fg" ? `Field goal (${round?.season ?? ""})` : e.kind === "pat1" ? "Extra point" : e.kind === "pat2" ? "Two-point try" : `${round?.call ?? "Play"} (${round?.season ?? ""})`;
-    const yds = e.kind === "play" ? `${e.yards > 0 ? "+" : ""}${e.yards} yds` : e.code === "k" || e.code === "p" ? "Good" : "No good";
+    const what = e.kind === "pat1" || e.kind === "pat2" ? CALL_LABEL[e.kind] : `${CALL_LABEL[e.kind] || "Play"} (${round?.season ?? ""})`;
+    const yds = CALLS.includes(e.kind) ? `${e.yards > 0 ? "+" : ""}${e.yards} yds` : e.code === "k" || e.code === "p" ? "Good" : "No good";
     return h("li", {}, h("span", {}, `${CODE_EMOJI[e.code]} ${what}`), h("span", { class: "score" }, yds));
   });
 
@@ -650,7 +789,9 @@ async function loadPuzzle() {
       if (live.attempts) qdata[live.round] = { done: false, attempts: live.attempts, guesses: live.guesses, hint: r.question?.hint };
     }
   } else {
-    const saved = store.drives[date];
+    let saved = store.drives[date];
+    // Drives saved before play calls existed start over (finished ones are kept).
+    if (saved?.state && !saved.state.used && saved.state.phase !== "over") saved = null;
     drive = saved?.state || newDrive();
     qdata = saved?.q || {};
     lastPlay = saved?.last || null;
@@ -1042,6 +1183,7 @@ if (!["localhost", "127.0.0.1"].includes(location.hostname)) {
 // ---- Boot ---------------------------------------------------------------------------------------------
 async function boot() {
   $("#puzzle-meta").textContent = prettyDate(date);
+  loadNames().catch(() => {});
   await refreshAccount();
   try {
     await loadPuzzle();

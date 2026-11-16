@@ -3,52 +3,56 @@
 // source of truth for leaderboards) always agree.
 //
 // Situation: 2:00 left in the 4th quarter, down 21-17, ball on your own 25.
-// Every question is a play. Better answers gain more yards; wrong answers are
-// incompletions or sacks. 4 downs to gain 10 yards. On 4th down you go for it
-// or kick a field goal (if in range). A touchdown earns 6 and a choice of a
-// 1-point kick or a 2-point try.
+// Before every snap you call the play, and that decides the kind of question:
+//   RUN        a closest-number question. Closer = more yards; way off = a loss.
+//   PASS       name one of several right answers. Rarer answers gain more;
+//              a wrong answer is an incomplete pass.
+//   DEEP SHOT  name one of a few right answers (or the only one). Big gains,
+//              but a miss is a sack.
+// 4 downs to gain 10 yards. On 4th down you can also kick a field goal (it uses
+// a run question: longer kicks need closer answers). A touchdown earns 6 and a
+// choice of a 1-point kick or a 2-point try (quick multiple choice).
 
 export const RULES = {
   start: 25, // own 25 (touchback)
   clock: 120, // seconds left in the game
   playClock: 25, // seconds to answer each question
   snap: 3, // clock used by every snap
-  run: 6, // extra clock used when the ball is in play (a gain or a sack)
+  run: 6, // extra clock used when the ball is in play (a gain or a loss)
   fgMax: 55, // longest field goal attempt allowed
-  hurryUp: 6, // answer within this many seconds...
+  hurryUp: 8, // answer within this many seconds...
   hurryBonus: 2, // ...for bonus yards on a gain
   them: 21,
   us: 17,
 };
 
-export const CALL_LABEL = {
-  head_to_head: "Quick pass",
-  odd_one_out: "Slant route",
-  guess_number: "Deep shot",
-  rank_four: "Run up the middle",
-  who_am_i: "Flea flicker",
+export const CALLS = ["run", "pass", "deep"];
+export const CALL_LABEL = { run: "Run", pass: "Pass", deep: "Deep shot", fg: "Field goal", pat1: "Extra point", pat2: "Two-point try" };
+export const CALL_BLURB = {
+  run: "Guess a number. Closer = more yards (up to 12).",
+  pass: "Name one. Rarer right answers gain more (4–18 yds). Wrong = incomplete.",
+  deep: "Name one of a few. 12–30 yds, but a miss is a sack (−6).",
 };
 
-/** Yards gained for a graded answer (score 0-100) by play type. */
-export function baseYards(type, score) {
-  switch (type) {
-    case "head_to_head": return score >= 100 ? 7 : 0;
-    case "odd_one_out": return score >= 100 ? 12 : 0;
-    case "guess_number": return score >= 100 ? 22 : score >= 60 ? 14 : score >= 30 ? 8 : score > 0 ? 4 : -5;
-    case "rank_four": return score >= 100 ? 15 : score >= 50 ? 6 : score >= 25 ? 3 : -2;
-    case "who_am_i": return score >= 100 ? 30 : score >= 50 ? 12 : -7;
+/**
+ * Yards for a graded answer. `result` = { score 0-100, hit, rarity 0-1, far }.
+ *   run:  score from closeness; `far` means way off.
+ *   pass/deep: `hit` and how rare the answer was (1 = nobody else said it).
+ */
+export function baseYards(kind, result) {
+  const { score = 0, hit = false, rarity = 0, far = false } = result || {};
+  switch (kind) {
+    case "run":
+      if (score >= 100) return 12;
+      if (score > 0) return Math.round(2 + (9 * score) / 100);
+      return far ? -3 : 0;
+    case "pass":
+      return hit ? 4 + Math.round(14 * rarity) : 0;
+    case "deep":
+      return hit ? 12 + Math.round(18 * rarity) : -6;
   }
   return 0;
 }
-
-/** What each play type yields, for the help screen. */
-export const YARDS_TABLE = [
-  ["Quick pass", "head to head", "7 yds", "incomplete"],
-  ["Slant route", "odd one out", "12 yds", "incomplete"],
-  ["Deep shot", "guess the number", "up to 22 yds", "sack −5"],
-  ["Run up the middle", "rank four", "up to 15 yds", "stuffed −2"],
-  ["Flea flicker", "who am I?", "30 yds (12 on 2nd try)", "sack −7"],
-];
 
 export function newDrive() {
   return {
@@ -56,9 +60,9 @@ export function newDrive() {
     down: 1,
     toGo: 10,
     clock: RULES.clock,
-    next: 0, // index of the next play question
+    used: { run: 0, pass: 0, deep: 0 }, // questions used from each part of the playbook
     phase: "ready", // ready | decide | pat_choice | live | over
-    live: null, // { kind: play|fg|pat1|pat2, round, servedAt, attempts, guesses }
+    live: null, // { kind: run|pass|deep|fg|pat1|pat2, round, servedAt, attempts, guesses }
     points: 0,
     result: null, // td | fg | fg_miss | downs | clock
     pat: null, // kick | two, once chosen
@@ -71,57 +75,62 @@ export const fgDistance = (s) => 100 - s.yl + 17;
 export const canKick = (s) => fgDistance(s) <= RULES.fgMax;
 const needsDecision = (s) => s.down === 4 || (s.clock <= 20 && canKick(s));
 
-/** Which question a live play uses. Plays come in order; point-afters are the last two. */
-export function roundFor(kind, s, nPlays) {
-  if (kind === "pat1") return nPlays;
-  if (kind === "pat2") return nPlays + 1;
-  return s.next;
+/** How many questions of each call are left. layout = puzzle.layout. */
+export function playsLeft(s, layout) {
+  const out = {};
+  for (const c of CALLS) out[c] = Math.max(0, layout[c][1] - s.used[c]);
+  return out;
+}
+
+/** Which question a play uses. A field goal uses the next run question. */
+export function roundFor(kind, s, layout) {
+  if (kind === "pat1" || kind === "pat2") return layout[kind];
+  const call = kind === "fg" ? "run" : kind;
+  return layout[call][0] + s.used[call];
 }
 
 /**
- * Start a play. kind: "play" (from ready, or "go for it" from decide),
- * "fg" (from decide, in range), "pat1"/"pat2" (from pat_choice).
- * Returns the new state, or null if that move isn't allowed now.
+ * Start a play: "run" | "pass" | "deep" (from ready or decide), "fg" (from
+ * decide, in range), "pat1" | "pat2" (from pat_choice). Returns the new
+ * state, or null if that move isn't allowed now.
  */
-export function snap(state, kind, now, nPlays) {
+export function snap(state, kind, now, layout) {
   const s = clone(state);
+  const left = playsLeft(s, layout);
   const ok =
-    (kind === "play" && (s.phase === "ready" || s.phase === "decide")) ||
-    (kind === "fg" && s.phase === "decide" && canKick(s)) ||
+    (CALLS.includes(kind) && (s.phase === "ready" || s.phase === "decide") && left[kind] > 0) ||
+    (kind === "fg" && s.phase === "decide" && canKick(s) && left.run > 0) ||
     ((kind === "pat1" || kind === "pat2") && s.phase === "pat_choice");
   if (!ok) return null;
-  if ((kind === "play" || kind === "fg") && s.next >= nPlays) return null;
   if (kind === "pat1") s.pat = "kick";
   if (kind === "pat2") s.pat = "two";
   s.phase = "live";
-  s.live = { kind, round: roundFor(kind, s, nPlays), servedAt: now, attempts: 0, guesses: [] };
+  s.live = { kind, round: roundFor(kind, s, layout), servedAt: now, attempts: 0, guesses: [] };
   return s;
-}
-
-function spotText(yl) {
-  if (yl === 50) return "the 50";
-  return yl < 50 ? `your own ${yl}` : `their ${100 - yl}`;
 }
 
 /**
  * Resolve the live play. Push the final guess onto state.live.guesses first.
- * `score` is the graded answer (0-100) or null if the play clock ran out. `secs` is how long the player took. Returns
+ * `result` is the graded answer ({ score, hit, rarity, far }) or null if the
+ * play clock ran out. `secs` is how long the player took. Returns
  * { state, event } where event describes what happened, for animation.
  */
-export function resolve(state, round, score, secs, nPlays) {
+export function resolve(state, round, result, secs, layout) {
   const s = clone(state);
   const live = s.live;
   const kind = live.kind;
-  const timedOut = score == null || secs > RULES.playClock;
+  const timedOut = result == null || secs > RULES.playClock;
   const t = Math.min(Math.max(0, secs), RULES.playClock);
   const from = s.yl;
-  const ev = { kind, type: round.type, from, yards: 0, text: "", firstDown: false, score: timedOut ? 0 : score };
+  const score = timedOut ? 0 : result.score ?? 0;
+  const ev = { kind, type: round.type, from, yards: 0, text: "", firstDown: false, score, hit: !timedOut && !!result.hit, rarity: timedOut ? 0 : result.rarity ?? 0 };
   s.live = null;
-  if (kind === "play" || kind === "fg") s.next += 1;
+  if (CALLS.includes(kind)) s.used[kind] += 1;
+  if (kind === "fg") s.used.run += 1;
 
   const logEntry = (code) => s.log.push({
-    round: live.round, kind, type: round.type, guesses: live.guesses, score: ev.score,
-    secs: Math.round(t * 10) / 10, yards: ev.yards, code, text: ev.text,
+    round: live.round, kind, type: round.type, guesses: live.guesses, score: ev.score, hit: ev.hit,
+    rarity: Math.round(ev.rarity * 100) / 100, secs: Math.round(t * 10) / 10, yards: ev.yards, code, text: ev.text,
   });
 
   // Point after touchdown: the game clock doesn't matter any more.
@@ -149,7 +158,7 @@ export function resolve(state, round, score, secs, nPlays) {
     logEntry("b");
   } else if (kind === "fg") {
     const dist = fgDistance(s);
-    const need = dist <= 35 ? 1 : dist <= 45 ? 50 : 100;
+    const need = dist <= 35 ? 1 : dist <= 45 ? 50 : 80;
     const good = score >= need;
     s.clock = Math.max(0, s.clock - (t + RULES.snap + 2));
     s.phase = "over";
@@ -161,7 +170,7 @@ export function resolve(state, round, score, secs, nPlays) {
     logEntry(good ? "k" : "x");
     return { state: s, event: ev };
   } else {
-    let yards = baseYards(round.type, score);
+    let yards = baseYards(kind, result);
     if (yards > 0 && t <= RULES.hurryUp) {
       yards += RULES.hurryBonus;
       ev.hurry = true;
@@ -179,8 +188,8 @@ export function resolve(state, round, score, secs, nPlays) {
       ev.to = s.yl;
       return { state: s, event: ev };
     }
-    if (ev.yards === 0) ev.text = "Incomplete pass.";
-    else if (ev.yards < 0) ev.text = round.type === "rank_four" ? `Stuffed for a loss of ${-ev.yards}.` : `Sacked! Loss of ${-ev.yards}.`;
+    if (ev.yards === 0) ev.text = kind === "run" ? "No gain." : "Incomplete pass.";
+    else if (ev.yards < 0) ev.text = kind === "run" ? `Stuffed for a loss of ${-ev.yards}.` : `Sacked! Loss of ${-ev.yards}.`;
     else ev.text = ev.yards >= 20 ? `Big play! ${ev.yards} yards!` : `Gain of ${ev.yards}.`;
     if (ev.hurry) ev.text += " (+2 hurry-up)";
     if (ev.yards >= s.toGo) {
@@ -196,6 +205,7 @@ export function resolve(state, round, score, secs, nPlays) {
   }
 
   ev.to = s.yl;
+  const left = playsLeft(s, layout);
   if (s.down > 4) {
     s.phase = "over";
     s.result = "downs";
@@ -205,7 +215,7 @@ export function resolve(state, round, score, secs, nPlays) {
     s.phase = "over";
     s.result = "clock";
     ev.text += " That's the game. Time expired.";
-  } else if (s.next >= nPlays) {
+  } else if (!left.run && !left.pass && !left.deep) {
     s.phase = "over";
     s.result = "clock";
     ev.text += " That's the game.";
@@ -254,3 +264,22 @@ export function driveRank(sum) {
 }
 
 export const CODE_EMOJI = { g: "🟩", m: "🟨", w: "⬜", b: "🟥", t: "🏈", k: "🎯", x: "❌", p: "✅", q: "🚫" };
+
+// ---- Rarity (name-one answers) -------------------------------------------------------
+const PRIOR_N = 25; // how many "imaginary" answers the starting estimate is worth
+
+/**
+ * How rare an answer is, 0 (the most common answer) to 1 (nobody else said
+ * it). Blends each answer's built-in obviousness (`prior` weights) with what
+ * players actually answered (`counts`), so it works on day one and gets more
+ * accurate as people play.
+ */
+export function rarityOf(id, prior, counts = {}) {
+  const ids = Object.keys(prior);
+  if (ids.length <= 1) return 1;
+  const priorSum = ids.reduce((n, k) => n + prior[k], 0) || 1;
+  const total = ids.reduce((n, k) => n + (counts[k] || 0), 0);
+  const p = (k) => ((PRIOR_N * prior[k]) / priorSum + (counts[k] || 0)) / (PRIOR_N + total);
+  const max = Math.max(...ids.map(p));
+  return Math.max(0, Math.min(1, 1 - p(id) / max));
+}

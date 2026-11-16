@@ -101,6 +101,10 @@ def main() -> None:
         division_record TEXT, home_record TEXT, away_record TEXT,
         biggest_win TEXT, biggest_win_margin INT, worst_loss TEXT, worst_loss_margin INT,
         PRIMARY KEY (season, team));
+    DROP TABLE IF EXISTS qb_starts;
+    CREATE TABLE qb_starts (
+        season INT, team TEXT, franchise TEXT, player_id TEXT, name TEXT, starts INT,
+        PRIMARY KEY (season, team, player_id));
     DROP TABLE IF EXISTS player_seasons;
     CREATE TABLE player_seasons (
         season INT, player_id TEXT, name TEXT, position TEXT, team TEXT, franchise TEXT, team_name TEXT,
@@ -118,6 +122,7 @@ def main() -> None:
                      m["team_division"], m["team_color"], m["team_color2"]))
 
     stats = {}
+    starts = {}  # (season, team, qb_id) -> (name, starts)
     for g in games:
         season = int(g["season"])
         if season not in complete_set:
@@ -148,6 +153,11 @@ def main() -> None:
                     s["div"][idx] += 1
                 if res != "T" and abs(pf - pa) <= 8:
                     s["one"][idx] += 1
+                qb = g["home_qb_name"] if is_home else g["away_qb_name"]
+                qb_id = g["home_qb_id"] if is_home else g["away_qb_id"]
+                if qb_id and qb:
+                    key = (season, team, qb_id)
+                    starts[key] = starts.get(key, (qb, 0))[0], starts.get(key, (qb, 0))[1] + 1
                 coach = g["home_coach"] if is_home else g["away_coach"]
                 qb = g["home_qb_name"] if is_home else g["away_qb_name"]
                 if coach:
@@ -243,6 +253,10 @@ def main() -> None:
     cols = [c[1] for c in cur.execute("PRAGMA table_info(team_seasons)")]
     cur.executemany(f"INSERT INTO team_seasons VALUES ({','.join('?' * len(cols))})",
                     [[r[c] for c in cols] for r in rows])
+    cur.executemany("INSERT INTO qb_starts VALUES (?,?,?,?,?,?)",
+                    [(season, team, FRANCHISE.get(team, team), pid, name, n)
+                     for (season, team, pid), (name, n) in starts.items()])
+
     # ---- Players -----------------------------------------------------------
     pcols = [c[1] for c in cur.execute("PRAGMA table_info(player_seasons)")]
     nplayers = 0
