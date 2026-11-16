@@ -11,7 +11,9 @@ const TYPES = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
 http.createServer(async (req, res) => {
   const url = new URL(req.url, "http://localhost");
   try {
-    const api = url.pathname.match(/^\/api\/([a-z]+)$/);
+    const share = url.pathname.match(/^\/s\/([\w-]+)$/);
+    if (share) req.url = `/api/share?c=${share[1]}`;
+    const api = share ? ["", "share"] : url.pathname.match(/^\/api\/([a-z]+)$/);
     if (api) {
       const mod = await import(join(ROOT, "api", `${api[1]}.js`));
       req.query = Object.fromEntries(url.searchParams);
