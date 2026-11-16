@@ -14,10 +14,9 @@ Every round has public fields (sent to the browser before answering) and a
 guess. Output goes to puzzles/ at the repo root, which is NOT served
 statically, so answers and future puzzles stay private.
 
-Generation is deterministic: the same start date and day count always give
-the same puzzles, and no question repeats inside a generated range.
+New days are appended after the last existing day. Past puzzles are never\nrewritten (unless --rebuild), and puzzles/state.json remembers every question\nalready used so none repeats.
 
-Usage: python3 scripts/generate_puzzles.py [--days 380]
+Usage: python3 scripts/generate_puzzles.py [--through 2028-01-01]\n\nExisting days are never changed; only missing days after the last one are added.
 """
 import argparse
 import datetime as dt
@@ -258,7 +257,10 @@ class Generator:
                 odd = rng.choice(unused([t for t in playoff if t["wins"] <= 11]) or unused(playoff) or playoff)
                 others = rng.sample([t for t in missed if t["wins"] >= 6] or missed, 3)
                 prompt = f"Only one of these teams made the {season} playoffs. Which one?"
-            if not self.fresh(("ooo", season, odd["team"])):
+            # Each team is the odd one out once per season; after that it can
+            # come back, but never with the same three other teams.
+            if not self.fresh(("ooo", season, odd["team"])) and not self.fresh(
+                    ("ooo2", season, odd["team"], *sorted(t["team"] for t in others))):
                 continue
             opts = others + [odd]
             rng.shuffle(opts)
@@ -398,33 +400,50 @@ class Generator:
 
     # Round 5 ----------------------------------------------------------------
     def who_am_i(self, rng, season):
-        pos = rng.choice(["QB", "QB", "RB", "WR"])
-        stat = {"QB": "passing_yards", "RB": "rushing_yards", "WR": "receiving_yards"}[pos]
-        pool = [p for p in self.d.notable(season, stat) if p["position"] == pos]
-        if pos == "QB":
-            pool = [p for p in pool if p["attempts"] >= 350]
-        if len(pool) < 4:
-            pool = [p for p in self.d.players_by_season[season] if p["position"] == pos]
-            pool = sorted(pool, key=lambda p: -p[stat])[:12]
-        rng.shuffle(pool)
-        for target in pool:
-            if not self.fresh(("who", target["player_id"], season)):
-                continue
-            others = rng.sample([p for p in pool if p is not target], 3)
-            opts = others + [target]
-            rng.shuffle(opts)
-            return {
-                "type": "who_am_i", "season": season,
-                "prompt": f"Who had this {season} season? ({POS_LABEL[pos]})",
-                "clues": player_line(target),
-                "options": [{"name": p["name"]} for p in opts],
-                "max_attempts": 2,
-                "scoring": {"type": "attempts", "points": [100, 50]},
-                "reveal": {"answer": opts.index(target),
-                           "hint": f"He played for the {target['team_name']}.",
-                           "notes": [f"{p['position']} · {p['team_name']}" for p in opts],
-                           "fact": player_fact(self.d, target)},
-            }
+        first = rng.choice(["QB", "QB", "RB", "WR"])
+        # Try the drawn position first (keeps earlier puzzles identical), then the
+        # others, then wider pools once the stars of a season have all been used.
+        attempts = [(first, False)] + [(p, False) for p in ("QB", "RB", "WR") if p != first] \
+            + [(p, True) for p in (first, "QB", "RB", "WR")]
+        for pos, wide in attempts:
+            stat = {"QB": "passing_yards", "RB": "rushing_yards", "WR": "receiving_yards"}[pos]
+            ranked = sorted((p for p in self.d.players_by_season[season] if p["position"] == pos),
+                            key=lambda p: -p[stat])
+            if wide:
+                pool = ranked[:24]
+            else:
+                pool = [p for p in self.d.notable(season, stat) if p["position"] == pos]
+                if pos == "QB":
+                    pool = [p for p in pool if p["attempts"] >= 350]
+                if len(pool) < 4:
+                    pool = ranked[:12]
+            pool = pool[:]
+            rng.shuffle(pool)
+            for target in pool:
+                if self.fresh(("who", target["player_id"], season)):
+                    others = rng.sample([p for p in pool if p is not target], 3)
+                elif wide:
+                    # A player only comes back once every star of the season has
+                    # been used, and then never with the same three choices.
+                    others = rng.sample([p for p in pool if p is not target], 3)
+                    if not self.fresh(("who2", target["player_id"], season, *sorted(p["player_id"] for p in others))):
+                        continue
+                else:
+                    continue
+                opts = others + [target]
+                rng.shuffle(opts)
+                return {
+                    "type": "who_am_i", "season": season,
+                    "prompt": f"Who had this {season} season? ({POS_LABEL[pos]})",
+                    "clues": player_line(target),
+                    "options": [{"name": p["name"]} for p in opts],
+                    "max_attempts": 2,
+                    "scoring": {"type": "attempts", "points": [100, 50]},
+                    "reveal": {"answer": opts.index(target),
+                               "hint": f"He played for the {target['team_name']}.",
+                               "notes": [f"{p['position']} · {p['team_name']}" for p in opts],
+                               "fact": player_fact(self.d, target)},
+                }
         raise RuntimeError("no who am i")
 
     # A day ------------------------------------------------------------------
@@ -442,23 +461,53 @@ class Generator:
         return {"date": date.isoformat(), "number": (date - LAUNCH).days + 1, "rounds": rounds}
 
 
+STATE = OUT / "state.json"  # every question key used so far, so new days never repeat old ones
+
+
+def write_day(gen, date):
+    (OUT / f"{date.isoformat()}.json").write_text(
+        json.dumps(gen.day(date), indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--days", type=int, default=380)
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--through", help="generate puzzles up to this date (default: 365 days from today)")
+    ap.add_argument("--rebuild", action="store_true",
+                    help="DANGER: regenerate every day from launch, changing past puzzles")
     args = ap.parse_args()
+    through = dt.date.fromisoformat(args.through) if args.through else dt.date.today() + dt.timedelta(days=365)
 
     gen = Generator(Data())
     OUT.mkdir(parents=True, exist_ok=True)
-    for old in OUT.glob("*.json"):
-        old.unlink()
-    for i in range(args.days):
-        date = LAUNCH + dt.timedelta(days=i)
-        (OUT / f"{date.isoformat()}.json").write_text(
-            json.dumps(gen.day(date), indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
-    last = LAUNCH + dt.timedelta(days=args.days - 1)
+    existing = sorted(dt.date.fromisoformat(f.stem) for f in OUT.glob("20??-??-??.json"))
+
+    if args.rebuild or not existing:
+        for old in OUT.glob("20??-??-??.json"):
+            old.unlink()
+        last = LAUNCH - dt.timedelta(days=1)
+    else:
+        last = existing[-1]
+        if STATE.exists():
+            gen.used = {tuple(k) for k in json.loads(STATE.read_text())["used"]}
+        else:
+            # Rebuild the used set by replaying history in memory (files are left untouched).
+            d = LAUNCH
+            while d <= last:
+                gen.day(d)
+                d += dt.timedelta(days=1)
+
+    added = 0
+    d = last + dt.timedelta(days=1)
+    while d <= through:
+        write_day(gen, d)
+        added += 1
+        d += dt.timedelta(days=1)
+    last = max(last, through) if added else last
+
     (OUT / "index.json").write_text(json.dumps(
         {"launch": LAUNCH.isoformat(), "last": last.isoformat()}, indent=1) + "\n", encoding="utf-8")
-    print(f"wrote {args.days} puzzles {LAUNCH} .. {last} to {OUT.relative_to(ROOT)}")
+    STATE.write_text(json.dumps({"used": sorted(list(k) for k in gen.used)}, separators=(",", ":")) + "\n")
+    print(f"added {added} puzzles; puzzles now run {LAUNCH} .. {last}")
 
 
 if __name__ == "__main__":

@@ -319,7 +319,7 @@ dialog h2 { margin-top: 0; }
   border-bottom: 4px solid #000;
   position: sticky; top: 0; z-index: 5;
 }
-.brand h1 { font-family: var(--pixel); font-weight: 400; font-size: 1rem; letter-spacing: 0; color: #ffd23f; line-height: 1.4; }
+.brand h1 { font-family: var(--pixel); font-weight: 400; font-size: clamp(.68rem, 3vw, 1rem); letter-spacing: 0; color: #ffd23f; line-height: 1.4; }
 .meta { color: #b9c2cc; }
 .icon-btn { background: #1e2430; border-color: #343c4c; color: #f4f4ec; }
 
@@ -340,3 +340,31 @@ dialog h2 { margin-top: 0; }
 
 .foot { color: #f4f4ec; text-shadow: 0 1px 2px #000; }
 .foot a { color: #ffd23f; }
+
+.crowd { font-size: .9rem; font-weight: 600; color: var(--text); }
+.summary .crowd { margin: 0 0 4px; }
+
+/* ---- Leagues ---- */
+.scopes { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 4px; }
+.scopes button {
+  flex: none; padding: 6px 12px; border-radius: 999px; cursor: pointer; font-weight: 700; font-size: .85rem;
+  border: 1px solid var(--border); background: var(--surface-2);
+}
+.scopes button[aria-pressed="true"] { background: var(--text); color: var(--surface); border-color: transparent; }
+.leagues { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); }
+.leagues h3 { margin: 0 0 2px; }
+.leagues .hint { margin: 0 0 8px; }
+.inline-form { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: 8px; }
+.inline-form input {
+  font: inherit; padding: 10px 12px; border-radius: 10px; min-width: 0;
+  border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+}
+.inline-form .btn { margin: 0; width: auto; padding: 10px 16px; }
+.invite { padding: 12px; border-radius: 12px; background: var(--surface-2); margin-top: 12px; }
+.invite p { margin: 0 0 6px; }
+.invite code { font-family: var(--pixel); font-size: .8rem; letter-spacing: .1em; }
+.invite .row-btns .btn { margin-top: 6px; padding: 10px; font-size: .9rem; }
+
+/* ---- Install ---- */
+.install-ios { margin: 14px 0 0; padding: 10px 14px; border-radius: 12px; background: var(--surface-2); font-size: .92rem; }
+.btn.install[aria-disabled="true"] { opacity: .6; }

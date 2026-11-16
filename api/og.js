@@ -1,5 +1,5 @@
 // GET /api/og?c=16-410-ggmlb -> 1200x630 PNG preview for a shared score.
-// Without a valid code, returns the generic NFL Daily card.
+// Without a valid code, returns the generic Fourth & Daily card.
 import { parseShareCode, renderOgPng } from "../lib/og.js";
 
 export default function handler(req, res) {
