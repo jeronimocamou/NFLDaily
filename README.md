@@ -1,34 +1,40 @@
 # Fourth & Daily
 
-A daily football trivia game. Every day has 5 rounds, each from a different season (1999–2025):
+A daily football trivia game played as one drive. **2:00 left in the 4th, down 21–17, ball on your own 25.** Every question is a play: better answers gain more yards. You have 4 downs to gain 10 yards and a 25-second play clock (running it out is delay of game, −5). The game clock runs while you think. On 4th down you go for it or kick a field goal if you're in range. A touchdown wins it, then you choose a 1-point kick (an easier question) or a 2-point try (a harder one).
 
-| Round | Type | Scoring |
-|---|---|---|
-| 1 | **Head to head**: which team had the better record, or which player had more yards/TDs/catches (always close) | 100 or 0 |
-| 2 | **Odd one out**: which team missed (or made) the playoffs | 100 or 0 |
-| 3 | **Guess the number**: a team's wins or points, or a player's yards, TDs or catches | partial credit for close guesses |
-| 4 | **Rank four**: order a division, 4 teams or 4 players | 25 per correct spot |
-| 5 | **Who am I?**: name the player from a stat line. A miss reveals his team for one more try | 100, then 50 |
+| Play call | Question | Right answer | Wrong |
+|---|---|---|---|
+| Quick pass | **Head to head**: better record, or bigger stat (always close) | 7 yds | incomplete |
+| Slant route | **Odd one out**: which team missed (or made) the playoffs | 12 yds | incomplete |
+| Deep shot | **Guess the number**: wins/points or a player's yards, TDs, catches | up to 22 yds (partial credit) | sack −5 |
+| Run up the middle | **Rank four**: order a division, 4 teams or 4 players | up to 15 yds | stuffed −2 |
+| Flea flicker | **Who am I?**: name the player from a stat line (2 tries) | 30 yds (12 on the 2nd try) | sack −7 |
 
-Max score is 500. Players get a shareable emoji grid (🟩🟨🟧🟥) with a pixel-art link preview, streaks, stats, "how everyone else did" after every round, a calendar of past puzzles, optional accounts with daily and all-time leaderboards, private friends leagues, and an installable home-screen app.
+Answering a gain within 6 seconds adds 2 hurry-up yards. Every snap uses 3 seconds of clock, and a play with the ball in play uses 6 more. Incompletions stop the clock. Field goals need any credit from 35 yards or less, at least half credit from 36–45 and a perfect answer from 46–55. Results rank by **points, then yards, then time left**.
+
+Players also get a pixel-art broadcast field that animates every play, a shareable drive chart (🟩🟨⬜🟥🏈✅) with a link preview, streaks and stats, "how everyone else did" after every play, a calendar of past drives, optional accounts with daily and all-time leaderboards, friends leagues, and an installable home-screen app.
 
 ## How it works
 
 ```
 scripts/build_db.py         downloads nflverse data -> data/nfl.sqlite
-scripts/generate_puzzles.py data/nfl.sqlite + data/facts.json -> puzzles/YYYY-MM-DD.json
+scripts/generate_puzzles.py data/nfl.sqlite + data/facts.json -> puzzles/YYYY-MM-DD.json (24 plays + 2 point-after questions a day)
 puzzles/                    full puzzles with answers (private; never served directly)
 api/                        Vercel serverless functions
 lib/                        shared server code (grading, accounts, leaderboards)
 site/                       static website (index.html, style.css, app.js)
+site/drive.js               the rules of a drive (downs, yards, clock, scoring), shared by browser and server
+site/fieldview.js           the animated broadcast field
 site/pixel.js               pixel-art stadium renderer (shared by the site background and share images)
 ```
 
-- **Answers stay on the server.** `/api/puzzle` sends each round without its answer, and `/api/answer` grades a guess and only then returns the answer and fact. Puzzles for future dates can't be loaded.
-- **Accounts** are a username and password (scrypt-hashed, httpOnly session cookie, lockout after 10 bad passwords). Signed-in players' answers are saved on the server and locked once given, so leaderboard scores are honest. Games played before signing in are imported when you sign up, but only for stats.
-- **Leaderboards** count only games finished on the day by signed-in players. Archive games count toward "played" and average, but not toward streaks or leaderboards.
+- **Answers stay on the server.** `/api/answer` grades a guess and only then returns the answer and fact. Puzzles for future dates can't be loaded.
+- **Signed-in drives run on the server** (`/api/drive`): the server hands out one play at a time, times each answer itself, applies the rules in `site/drive.js` and saves the drive. That's what makes leaderboard results trustworthy. Reloading mid-play doesn't stop the play clock, and a play left hanging past it becomes delay of game.
+- **Anonymous drives run in the browser** with the same rules, saved in localStorage. When one finishes, the browser sends the play log to `/api/stats`, where the server replays it, re-grades every guess and adds it to "how everyone did". These never reach leaderboards.
+- **Accounts** are a username and password (scrypt-hashed, httpOnly session cookie, lockout after 10 bad passwords).
+- **Leaderboards** count only drives finished on the day by signed-in players. Archive drives count toward stats, but not toward streaks or leaderboards.
 - **Friends leagues:** any signed-in player can create a league, which gets a 6-character invite code and a link like `/?join=ABC234`. Opening the link signs the player in if needed and then joins. Each league has its own daily and all-time board. When the owner leaves, the longest-standing member takes over, and empty leagues are deleted.
-- **How everyone did:** every finished round, signed in or not, adds to per-round totals, so players see "38% got this right" after each answer and "You beat 71% of 1,204 players" at the end. Anonymous players send their other guesses with their final answer so the server can grade the whole game itself. These counts aren't tamper-proof, which is fine for a fun stat; leaderboards still use only signed-in games.
+- **How everyone did:** every answered question adds to per-question totals, so players see "38% got this right" after each play, and every finished drive adds to that day's results ("Better than 71% of 1,204 drives today · 34% scored a TD"). These counts aren't tamper-proof, which is fine for a fun stat; leaderboards only use server-run drives.
 - Without a database the game still works: anonymous play, with stats saved in the browser. Accounts, leagues and crowd stats are hidden or show as "not set up yet".
 - **Installable:** `site/manifest.webmanifest` and pixel icons (`node scripts/make-icons.mjs`) let players add the game to their home screen. The results and profile screens offer an install button where the browser supports one, and instructions on iPhone.
 - **Analytics:** the site loads Vercel Web Analytics (page views only, no cookies) on the real domain. It does nothing until Analytics is turned on in the Vercel project.
@@ -36,7 +42,7 @@ site/pixel.js               pixel-art stadium renderer (shared by the site backg
 ### Look and sharing
 
 - The background is a pixel-art stadium drawn on a canvas by `site/stadium.js`: a field down the middle with crowds on both sides, and a crowd wave every 15 seconds (skipped with reduced motion). Dark mode turns it into a night game.
-- **Share previews:** the Share button links to `/s/<puzzle>-<score>-<grid>` (for example `/s/16-410-ggmlb`). That page carries Open Graph tags whose image comes from `/api/og`, a 1200×630 pixel-art scoreboard with that score and colored squares, so iMessage, Discord, X and others show the result. Visitors are sent straight on to the game.
+- **Share previews:** the Share button links to `/s/<puzzle>-<points>-<yards>-<secondsLeft>-<plays>` (for example `/s/17-7-75-48-ggbmtp`). That page carries Open Graph tags whose image comes from `/api/og`, a 1200×630 pixel-art scoreboard showing the result and drive chart, so iMessage, Discord, X and others show it. Visitors are sent straight on to the game.
 - `site/og.png` is the generic preview for the home page. Regenerate it with `node scripts/make-og.mjs` after changing the art. On Vercel, `scripts/build-meta.mjs` turns its URL into an absolute one, since some apps ignore relative preview URLs.
 
 ### Database (`data/nfl.sqlite`)
@@ -98,6 +104,7 @@ Then open http://localhost:3000. Add `?date=2026-11-05` to play a past day.
 
 ## Notes
 
-- Puzzles are generated in advance. Once all of a season's star players have been used, a player can reappear in "Who am I?" or a team as the odd one out, but never with the same answer choices.
+- Puzzles are generated in advance. Once a season's star players have all been used, a player can reappear in "Who am I?" or a team as the odd one out, but never with the same answer choices. A question type that runs dry for a season falls back to another type.
+- Days played in the original 5-round format still count toward "played" in stats.
 - Anonymous players are graded statelessly, so someone could probe the API for answers. That's why only signed-in, same-day games reach leaderboards.
 - Data comes from [nflverse](https://github.com/nflverse) (CC-BY 4.0).

@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Generate daily puzzle files from data/nfl.sqlite.
 
-Each day has 5 rounds, each from a different season:
-  1. head_to_head  - which of two teams had the better record, or which of
-                     two players had the bigger stat (close calls only)
-  2. odd_one_out   - pick the team that doesn't belong (playoffs-based)
-  3. guess_number  - guess a team's wins/points or a player's stat
-  4. rank_four     - order a division, 4 teams, or 4 players
-  5. who_am_i      - name the player from a stat line (2 tries, hint after a miss)
+Each day is one football drive: 24 plays (questions) in a fixed order plus an
+extra-point and a two-point question. Play calls map to question types:
+  Quick pass        head_to_head  - better record / bigger stat (close calls only)
+  Slant route       odd_one_out   - the team that doesn't belong (playoffs)
+  Deep shot         guess_number  - a team's wins/points or a player's stat
+  Run up the middle rank_four     - order a division, 4 teams or 4 players
+  Flea flicker      who_am_i      - name the player from a stat line
 
 Every round has public fields (sent to the browser before answering) and a
 `reveal` object (answer, notes, fact) that only the API sends back after a
@@ -30,6 +30,12 @@ DB = ROOT / "data" / "nfl.sqlite"
 FACTS = ROOT / "data" / "facts.json"
 OUT = ROOT / "puzzles"
 LAUNCH = dt.date(2026, 11, 1)  # Puzzle #1
+
+PLAYS = 24  # questions available per drive (the clock usually ends it well before)
+# How often each play call shows up in a drive.
+PLAY_MIX = {"head_to_head": 6, "odd_one_out": 4, "guess_number": 6, "rank_four": 4, "who_am_i": 3}
+CALLS = {"head_to_head": "Quick pass", "odd_one_out": "Slant route", "guess_number": "Deep shot",
+         "rank_four": "Run up the middle", "who_am_i": "Flea flicker"}
 
 POS_LABEL = {"QB": "quarterback", "RB": "running back", "WR": "wide receiver", "TE": "tight end"}
 
@@ -276,9 +282,12 @@ class Generator:
     # Round 3 ----------------------------------------------------------------
     def guess_number(self, rng, season):
         kind = rng.choice(["wins", "points_for", "player", "player"])
-        if kind == "player":
-            return self.guess_player(rng, season) or self.guess_team(rng, season, "wins")
-        return self.guess_team(rng, season, kind)
+        order = [kind] + [k for k in ("player", "wins", "points_for") if k != kind]
+        for k in order:
+            r = self.guess_player(rng, season) if k == "player" else self.guess_team(rng, season, k)
+            if r:
+                return r
+        raise RuntimeError("no guess")
 
     def guess_team(self, rng, season, metric):
         teams = self.d.by_season[season]
@@ -302,7 +311,7 @@ class Generator:
                 "step": g["step"], "bump": g["bump"], "scoring": g["scoring"],
                 "reveal": {"answer": t[metric], "answer_label": label, "fact": team_fact(self.d, t)},
             }
-        raise RuntimeError("no team guess")
+        return None
 
     def guess_player(self, rng, season):
         stat = rng.choice(list(PLAYER_STATS))
@@ -448,17 +457,53 @@ class Generator:
 
     # A day ------------------------------------------------------------------
     def day(self, date):
+        """A drive: a fixed list of plays (everyone gets the same plays in the same
+        order; how many you use depends on how the drive goes) plus the two
+        point-after questions."""
         rng = random.Random(f"nfldaily-{date.isoformat()}")
-        r4_season = rng.choice([s for s in self.d.seasons if s >= 2002])  # current divisions
-        rest = rng.sample([s for s in self.d.seasons if s != r4_season], 4)
-        rounds = [
-            self.head_to_head(rng, rest[0]),
-            self.odd_one_out(rng, rest[1]),
-            self.guess_number(rng, rest[2]),
-            self.rank_four(rng, r4_season),
-            self.who_am_i(rng, rest[3]),
-        ]
-        return {"date": date.isoformat(), "number": (date - LAUNCH).days + 1, "rounds": rounds}
+        kinds = rng.choices(list(PLAY_MIX), weights=list(PLAY_MIX.values()), k=PLAYS)
+        seasons = rng.sample(self.d.seasons, min(PLAYS, len(self.d.seasons)))
+        seasons += rng.choices(self.d.seasons, k=PLAYS - len(seasons))
+        make = {
+            "head_to_head": self.head_to_head,
+            "odd_one_out": self.odd_one_out,
+            "guess_number": self.guess_number,
+            "rank_four": self.rank_four,
+            "who_am_i": self.who_am_i,
+        }
+        rounds = []
+        for kind, season in zip(kinds, seasons):
+            r = None
+            for k in [kind] + [k for k in make if k != kind]:
+                try:
+                    r = make[k](rng, season)
+                    break
+                except RuntimeError:
+                    continue
+            if r is None:
+                raise RuntimeError(f"no question left for {season}")
+            r["role"] = "play"
+            r["call"] = CALLS[r["type"]]
+            rounds.append(r)
+        def first_of(makers):
+            for _ in range(20):
+                season = rng.choice(self.d.seasons)
+                for m in makers:
+                    try:
+                        r = m(rng, season)
+                    except RuntimeError:
+                        r = None
+                    if r:
+                        return r
+            raise RuntimeError("no point-after question left")
+
+        # Single-answer questions only, so the try is one guess.
+        pat1 = first_of([self.h2h_teams, self.h2h_players, self.odd_one_out])
+        pat1.update(role="pat1", call="Extra point")
+        pat2 = first_of([self.odd_one_out, self.h2h_players, self.h2h_teams])
+        pat2.update(role="pat2", call="Two-point try")
+        rounds += [pat1, pat2]
+        return {"date": date.isoformat(), "number": (date - LAUNCH).days + 1, "format": "drive", "rounds": rounds}
 
 
 STATE = OUT / "state.json"  # every question key used so far, so new days never repeat old ones

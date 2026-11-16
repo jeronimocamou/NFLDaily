@@ -1,47 +1,549 @@
 {
  "date": "2027-06-28",
  "number": 240,
+ "format": "drive",
  "rounds": [
   {
    "type": "head_to_head",
-   "kind": "team",
-   "season": 2017,
-   "prompt": "In 2017, who had the better regular-season record?",
+   "kind": "player",
+   "season": 2000,
+   "prompt": "In 2000, who had more receptions?",
    "options": [
+    {
+     "name": "Cris Carter",
+     "sub": "WR · Minnesota Vikings",
+     "color": "#4F2683",
+     "color2": "#FFC62F"
+    },
+    {
+     "name": "Eric Moulds",
+     "sub": "WR · Buffalo Bills",
+     "color": "#00338D",
+     "color2": "#C60C30"
+    }
+   ],
+   "reveal": {
+    "answer": 0,
+    "notes": [
+     "96 catches",
+     "90 catches"
+    ],
+    "fact": "Cris Carter caught 96 passes for 1,274 yards and 9 TDs for the 2000 Minnesota Vikings (9th in the NFL in receiving yards). The team went 11-5 and lost in the conference championship."
+   },
+   "role": "play",
+   "call": "Quick pass"
+  },
+  {
+   "type": "guess_number",
+   "metric": "wins",
+   "season": 2009,
+   "prompt": "How many regular-season games did the 2009 Indianapolis Colts win?",
+   "hint": "They played 16 games.",
+   "subject": {
+    "name": "Indianapolis Colts",
+    "color": "#002C5F",
+    "color2": "#a5acaf"
+   },
+   "min": 0,
+   "max": 16,
+   "start": 8,
+   "step": 1,
+   "bump": 1,
+   "scoring": {
+    "type": "steps",
+    "steps": [
+     100,
+     60,
+     30,
+     10
+    ]
+   },
+   "reveal": {
+    "answer": 14,
+    "answer_label": "14 wins (14-2)",
+    "fact": "The Colts started 14-0 before resting their starters, then lost Super Bowl XLIV to the Saints."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
+  {
+   "type": "rank_four",
+   "kind": "team",
+   "season": 2019,
+   "prompt": "Rank these 2019 teams by regular-season record, best first.",
+   "options": [
+    {
+     "name": "Kansas City Chiefs",
+     "color": "#E31837",
+     "color2": "#FFB612"
+    },
+    {
+     "name": "Dallas Cowboys",
+     "color": "#002244",
+     "color2": "#B0B7BC"
+    },
+    {
+     "name": "Tampa Bay Buccaneers",
+     "color": "#A71930",
+     "color2": "#322F2B"
+    },
+    {
+     "name": "Carolina Panthers",
+     "color": "#0085CA",
+     "color2": "#000000"
+    }
+   ],
+   "reveal": {
+    "answer": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "notes": [
+     "12-4",
+     "8-8",
+     "7-9",
+     "5-11"
+    ],
+    "fact": "The Chiefs won their first Super Bowl in 50 years, rallying from 10 points down in the fourth quarter against the 49ers."
+   },
+   "role": "play",
+   "call": "Run up the middle"
+  },
+  {
+   "type": "who_am_i",
+   "season": 2016,
+   "prompt": "Who had this 2016 season? (quarterback)",
+   "clues": [
+    "3,782 passing yds",
+    "16 TD",
+    "14 INT",
+    "62.4% completions",
+    "150 rushing yds"
+   ],
+   "options": [
+    {
+     "name": "Matt Ryan"
+    },
+    {
+     "name": "Trevor Siemian"
+    },
+    {
+     "name": "Carson Wentz"
+    },
+    {
+     "name": "Aaron Rodgers"
+    }
+   ],
+   "max_attempts": 2,
+   "scoring": {
+    "type": "attempts",
+    "points": [
+     100,
+     50
+    ]
+   },
+   "reveal": {
+    "answer": 2,
+    "hint": "He played for the Philadelphia Eagles.",
+    "notes": [
+     "QB · Atlanta Falcons",
+     "QB · Denver Broncos",
+     "QB · Philadelphia Eagles",
+     "QB · Green Bay Packers"
+    ],
+    "fact": "Carson Wentz threw for 3,782 yards and 16 TDs for the 2016 Philadelphia Eagles. The team went 7-9."
+   },
+   "role": "play",
+   "call": "Flea flicker"
+  },
+  {
+   "type": "who_am_i",
+   "season": 2022,
+   "prompt": "Who had this 2022 season? (wide receiver)",
+   "clues": [
+    "1,046 receiving yds",
+    "87 catches",
+    "9 TD",
+    "134 targets"
+   ],
+   "options": [
+    {
+     "name": "Tee Higgins"
+    },
+    {
+     "name": "Ja'Marr Chase"
+    },
+    {
+     "name": "Brandon Aiyuk"
+    },
+    {
+     "name": "Justin Jefferson"
+    }
+   ],
+   "max_attempts": 2,
+   "scoring": {
+    "type": "attempts",
+    "points": [
+     100,
+     50
+    ]
+   },
+   "reveal": {
+    "answer": 1,
+    "hint": "He played for the Cincinnati Bengals.",
+    "notes": [
+     "WR · Cincinnati Bengals",
+     "WR · Cincinnati Bengals",
+     "WR · San Francisco 49ers",
+     "WR · Minnesota Vikings"
+    ],
+    "fact": "Ja'Marr Chase caught 87 passes for 1,046 yards and 9 TDs for the 2022 Cincinnati Bengals. The team went 12-4 and lost in the conference championship."
+   },
+   "role": "play",
+   "call": "Flea flicker"
+  },
+  {
+   "type": "odd_one_out",
+   "season": 2006,
+   "prompt": "Which of these teams did NOT make the 2006 playoffs?",
+   "options": [
+    {
+     "name": "Baltimore Ravens",
+     "color": "#241773",
+     "color2": "#9E7C0C"
+    },
+    {
+     "name": "New England Patriots",
+     "color": "#002244",
+     "color2": "#C60C30"
+    },
     {
      "name": "Buffalo Bills",
      "color": "#00338D",
      "color2": "#C60C30"
     },
     {
-     "name": "New Orleans Saints",
+     "name": "San Diego Chargers",
+     "color": "#007BC7",
+     "color2": "#ffc20e"
+    }
+   ],
+   "reveal": {
+    "answer": 2,
+    "notes": [
+     "13-3 · lost in the Divisional round",
+     "12-4 · lost in the conference championship",
+     "7-9 · missed playoffs",
+     "14-2 · lost in the Divisional round"
+    ],
+    "fact": "Under Dick Jauron, with J.P. Losman at QB, the 2006 Buffalo Bills went 7-9. They missed the playoffs."
+   },
+   "role": "play",
+   "call": "Slant route"
+  },
+  {
+   "type": "guess_number",
+   "metric": "wins",
+   "season": 2008,
+   "prompt": "How many regular-season games did the 2008 Arizona Cardinals win?",
+   "hint": "They played 16 games.",
+   "subject": {
+    "name": "Arizona Cardinals",
+    "color": "#97233F",
+    "color2": "#000000"
+   },
+   "min": 0,
+   "max": 16,
+   "start": 8,
+   "step": 1,
+   "bump": 1,
+   "scoring": {
+    "type": "steps",
+    "steps": [
+     100,
+     60,
+     30,
+     10
+    ]
+   },
+   "reveal": {
+    "answer": 9,
+    "answer_label": "9 wins (9-7)",
+    "fact": "Kurt Warner led the Cardinals to their first Super Bowl, which they lost to the Steelers on a late Santonio Holmes touchdown."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
+  {
+   "type": "rank_four",
+   "kind": "team",
+   "season": 2002,
+   "prompt": "Rank these 2002 teams by regular-season record, best first.",
+   "options": [
+    {
+     "name": "New England Patriots",
+     "color": "#002244",
+     "color2": "#C60C30"
+    },
+    {
+     "name": "Carolina Panthers",
+     "color": "#0085CA",
+     "color2": "#000000"
+    },
+    {
+     "name": "Green Bay Packers",
+     "color": "#203731",
+     "color2": "#FFB612"
+    },
+    {
+     "name": "Jacksonville Jaguars",
+     "color": "#006778",
+     "color2": "#000000"
+    }
+   ],
+   "reveal": {
+    "answer": [
+     2,
+     0,
+     1,
+     3
+    ],
+    "notes": [
+     "9-7",
+     "7-9",
+     "12-4",
+     "6-10"
+    ],
+    "fact": "The 2002 Green Bay Packers started 7-1 and finished 12-4. They lost in the Wild Card round."
+   },
+   "role": "play",
+   "call": "Run up the middle"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "player",
+   "season": 2020,
+   "prompt": "In 2020, who threw for more passing yards?",
+   "options": [
+    {
+     "name": "Aaron Rodgers",
+     "sub": "QB · Green Bay Packers",
+     "color": "#203731",
+     "color2": "#FFB612"
+    },
+    {
+     "name": "Russell Wilson",
+     "sub": "QB · Seattle Seahawks",
+     "color": "#002244",
+     "color2": "#69be28"
+    }
+   ],
+   "reveal": {
+    "answer": 0,
+    "notes": [
+     "4,299 yds",
+     "4,212 yds"
+    ],
+    "fact": "Aaron Rodgers threw for 4,299 yards and 48 TDs for the 2020 Green Bay Packers (7th in the NFL in passing yards). The team went 13-3 and lost in the conference championship."
+   },
+   "role": "play",
+   "call": "Quick pass"
+  },
+  {
+   "type": "rank_four",
+   "kind": "player",
+   "season": 2013,
+   "prompt": "Rank these 2013 running backs by rushing yards, most first.",
+   "options": [
+    {
+     "name": "Marshawn Lynch",
+     "sub": "RB · Seattle Seahawks",
+     "color": "#002244",
+     "color2": "#69be28"
+    },
+    {
+     "name": "C.J. Spiller",
+     "sub": "RB · Buffalo Bills",
+     "color": "#00338D",
+     "color2": "#C60C30"
+    },
+    {
+     "name": "LeSean McCoy",
+     "sub": "RB · Philadelphia Eagles",
+     "color": "#004C54",
+     "color2": "#A5ACAF"
+    },
+    {
+     "name": "Chris Johnson",
+     "sub": "RB · Tennessee Titans",
+     "color": "#4495D2",
+     "color2": "#D50A0A"
+    }
+   ],
+   "reveal": {
+    "answer": [
+     2,
+     0,
+     3,
+     1
+    ],
+    "notes": [
+     "1,257 yds",
+     "933 yds",
+     "1,607 yds",
+     "1,077 yds"
+    ],
+    "fact": "LeSean McCoy ran for 1,607 yards and 9 TDs for the 2013 Philadelphia Eagles, leading the NFL in rushing yards. The team went 10-6 and lost in the Wild Card round."
+   },
+   "role": "play",
+   "call": "Run up the middle"
+  },
+  {
+   "type": "guess_number",
+   "metric": "points_for",
+   "season": 2023,
+   "prompt": "How many points did the 2023 San Francisco 49ers score in the regular season?",
+   "hint": "League average in 2023: 370 points.",
+   "subject": {
+    "name": "San Francisco 49ers",
+    "color": "#AA0000",
+    "color2": "#B3995D"
+   },
+   "min": 150,
+   "max": 650,
+   "start": 370,
+   "step": 1,
+   "bump": 5,
+   "scoring": {
+    "type": "linear",
+    "exact": 10,
+    "zero_at": 110
+   },
+   "reveal": {
+    "answer": 491,
+    "answer_label": "491 points",
+    "fact": "The 2023 San Francisco 49ers (12-5) beat the Dallas Cowboys 42-10 in Week 5. They lost the Super Bowl."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "player",
+   "season": 2012,
+   "prompt": "In 2012, who had more receiving yards?",
+   "options": [
+    {
+     "name": "Eric Decker",
+     "sub": "WR · Denver Broncos",
+     "color": "#002244",
+     "color2": "#FB4F14"
+    },
+    {
+     "name": "Lance Moore",
+     "sub": "WR · New Orleans Saints",
      "color": "#D3BC8D",
      "color2": "#000000"
     }
    ],
    "reveal": {
-    "answer": 1,
+    "answer": 0,
     "notes": [
-     "9-7",
-     "11-5"
+     "1,064 yds",
+     "1,041 yds"
     ],
-    "fact": "The 2017 New Orleans Saints won 8 straight games on the way to a 11-5 record. They lost in the Divisional round."
-   }
+    "fact": "Eric Decker caught 85 passes for 1,064 yards and 13 TDs for the 2012 Denver Broncos. The team went 13-3 and lost in the Divisional round."
+   },
+   "role": "play",
+   "call": "Quick pass"
   },
   {
-   "type": "odd_one_out",
-   "season": 2023,
-   "prompt": "Only one of these teams made the 2023 playoffs. Which one?",
+   "type": "who_am_i",
+   "season": 2024,
+   "prompt": "Who had this 2024 season? (wide receiver)",
+   "clues": [
+    "1,263 receiving yds",
+    "115 catches",
+    "12 TD",
+    "141 targets"
+   ],
    "options": [
     {
-     "name": "Cleveland Browns",
-     "color": "#FF3C00",
-     "color2": "#311D00"
+     "name": "Ja'Marr Chase"
     },
     {
-     "name": "New York Jets",
-     "color": "#003F2D",
-     "color2": "#000000"
+     "name": "Garrett Wilson"
+    },
+    {
+     "name": "Amon-Ra St. Brown"
+    },
+    {
+     "name": "CeeDee Lamb"
+    }
+   ],
+   "max_attempts": 2,
+   "scoring": {
+    "type": "attempts",
+    "points": [
+     100,
+     50
+    ]
+   },
+   "reveal": {
+    "answer": 2,
+    "hint": "He played for the Detroit Lions.",
+    "notes": [
+     "WR · Cincinnati Bengals",
+     "WR · New York Jets",
+     "WR · Detroit Lions",
+     "WR · Dallas Cowboys"
+    ],
+    "fact": "Amon-Ra St. Brown caught 115 passes for 1,263 yards and 12 TDs for the 2024 Detroit Lions (5th in the NFL in receiving yards). The team went 15-2 and lost in the Divisional round."
+   },
+   "role": "play",
+   "call": "Flea flicker"
+  },
+  {
+   "type": "guess_number",
+   "metric": "points_for",
+   "season": 2001,
+   "prompt": "How many points did the 2001 Green Bay Packers score in the regular season?",
+   "hint": "League average in 2001: 323 points.",
+   "subject": {
+    "name": "Green Bay Packers",
+    "color": "#203731",
+    "color2": "#FFB612"
+   },
+   "min": 150,
+   "max": 650,
+   "start": 323,
+   "step": 1,
+   "bump": 5,
+   "scoring": {
+    "type": "linear",
+    "exact": 10,
+    "zero_at": 110
+   },
+   "reveal": {
+    "answer": 390,
+    "answer_label": "390 points",
+    "fact": "The 2001 Green Bay Packers (12-4) beat the Washington Redskins 37-0 in Week 2. They lost in the Divisional round."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
+  {
+   "type": "rank_four",
+   "kind": "team",
+   "season": 2003,
+   "prompt": "Rank these 2003 teams by regular-season record, best first.",
+   "options": [
+    {
+     "name": "Kansas City Chiefs",
+     "color": "#E31837",
+     "color2": "#FFB612"
     },
     {
      "name": "Jacksonville Jaguars",
@@ -49,32 +551,160 @@
      "color2": "#000000"
     },
     {
-     "name": "Minnesota Vikings",
-     "color": "#4F2683",
-     "color2": "#FFC62F"
+     "name": "St. Louis Rams",
+     "color": "#003594",
+     "color2": "#FFD100"
+    },
+    {
+     "name": "Dallas Cowboys",
+     "color": "#002244",
+     "color2": "#B0B7BC"
     }
    ],
    "reveal": {
-    "answer": 0,
-    "notes": [
-     "11-6 · lost in the Wild Card round",
-     "7-10 · missed playoffs",
-     "9-8 · missed playoffs",
-     "7-10 · missed playoffs"
+    "answer": [
+     0,
+     2,
+     3,
+     1
     ],
-    "fact": "Under Kevin Stefanski, with Deshaun Watson at QB, the 2023 Cleveland Browns went 11-6. They lost in the Wild Card round."
-   }
+    "notes": [
+     "13-3",
+     "5-11",
+     "12-4",
+     "10-6"
+    ],
+    "fact": "The 2003 Kansas City Chiefs started 8-0 and finished 13-3. They lost in the Divisional round."
+   },
+   "role": "play",
+   "call": "Run up the middle"
+  },
+  {
+   "type": "who_am_i",
+   "season": 2005,
+   "prompt": "Who had this 2005 season? (running back)",
+   "clues": [
+    "907 rushing yds",
+    "4 rushing TD",
+    "4.4 yds/carry",
+    "32 catches",
+    "232 receiving yds"
+   ],
+   "options": [
+    {
+     "name": "Reuben Droughns"
+    },
+    {
+     "name": "Tatum Bell"
+    },
+    {
+     "name": "Willis McGahee"
+    },
+    {
+     "name": "Ronnie Brown"
+    }
+   ],
+   "max_attempts": 2,
+   "scoring": {
+    "type": "attempts",
+    "points": [
+     100,
+     50
+    ]
+   },
+   "reveal": {
+    "answer": 3,
+    "hint": "He played for the Miami Dolphins.",
+    "notes": [
+     "RB · Cleveland Browns",
+     "RB · Denver Broncos",
+     "RB · Buffalo Bills",
+     "RB · Miami Dolphins"
+    ],
+    "fact": "Ronnie Brown ran for 907 yards and 4 TDs for the 2005 Miami Dolphins. The team went 9-7."
+   },
+   "role": "play",
+   "call": "Flea flicker"
+  },
+  {
+   "type": "guess_number",
+   "metric": "receiving_yards",
+   "season": 2017,
+   "prompt": "How many receiving yards did Tyreek Hill have in 2017?",
+   "hint": "He played 15 games that season.",
+   "subject": {
+    "name": "Tyreek Hill",
+    "sub": "WR · Kansas City Chiefs",
+    "color": "#E31837",
+    "color2": "#FFB612"
+   },
+   "min": 600,
+   "max": 2000,
+   "start": 1300,
+   "step": 10,
+   "bump": 50,
+   "scoring": {
+    "type": "linear",
+    "exact": 50,
+    "zero_at": 650
+   },
+   "reveal": {
+    "answer": 1183,
+    "answer_label": "1,183 receiving yards",
+    "fact": "Tyreek Hill caught 75 passes for 1,183 yards and 7 TDs for the 2017 Kansas City Chiefs (7th in the NFL in receiving yards). The team went 10-6 and lost in the Wild Card round."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
+  {
+   "type": "odd_one_out",
+   "season": 2010,
+   "prompt": "Which of these teams did NOT make the 2010 playoffs?",
+   "options": [
+    {
+     "name": "Philadelphia Eagles",
+     "color": "#004C54",
+     "color2": "#A5ACAF"
+    },
+    {
+     "name": "Green Bay Packers",
+     "color": "#203731",
+     "color2": "#FFB612"
+    },
+    {
+     "name": "Pittsburgh Steelers",
+     "color": "#000000",
+     "color2": "#FFB612"
+    },
+    {
+     "name": "Cincinnati Bengals",
+     "color": "#FB4F14",
+     "color2": "#000000"
+    }
+   ],
+   "reveal": {
+    "answer": 3,
+    "notes": [
+     "10-6 · lost in the Wild Card round",
+     "10-6 · won the Super Bowl",
+     "12-4 · lost the Super Bowl",
+     "4-12 · missed playoffs"
+    ],
+    "fact": "The 2010 Cincinnati Bengals lost 10 games in a row during a 4-12 season."
+   },
+   "role": "play",
+   "call": "Slant route"
   },
   {
    "type": "guess_number",
    "metric": "wins",
-   "season": 2024,
-   "prompt": "How many regular-season games did the 2024 Tampa Bay Buccaneers win?",
+   "season": 2025,
+   "prompt": "How many regular-season games did the 2025 Miami Dolphins win?",
    "hint": "They played 17 games.",
    "subject": {
-    "name": "Tampa Bay Buccaneers",
-    "color": "#A71930",
-    "color2": "#322F2B"
+    "name": "Miami Dolphins",
+    "color": "#008E97",
+    "color2": "#F58220"
    },
    "min": 0,
    "max": 17,
@@ -91,77 +721,135 @@
     ]
    },
    "reveal": {
-    "answer": 10,
-    "answer_label": "10 wins (10-7)",
-    "fact": "The 2024 Tampa Bay Buccaneers (10-7) beat the Carolina Panthers 48-14 in Week 17. They lost in the Wild Card round."
-   }
+    "answer": 7,
+    "answer_label": "7 wins (7-10)",
+    "fact": "Under Mike McDaniel, with Tua Tagovailoa at QB, the 2025 Miami Dolphins went 7-10. They missed the playoffs."
+   },
+   "role": "play",
+   "call": "Deep shot"
   },
   {
-   "type": "rank_four",
-   "kind": "team",
-   "season": 2009,
-   "prompt": "Rank the 2009 AFC South by points scored, best first.",
+   "type": "guess_number",
+   "metric": "passing_tds",
+   "season": 2018,
+   "prompt": "How many touchdown passes did Matthew Stafford throw in 2018?",
+   "hint": "He played 16 games that season.",
+   "subject": {
+    "name": "Matthew Stafford",
+    "sub": "QB · Detroit Lions",
+    "color": "#0076B6",
+    "color2": "#B0B7BC"
+   },
+   "min": 5,
+   "max": 60,
+   "start": 32,
+   "step": 1,
+   "bump": 1,
+   "scoring": {
+    "type": "linear",
+    "exact": 1,
+    "zero_at": 12
+   },
+   "reveal": {
+    "answer": 21,
+    "answer_label": "21 touchdown passes",
+    "fact": "Matthew Stafford threw for 3,777 yards and 21 TDs for the 2018 Detroit Lions. The team went 6-10."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
+  {
+   "type": "odd_one_out",
+   "season": 2004,
+   "prompt": "Which of these teams did NOT make the 2004 playoffs?",
    "options": [
     {
-     "name": "Houston Texans",
-     "color": "#03202F",
-     "color2": "#A71930"
+     "name": "Green Bay Packers",
+     "color": "#203731",
+     "color2": "#FFB612"
     },
     {
-     "name": "Tennessee Titans",
-     "color": "#4495D2",
-     "color2": "#D50A0A"
+     "name": "San Diego Chargers",
+     "color": "#007BC7",
+     "color2": "#ffc20e"
     },
     {
-     "name": "Jacksonville Jaguars",
-     "color": "#006778",
+     "name": "San Francisco 49ers",
+     "color": "#AA0000",
+     "color2": "#B3995D"
+    },
+    {
+     "name": "New York Jets",
+     "color": "#003F2D",
      "color2": "#000000"
-    },
-    {
-     "name": "Indianapolis Colts",
-     "color": "#002C5F",
-     "color2": "#a5acaf"
     }
    ],
    "reveal": {
-    "answer": [
-     3,
-     0,
-     1,
-     2
-    ],
+    "answer": 2,
     "notes": [
-     "388 pts",
-     "354 pts",
-     "290 pts",
-     "416 pts"
+     "10-6 · lost in the Wild Card round",
+     "12-4 · lost in the Wild Card round",
+     "2-14 · missed playoffs",
+     "10-6 · lost in the Divisional round"
     ],
-    "fact": "The Colts started 14-0 before resting their starters, then lost Super Bowl XLIV to the Saints."
-   }
+    "fact": "The 2004 San Francisco 49ers started 1-7 and finished 2-14."
+   },
+   "role": "play",
+   "call": "Slant route"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "player",
+   "season": 2007,
+   "prompt": "In 2007, who had more receiving yards?",
+   "options": [
+    {
+     "name": "Wes Welker",
+     "sub": "WR · New England Patriots",
+     "color": "#002244",
+     "color2": "#C60C30"
+    },
+    {
+     "name": "Braylon Edwards",
+     "sub": "WR · Cleveland Browns",
+     "color": "#FF3C00",
+     "color2": "#311D00"
+    }
+   ],
+   "reveal": {
+    "answer": 1,
+    "notes": [
+     "1,175 yds",
+     "1,289 yds"
+    ],
+    "fact": "Braylon Edwards caught 80 passes for 1,289 yards and 16 TDs for the 2007 Cleveland Browns (7th in the NFL in receiving yards). The team went 10-6."
+   },
+   "role": "play",
+   "call": "Quick pass"
   },
   {
    "type": "who_am_i",
-   "season": 2021,
-   "prompt": "Who had this 2021 season? (running back)",
+   "season": 1999,
+   "prompt": "Who had this 1999 season? (running back)",
    "clues": [
-    "1,259 rushing yds",
-    "8 rushing TD",
-    "5.5 yds/carry",
-    "20 catches",
-    "174 receiving yds"
+    "1,397 rushing yds",
+    "11 rushing TD",
+    "4.2 yds/carry",
+    "27 catches",
+    "119 receiving yds"
    ],
    "options": [
     {
-     "name": "Derrick Henry"
+     "name": "Emmitt Smith"
     },
     {
-     "name": "Dalvin Cook"
+     "name": "Olandis Gary"
     },
     {
-     "name": "Antonio Gibson"
+     "name": "Curtis Martin"
     },
     {
-     "name": "Nick Chubb"
+     "name": "James Stewart"
     }
    ],
    "max_attempts": 2,
@@ -173,16 +861,124 @@
     ]
    },
    "reveal": {
-    "answer": 3,
-    "hint": "He played for the Cleveland Browns.",
+    "answer": 0,
+    "hint": "He played for the Dallas Cowboys.",
     "notes": [
-     "RB · Tennessee Titans",
-     "RB · Minnesota Vikings",
-     "RB · Washington Football Team",
-     "RB · Cleveland Browns"
+     "RB · Dallas Cowboys",
+     "RB · Denver Broncos",
+     "RB · New York Jets",
+     "RB · Jacksonville Jaguars"
     ],
-    "fact": "Nick Chubb ran for 1,259 yards and 8 TDs for the 2021 Cleveland Browns (2nd in the NFL in rushing yards). The team went 8-9."
-   }
+    "fact": "Emmitt Smith ran for 1,397 yards and 11 TDs for the 1999 Dallas Cowboys (4th in the NFL in rushing yards). The team went 8-8 and lost in the Wild Card round."
+   },
+   "role": "play",
+   "call": "Flea flicker"
+  },
+  {
+   "type": "odd_one_out",
+   "season": 2015,
+   "prompt": "Only one of these teams made the 2015 playoffs. Which one?",
+   "options": [
+    {
+     "name": "St. Louis Rams",
+     "color": "#003594",
+     "color2": "#FFD100"
+    },
+    {
+     "name": "Miami Dolphins",
+     "color": "#008E97",
+     "color2": "#F58220"
+    },
+    {
+     "name": "Green Bay Packers",
+     "color": "#203731",
+     "color2": "#FFB612"
+    },
+    {
+     "name": "Chicago Bears",
+     "color": "#0B162A",
+     "color2": "#E64100"
+    }
+   ],
+   "reveal": {
+    "answer": 2,
+    "notes": [
+     "7-9 · missed playoffs",
+     "6-10 · missed playoffs",
+     "10-6 · lost in the Divisional round",
+     "6-10 · missed playoffs"
+    ],
+    "fact": "Under Mike McCarthy, with Aaron Rodgers at QB, the 2015 Green Bay Packers went 10-6. They lost in the Divisional round."
+   },
+   "role": "play",
+   "call": "Slant route"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "team",
+   "season": 2010,
+   "prompt": "In 2010, who had the better regular-season record?",
+   "options": [
+    {
+     "name": "San Diego Chargers",
+     "color": "#007BC7",
+     "color2": "#ffc20e"
+    },
+    {
+     "name": "Minnesota Vikings",
+     "color": "#4F2683",
+     "color2": "#FFC62F"
+    }
+   ],
+   "reveal": {
+    "answer": 0,
+    "notes": [
+     "9-7",
+     "6-10"
+    ],
+    "fact": "The 2010 San Diego Chargers (9-7) beat the Arizona Cardinals 41-10 in Week 4."
+   },
+   "role": "pat1",
+   "call": "Extra point"
+  },
+  {
+   "type": "odd_one_out",
+   "season": 2004,
+   "prompt": "Only one of these teams made the 2004 playoffs. Which one?",
+   "options": [
+    {
+     "name": "Cincinnati Bengals",
+     "color": "#FB4F14",
+     "color2": "#000000"
+    },
+    {
+     "name": "Philadelphia Eagles",
+     "color": "#004C54",
+     "color2": "#A5ACAF"
+    },
+    {
+     "name": "New York Giants",
+     "color": "#0B2265",
+     "color2": "#A71930"
+    },
+    {
+     "name": "Kansas City Chiefs",
+     "color": "#E31837",
+     "color2": "#FFB612"
+    }
+   ],
+   "reveal": {
+    "answer": 1,
+    "notes": [
+     "8-8 · missed playoffs",
+     "13-3 · lost the Super Bowl",
+     "6-10 · missed playoffs",
+     "7-9 · missed playoffs"
+    ],
+    "fact": "The 2004 Philadelphia Eagles started 7-1 and finished 13-3. They lost the Super Bowl."
+   },
+   "role": "pat2",
+   "call": "Two-point try"
   }
  ]
 }

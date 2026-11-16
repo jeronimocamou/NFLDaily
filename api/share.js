@@ -1,8 +1,8 @@
 // GET /s/:code (rewritten to /api/share?c=:code) -> a tiny page whose link
 // preview shows the shared score, then sends people on to the game.
-import { parseShareCode } from "../lib/og.js";
+import { parseShareCode, shareLabel } from "../lib/og.js";
 
-const EMOJI = { g: "🟩", m: "🟨", l: "🟧", b: "🟥" };
+import { CODE_EMOJI } from "../site/drive.js";
 
 export default function handler(req, res) {
   const code = new URL(req.url, "http://x").searchParams.get("c");
@@ -15,9 +15,11 @@ export default function handler(req, res) {
   const proto = String(req.headers["x-forwarded-proto"] || "https").split(",")[0];
   const host = req.headers["x-forwarded-host"] || req.headers.host;
   const origin = `${proto}://${host}`;
-  const grid = share.grid.split("").map((t) => EMOJI[t]).join("");
-  const title = `Fourth & Daily #${share.number}: ${share.score}/500`;
-  const desc = `${grid} Think you can beat it? Five football trivia questions every day.`;
+  const grid = share.codes.split("").map((t) => CODE_EMOJI[t]).join("");
+  const clock = `${Math.floor(share.clock / 60)}:${String(share.clock % 60).padStart(2, "0")}`;
+  const label = shareLabel(share);
+  const title = `Fourth & Daily #${share.number}: ${label[0] + label.slice(1).toLowerCase()}! ${share.points} pts · ${share.yards} yds`;
+  const desc = `${grid} ${clock} left. Down 4 with 2:00 to go: can you lead a better drive?`;
   const image = `${origin}/api/og?c=${code}`;
 
   res.statusCode = 200;

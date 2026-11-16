@@ -51,22 +51,42 @@
 
   <main id="app">
     <div id="banner"></div>
-    <ol class="progress" id="progress" aria-label="Rounds"></ol>
+    <section id="game-hud" hidden aria-label="Scoreboard">
+      <div class="scoreboard">
+        <div class="sb-team"><span class="sb-label">YOU</span><span id="sb-us" class="sb-num">17</span></div>
+        <div class="sb-mid"><span class="sb-label">4TH</span><span id="sb-clock" class="sb-num clock">2:00</span></div>
+        <div class="sb-team"><span class="sb-label">THEM</span><span id="sb-them" class="sb-num">21</span></div>
+      </div>
+      <div class="sb-strip">
+        <span id="sb-down">1st &amp; 10</span>
+        <span id="sb-spot">BALL OWN 25</span>
+        <span id="sb-play" class="sb-playclock" hidden>:25</span>
+      </div>
+      <canvas id="field" aria-hidden="true"></canvas>
+    </section>
     <section id="stage" class="stage" aria-live="polite"></section>
   </main>
 
   <dialog id="help" closedby="any" aria-labelledby="help-title">
     <h2 id="help-title">How to play</h2>
-    <p>Every day there are <strong>5 rounds</strong>, each from a different NFL season (1999–2025). All stats are regular season only.</p>
+    <p><strong>2:00 left in the 4th. You're down 21–17 with the ball on your own 25.</strong> Lead the game-winning drive.</p>
     <ul class="help-list">
-      <li><strong>Head to head</strong>: which team had the better record, or which player had more?</li>
-      <li><strong>Odd one out</strong>: find the team that doesn't belong.</li>
-      <li><strong>Guess the number</strong>: get close for partial credit.</li>
-      <li><strong>Rank four</strong>: tap in order, best first. Points for each correct spot.</li>
-      <li><strong>Who am I?</strong>: name the player from a stat line. A miss gives you a hint and one more try for 50.</li>
+      <li>Every question is a <strong>play</strong>, from a random NFL season (1999–2025). Better answers gain more yards.</li>
+      <li>You have a <strong>25-second play clock</strong>. Run it out and it's delay of game (−5 yards). The game clock runs while you think.</li>
+      <li><strong>4 downs</strong> to gain 10 yards. On 4th down, go for it or kick a field goal (if you're in range).</li>
+      <li>Score a <strong>touchdown</strong> to win, then kick the extra point or go for two.</li>
     </ul>
-    <p>Each round is worth up to 100 points. A new puzzle drops at midnight. Missed a day? Play it from the calendar, but only same-day games count toward streaks and leaderboards.</p>
-    <p class="legend">🟩 100 &nbsp; 🟨 50+ &nbsp; 🟧 1–49 &nbsp; 🟥 0</p>
+    <table class="yards">
+      <thead><tr><th>Play call</th><th>Right answer</th><th>Wrong</th></tr></thead>
+      <tbody>
+        <tr><td>Quick pass <small>head to head</small></td><td>7 yds</td><td>incomplete</td></tr>
+        <tr><td>Slant route <small>odd one out</small></td><td>12 yds</td><td>incomplete</td></tr>
+        <tr><td>Deep shot <small>guess the number</small></td><td>up to 22</td><td>sack −5</td></tr>
+        <tr><td>Run up the middle <small>rank four</small></td><td>up to 15</td><td>stuffed −2</td></tr>
+        <tr><td>Flea flicker <small>who am I?</small></td><td>30 (12 on 2nd try)</td><td>sack −7</td></tr>
+      </tbody>
+    </table>
+    <p class="hint">Answer a gain within 6 seconds for +2 hurry-up yards. Leaderboards rank by points, then yards, then time left. Only same-day drives by signed-in players count.</p>
     <form method="dialog"><button class="btn primary">Let's play</button></form>
   </dialog>
 

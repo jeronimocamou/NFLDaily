@@ -1,81 +1,352 @@
 {
  "date": "2027-06-15",
  "number": 227,
+ "format": "drive",
  "rounds": [
+  {
+   "type": "guess_number",
+   "metric": "points_for",
+   "season": 1999,
+   "prompt": "How many points did the 1999 Minnesota Vikings score in the regular season?",
+   "hint": "League average in 1999: 333 points.",
+   "subject": {
+    "name": "Minnesota Vikings",
+    "color": "#4F2683",
+    "color2": "#FFC62F"
+   },
+   "min": 150,
+   "max": 650,
+   "start": 333,
+   "step": 1,
+   "bump": 5,
+   "scoring": {
+    "type": "linear",
+    "exact": 10,
+    "zero_at": 110
+   },
+   "reveal": {
+    "answer": 399,
+    "answer_label": "399 points",
+    "fact": "Under Dennis Green, with Jeff George at QB, the 1999 Minnesota Vikings went 10-6. They lost in the Divisional round."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
   {
    "type": "head_to_head",
    "kind": "team",
-   "season": 2020,
-   "prompt": "In 2020, who had the better regular-season record?",
+   "season": 2008,
+   "prompt": "In 2008, who had the better regular-season record?",
    "options": [
     {
-     "name": "New York Giants",
-     "color": "#0B2265",
-     "color2": "#A71930"
+     "name": "San Francisco 49ers",
+     "color": "#AA0000",
+     "color2": "#B3995D"
     },
     {
-     "name": "Minnesota Vikings",
-     "color": "#4F2683",
-     "color2": "#FFC62F"
+     "name": "Philadelphia Eagles",
+     "color": "#004C54",
+     "color2": "#A5ACAF"
     }
    ],
    "reveal": {
     "answer": 1,
     "notes": [
-     "6-10",
-     "7-9"
+     "7-9",
+     "9-6-1"
     ],
-    "fact": "Under Mike Zimmer, with Kirk Cousins at QB, the 2020 Minnesota Vikings went 7-9. They missed the playoffs."
-   }
+    "fact": "The 2008 Philadelphia Eagles (9-6-1) beat the Dallas Cowboys 44-6 in Week 17. They lost in the conference championship."
+   },
+   "role": "play",
+   "call": "Quick pass"
   },
   {
    "type": "odd_one_out",
-   "season": 2005,
-   "prompt": "Only one of these teams made the 2005 playoffs. Which one?",
+   "season": 2019,
+   "prompt": "Which of these teams did NOT make the 2019 playoffs?",
    "options": [
+    {
+     "name": "Tennessee Titans",
+     "color": "#4495D2",
+     "color2": "#D50A0A"
+    },
+    {
+     "name": "Minnesota Vikings",
+     "color": "#4F2683",
+     "color2": "#FFC62F"
+    },
+    {
+     "name": "Buffalo Bills",
+     "color": "#00338D",
+     "color2": "#C60C30"
+    },
+    {
+     "name": "Detroit Lions",
+     "color": "#0076B6",
+     "color2": "#B0B7BC"
+    }
+   ],
+   "reveal": {
+    "answer": 3,
+    "notes": [
+     "9-7 · lost in the conference championship",
+     "10-6 · lost in the Divisional round",
+     "10-6 · lost in the Wild Card round",
+     "3-12-1 · missed playoffs"
+    ],
+    "fact": "The 2019 Detroit Lions lost 9 games in a row during a 3-12-1 season."
+   },
+   "role": "play",
+   "call": "Slant route"
+  },
+  {
+   "type": "rank_four",
+   "kind": "team",
+   "season": 2025,
+   "prompt": "Rank these 2025 teams by points scored, best first.",
+   "options": [
+    {
+     "name": "Cincinnati Bengals",
+     "color": "#FB4F14",
+     "color2": "#000000"
+    },
+    {
+     "name": "Jacksonville Jaguars",
+     "color": "#006778",
+     "color2": "#000000"
+    },
     {
      "name": "Cleveland Browns",
      "color": "#FF3C00",
      "color2": "#311D00"
     },
     {
-     "name": "Tampa Bay Buccaneers",
-     "color": "#A71930",
-     "color2": "#322F2B"
+     "name": "Los Angeles Rams",
+     "color": "#003594",
+     "color2": "#FFD100"
+    }
+   ],
+   "reveal": {
+    "answer": [
+     3,
+     1,
+     0,
+     2
+    ],
+    "notes": [
+     "414 pts",
+     "474 pts",
+     "279 pts",
+     "518 pts"
+    ],
+    "fact": "The 2025 Los Angeles Rams (12-5) led the NFL with 518 points, with Matthew Stafford at quarterback. They lost in the conference championship."
+   },
+   "role": "play",
+   "call": "Run up the middle"
+  },
+  {
+   "type": "who_am_i",
+   "season": 2006,
+   "prompt": "Who had this 2006 season? (wide receiver)",
+   "clues": [
+    "1,166 receiving yds",
+    "83 catches",
+    "8 TD",
+    "0 targets"
+   ],
+   "options": [
+    {
+     "name": "Terry Glenn"
     },
     {
-     "name": "Philadelphia Eagles",
-     "color": "#004C54",
-     "color2": "#A5ACAF"
+     "name": "Steve Smith"
     },
     {
-     "name": "San Diego Chargers",
-     "color": "#007BC7",
-     "color2": "#ffc20e"
+     "name": "Laveranues Coles"
+    },
+    {
+     "name": "Mike Furrey"
+    }
+   ],
+   "max_attempts": 2,
+   "scoring": {
+    "type": "attempts",
+    "points": [
+     100,
+     50
+    ]
+   },
+   "reveal": {
+    "answer": 1,
+    "hint": "He played for the Carolina Panthers.",
+    "notes": [
+     "WR · Dallas Cowboys",
+     "WR · Carolina Panthers",
+     "WR · New York Jets",
+     "WR · Detroit Lions"
+    ],
+    "fact": "Steve Smith caught 83 passes for 1,166 yards and 8 TDs for the 2006 Carolina Panthers (9th in the NFL in receiving yards). The team went 8-8."
+   },
+   "role": "play",
+   "call": "Flea flicker"
+  },
+  {
+   "type": "guess_number",
+   "metric": "rushing_yards",
+   "season": 2013,
+   "prompt": "How many rushing yards did Frank Gore run for in 2013?",
+   "hint": "He played 16 games that season.",
+   "subject": {
+    "name": "Frank Gore",
+    "sub": "RB · San Francisco 49ers",
+    "color": "#AA0000",
+    "color2": "#B3995D"
+   },
+   "min": 500,
+   "max": 2200,
+   "start": 1350,
+   "step": 10,
+   "bump": 50,
+   "scoring": {
+    "type": "linear",
+    "exact": 50,
+    "zero_at": 650
+   },
+   "reveal": {
+    "answer": 1128,
+    "answer_label": "1,128 rushing yards",
+    "fact": "Frank Gore ran for 1,128 yards and 9 TDs for the 2013 San Francisco 49ers (8th in the NFL in rushing yards). The team went 12-4 and lost in the conference championship."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
+  {
+   "type": "who_am_i",
+   "season": 2016,
+   "prompt": "Who had this 2016 season? (running back)",
+   "clues": [
+    "1,239 rushing yds",
+    "16 rushing TD",
+    "4.2 yds/carry",
+    "80 catches",
+    "879 receiving yds"
+   ],
+   "options": [
+    {
+     "name": "DeMarco Murray"
+    },
+    {
+     "name": "David Johnson"
+    },
+    {
+     "name": "Ezekiel Elliott"
+    },
+    {
+     "name": "Spencer Ware"
+    }
+   ],
+   "max_attempts": 2,
+   "scoring": {
+    "type": "attempts",
+    "points": [
+     100,
+     50
+    ]
+   },
+   "reveal": {
+    "answer": 1,
+    "hint": "He played for the Arizona Cardinals.",
+    "notes": [
+     "RB · Tennessee Titans",
+     "RB · Arizona Cardinals",
+     "RB · Dallas Cowboys",
+     "RB · Kansas City Chiefs"
+    ],
+    "fact": "David Johnson ran for 1,239 yards and 16 TDs for the 2016 Arizona Cardinals (7th in the NFL in rushing yards). The team went 7-8-1."
+   },
+   "role": "play",
+   "call": "Flea flicker"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "player",
+   "season": 2014,
+   "prompt": "In 2014, who had more receiving yards?",
+   "options": [
+    {
+     "name": "Anquan Boldin",
+     "sub": "WR · San Francisco 49ers",
+     "color": "#AA0000",
+     "color2": "#B3995D"
+    },
+    {
+     "name": "Steve Smith",
+     "sub": "WR · Baltimore Ravens",
+     "color": "#241773",
+     "color2": "#9E7C0C"
     }
    ],
    "reveal": {
     "answer": 1,
     "notes": [
-     "6-10 · missed playoffs",
-     "11-5 · lost in the Wild Card round",
-     "6-10 · missed playoffs",
-     "9-7 · missed playoffs"
+     "1,062 yds",
+     "1,065 yds"
     ],
-    "fact": "Under Jon Gruden, with Chris Simms at QB, the 2005 Tampa Bay Buccaneers went 11-5. They lost in the Wild Card round."
-   }
+    "fact": "Steve Smith caught 79 passes for 1,065 yards and 6 TDs for the 2014 Baltimore Ravens. The team went 10-6 and lost in the Divisional round."
+   },
+   "role": "play",
+   "call": "Quick pass"
+  },
+  {
+   "type": "odd_one_out",
+   "season": 2022,
+   "prompt": "Which of these teams did NOT make the 2022 playoffs?",
+   "options": [
+    {
+     "name": "Cincinnati Bengals",
+     "color": "#FB4F14",
+     "color2": "#000000"
+    },
+    {
+     "name": "Kansas City Chiefs",
+     "color": "#E31837",
+     "color2": "#FFB612"
+    },
+    {
+     "name": "Denver Broncos",
+     "color": "#002244",
+     "color2": "#FB4F14"
+    },
+    {
+     "name": "Los Angeles Chargers",
+     "color": "#007BC7",
+     "color2": "#ffc20e"
+    }
+   ],
+   "reveal": {
+    "answer": 2,
+    "notes": [
+     "12-4 · lost in the conference championship",
+     "14-3 · won the Super Bowl",
+     "5-12 · missed playoffs",
+     "10-7 · lost in the Wild Card round"
+    ],
+    "fact": "The 2022 Denver Broncos (5-12) lost 51-14 to the Los Angeles Rams in Week 16."
+   },
+   "role": "play",
+   "call": "Slant route"
   },
   {
    "type": "guess_number",
    "metric": "passing_yards",
-   "season": 2011,
-   "prompt": "How many passing yards did Tom Brady throw for in 2011?",
-   "hint": "He played 16 games that season.",
+   "season": 2018,
+   "prompt": "How many passing yards did Cam Newton throw for in 2018?",
+   "hint": "He played 14 games that season.",
    "subject": {
-    "name": "Tom Brady",
-    "sub": "QB · New England Patriots",
-    "color": "#002244",
-    "color2": "#C60C30"
+    "name": "Cam Newton",
+    "sub": "QB · Carolina Panthers",
+    "color": "#0085CA",
+    "color2": "#000000"
    },
    "min": 2000,
    "max": 5600,
@@ -88,16 +359,223 @@
     "zero_at": 1000
    },
    "reveal": {
-    "answer": 5235,
-    "answer_label": "5,235 passing yards",
-    "fact": "Tom Brady threw for 5,235 yards and 39 TDs for the 2011 New England Patriots (2nd in the NFL in passing yards). The team went 13-3 and lost the Super Bowl."
-   }
+    "answer": 3395,
+    "answer_label": "3,395 passing yards",
+    "fact": "Cam Newton threw for 3,395 yards and 24 TDs for the 2018 Carolina Panthers. The team went 7-9."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
+  {
+   "type": "guess_number",
+   "metric": "receptions",
+   "season": 2000,
+   "prompt": "How many receptions did Joe Horn have in 2000?",
+   "hint": "He played 16 games that season.",
+   "subject": {
+    "name": "Joe Horn",
+    "sub": "WR · New Orleans Saints",
+    "color": "#D3BC8D",
+    "color2": "#000000"
+   },
+   "min": 40,
+   "max": 150,
+   "start": 95,
+   "step": 1,
+   "bump": 1,
+   "scoring": {
+    "type": "linear",
+    "exact": 3,
+    "zero_at": 35
+   },
+   "reveal": {
+    "answer": 94,
+    "answer_label": "94 receptions",
+    "fact": "Joe Horn caught 94 passes for 1,340 yards and 8 TDs for the 2000 New Orleans Saints (6th in the NFL in receiving yards). The team went 10-6 and lost in the Divisional round."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
+  {
+   "type": "guess_number",
+   "metric": "receptions",
+   "season": 2017,
+   "prompt": "How many receptions did Adam Thielen have in 2017?",
+   "hint": "He played 16 games that season.",
+   "subject": {
+    "name": "Adam Thielen",
+    "sub": "WR · Minnesota Vikings",
+    "color": "#4F2683",
+    "color2": "#FFC62F"
+   },
+   "min": 40,
+   "max": 150,
+   "start": 95,
+   "step": 1,
+   "bump": 1,
+   "scoring": {
+    "type": "linear",
+    "exact": 3,
+    "zero_at": 35
+   },
+   "reveal": {
+    "answer": 91,
+    "answer_label": "91 receptions",
+    "fact": "Adam Thielen caught 91 passes for 1,276 yards and 4 TDs for the 2017 Minnesota Vikings (5th in the NFL in receiving yards). The team went 13-3 and lost in the conference championship."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "team",
+   "season": 2009,
+   "prompt": "In 2009, who had the better regular-season record?",
+   "options": [
+    {
+     "name": "Miami Dolphins",
+     "color": "#008E97",
+     "color2": "#F58220"
+    },
+    {
+     "name": "Pittsburgh Steelers",
+     "color": "#000000",
+     "color2": "#FFB612"
+    }
+   ],
+   "reveal": {
+    "answer": 1,
+    "notes": [
+     "7-9",
+     "9-7"
+    ],
+    "fact": "Under Mike Tomlin, with Ben Roethlisberger at QB, the 2009 Pittsburgh Steelers went 9-7. They missed the playoffs."
+   },
+   "role": "play",
+   "call": "Quick pass"
+  },
+  {
+   "type": "guess_number",
+   "metric": "points_for",
+   "season": 2011,
+   "prompt": "How many points did the 2011 Baltimore Ravens score in the regular season?",
+   "hint": "League average in 2011: 355 points.",
+   "subject": {
+    "name": "Baltimore Ravens",
+    "color": "#241773",
+    "color2": "#9E7C0C"
+   },
+   "min": 150,
+   "max": 650,
+   "start": 355,
+   "step": 1,
+   "bump": 5,
+   "scoring": {
+    "type": "linear",
+    "exact": 10,
+    "zero_at": 110
+   },
+   "reveal": {
+    "answer": 378,
+    "answer_label": "378 points",
+    "fact": "The 2011 Baltimore Ravens (12-4) swept their division rivals. They lost in the conference championship."
+   },
+   "role": "play",
+   "call": "Deep shot"
   },
   {
    "type": "rank_four",
+   "kind": "player",
+   "season": 2020,
+   "prompt": "Rank these 2020 quarterbacks by touchdown passes, most first.",
+   "options": [
+    {
+     "name": "Russell Wilson",
+     "sub": "QB · Seattle Seahawks",
+     "color": "#002244",
+     "color2": "#69be28"
+    },
+    {
+     "name": "Baker Mayfield",
+     "sub": "QB · Cleveland Browns",
+     "color": "#FF3C00",
+     "color2": "#311D00"
+    },
+    {
+     "name": "Josh Allen",
+     "sub": "QB · Buffalo Bills",
+     "color": "#00338D",
+     "color2": "#C60C30"
+    },
+    {
+     "name": "Justin Herbert",
+     "sub": "QB · Los Angeles Chargers",
+     "color": "#007BC7",
+     "color2": "#ffc20e"
+    }
+   ],
+   "reveal": {
+    "answer": [
+     0,
+     2,
+     3,
+     1
+    ],
+    "notes": [
+     "40 TD",
+     "26 TD",
+     "37 TD",
+     "31 TD"
+    ],
+    "fact": "Russell Wilson threw for 4,212 yards and 40 TDs for the 2020 Seattle Seahawks (2nd in the NFL in TD passes). The team went 12-4 and lost in the Wild Card round."
+   },
+   "role": "play",
+   "call": "Run up the middle"
+  },
+  {
+   "type": "odd_one_out",
+   "season": 2024,
+   "prompt": "Only one of these teams made the 2024 playoffs. Which one?",
+   "options": [
+    {
+     "name": "Detroit Lions",
+     "color": "#0076B6",
+     "color2": "#B0B7BC"
+    },
+    {
+     "name": "Cincinnati Bengals",
+     "color": "#FB4F14",
+     "color2": "#000000"
+    },
+    {
+     "name": "Arizona Cardinals",
+     "color": "#97233F",
+     "color2": "#000000"
+    },
+    {
+     "name": "Atlanta Falcons",
+     "color": "#A71930",
+     "color2": "#000000"
+    }
+   ],
+   "reveal": {
+    "answer": 0,
+    "notes": [
+     "15-2 · lost in the Divisional round",
+     "9-8 · missed playoffs",
+     "8-9 · missed playoffs",
+     "8-9 · missed playoffs"
+    ],
+    "fact": "The Lions went 15-2, the best record in franchise history."
+   },
+   "role": "play",
+   "call": "Slant route"
+  },
+  {
+   "type": "head_to_head",
    "kind": "team",
-   "season": 2017,
-   "prompt": "Rank the 2017 AFC East by points scored, best first.",
+   "season": 2005,
+   "prompt": "In 2005, who had the better regular-season record?",
    "options": [
     {
      "name": "Miami Dolphins",
@@ -108,56 +586,42 @@
      "name": "New England Patriots",
      "color": "#002244",
      "color2": "#C60C30"
-    },
-    {
-     "name": "New York Jets",
-     "color": "#003F2D",
-     "color2": "#000000"
-    },
-    {
-     "name": "Buffalo Bills",
-     "color": "#00338D",
-     "color2": "#C60C30"
     }
    ],
    "reveal": {
-    "answer": [
-     1,
-     3,
-     2,
-     0
-    ],
+    "answer": 1,
     "notes": [
-     "281 pts",
-     "458 pts",
-     "298 pts",
-     "302 pts"
+     "9-7",
+     "10-6"
     ],
-    "fact": "The 2017 New England Patriots won 8 straight games on the way to a 13-3 record. They lost the Super Bowl."
-   }
+    "fact": "Under Bill Belichick, with Tom Brady at QB, the 2005 New England Patriots went 10-6. They lost in the Divisional round."
+   },
+   "role": "play",
+   "call": "Quick pass"
   },
   {
    "type": "who_am_i",
-   "season": 2024,
-   "prompt": "Who had this 2024 season? (wide receiver)",
+   "season": 2002,
+   "prompt": "Who had this 2002 season? (running back)",
    "clues": [
-    "1,001 receiving yds",
-    "58 catches",
-    "7 TD",
-    "91 targets"
+    "1,311 rushing yds",
+    "7 rushing TD",
+    "4.2 yds/carry",
+    "43 catches",
+    "298 receiving yds"
    ],
    "options": [
     {
-     "name": "Jameson Williams"
+     "name": "Eddie George"
     },
     {
-     "name": "Justin Jefferson"
+     "name": "Warrick Dunn"
     },
     {
-     "name": "Calvin Ridley"
+     "name": "Corey Dillon"
     },
     {
-     "name": "Jakobi Meyers"
+     "name": "Priest Holmes"
     }
    ],
    "max_attempts": 2,
@@ -169,16 +633,311 @@
     ]
    },
    "reveal": {
-    "answer": 0,
-    "hint": "He played for the Detroit Lions.",
+    "answer": 2,
+    "hint": "He played for the Cincinnati Bengals.",
     "notes": [
-     "WR · Detroit Lions",
-     "WR · Minnesota Vikings",
-     "WR · Tennessee Titans",
-     "WR · Las Vegas Raiders"
+     "RB · Tennessee Titans",
+     "RB · Atlanta Falcons",
+     "RB · Cincinnati Bengals",
+     "RB · Kansas City Chiefs"
     ],
-    "fact": "Jameson Williams caught 58 passes for 1,001 yards and 7 TDs for the 2024 Detroit Lions. The team went 15-2 and lost in the Divisional round."
-   }
+    "fact": "Corey Dillon ran for 1,311 yards and 7 TDs for the 2002 Cincinnati Bengals (9th in the NFL in rushing yards). The team went 2-14."
+   },
+   "role": "play",
+   "call": "Flea flicker"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "team",
+   "season": 2023,
+   "prompt": "In 2023, who had the better regular-season record?",
+   "options": [
+    {
+     "name": "Chicago Bears",
+     "color": "#0B162A",
+     "color2": "#E64100"
+    },
+    {
+     "name": "Green Bay Packers",
+     "color": "#203731",
+     "color2": "#FFB612"
+    }
+   ],
+   "reveal": {
+    "answer": 1,
+    "notes": [
+     "7-10",
+     "9-8"
+    ],
+    "fact": "Under Matt LaFleur, with Jordan Love at QB, the 2023 Green Bay Packers went 9-8. They lost in the Divisional round."
+   },
+   "role": "play",
+   "call": "Quick pass"
+  },
+  {
+   "type": "rank_four",
+   "kind": "team",
+   "season": 2004,
+   "prompt": "Rank these 2004 teams by regular-season record, best first.",
+   "options": [
+    {
+     "name": "Carolina Panthers",
+     "color": "#0085CA",
+     "color2": "#000000"
+    },
+    {
+     "name": "New York Giants",
+     "color": "#0B2265",
+     "color2": "#A71930"
+    },
+    {
+     "name": "Cincinnati Bengals",
+     "color": "#FB4F14",
+     "color2": "#000000"
+    },
+    {
+     "name": "Miami Dolphins",
+     "color": "#008E97",
+     "color2": "#F58220"
+    }
+   ],
+   "reveal": {
+    "answer": [
+     2,
+     0,
+     1,
+     3
+    ],
+    "notes": [
+     "7-9",
+     "6-10",
+     "8-8",
+     "4-12"
+    ],
+    "fact": "Under Marvin Lewis, with Carson Palmer at QB, the 2004 Cincinnati Bengals went 8-8. They missed the playoffs."
+   },
+   "role": "play",
+   "call": "Run up the middle"
+  },
+  {
+   "type": "guess_number",
+   "metric": "points_for",
+   "season": 2012,
+   "prompt": "How many points did the 2012 Arizona Cardinals score in the regular season?",
+   "hint": "League average in 2012: 364 points.",
+   "subject": {
+    "name": "Arizona Cardinals",
+    "color": "#97233F",
+    "color2": "#000000"
+   },
+   "min": 150,
+   "max": 650,
+   "start": 364,
+   "step": 1,
+   "bump": 5,
+   "scoring": {
+    "type": "linear",
+    "exact": 10,
+    "zero_at": 110
+   },
+   "reveal": {
+    "answer": 250,
+    "answer_label": "250 points",
+    "fact": "The 2012 Arizona Cardinals lost 9 games in a row during a 5-11 season."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
+  {
+   "type": "rank_four",
+   "kind": "team",
+   "season": 2010,
+   "prompt": "Rank these 2010 teams by regular-season record, best first.",
+   "options": [
+    {
+     "name": "Seattle Seahawks",
+     "color": "#002244",
+     "color2": "#69be28"
+    },
+    {
+     "name": "Arizona Cardinals",
+     "color": "#97233F",
+     "color2": "#000000"
+    },
+    {
+     "name": "Chicago Bears",
+     "color": "#0B162A",
+     "color2": "#E64100"
+    },
+    {
+     "name": "Kansas City Chiefs",
+     "color": "#E31837",
+     "color2": "#FFB612"
+    }
+   ],
+   "reveal": {
+    "answer": [
+     2,
+     3,
+     0,
+     1
+    ],
+    "notes": [
+     "7-9",
+     "5-11",
+     "11-5",
+     "10-6"
+    ],
+    "fact": "Under Lovie Smith, with Jay Cutler at QB, the 2010 Chicago Bears went 11-5. They lost in the conference championship."
+   },
+   "role": "play",
+   "call": "Run up the middle"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "player",
+   "season": 2007,
+   "prompt": "In 2007, who had more receptions?",
+   "options": [
+    {
+     "name": "Tony Gonzalez",
+     "sub": "TE · Kansas City Chiefs",
+     "color": "#E31837",
+     "color2": "#FFB612"
+    },
+    {
+     "name": "Bobby Engram",
+     "sub": "WR · Seattle Seahawks",
+     "color": "#002244",
+     "color2": "#69be28"
+    }
+   ],
+   "reveal": {
+    "answer": 0,
+    "notes": [
+     "99 catches",
+     "94 catches"
+    ],
+    "fact": "Tony Gonzalez caught 99 passes for 1,172 yards and 5 TDs for the 2007 Kansas City Chiefs. The team went 4-12."
+   },
+   "role": "play",
+   "call": "Quick pass"
+  },
+  {
+   "type": "rank_four",
+   "kind": "player",
+   "season": 2015,
+   "prompt": "Rank these 2015 receivers by receiving yards, most first.",
+   "options": [
+    {
+     "name": "DeAndre Hopkins",
+     "sub": "WR · Houston Texans",
+     "color": "#03202F",
+     "color2": "#A71930"
+    },
+    {
+     "name": "Julio Jones",
+     "sub": "WR · Atlanta Falcons",
+     "color": "#A71930",
+     "color2": "#000000"
+    },
+    {
+     "name": "Demaryius Thomas",
+     "sub": "WR · Denver Broncos",
+     "color": "#002244",
+     "color2": "#FB4F14"
+    },
+    {
+     "name": "Mike Evans",
+     "sub": "WR · Tampa Bay Buccaneers",
+     "color": "#A71930",
+     "color2": "#322F2B"
+    }
+   ],
+   "reveal": {
+    "answer": [
+     1,
+     0,
+     2,
+     3
+    ],
+    "notes": [
+     "1,521 yds",
+     "1,871 yds",
+     "1,304 yds",
+     "1,206 yds"
+    ],
+    "fact": "Julio Jones caught 136 passes for 1,871 yards and 8 TDs for the 2015 Atlanta Falcons, leading the NFL in receiving yards. The team went 8-8."
+   },
+   "role": "play",
+   "call": "Run up the middle"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "team",
+   "season": 2005,
+   "prompt": "In 2005, who had the better regular-season record?",
+   "options": [
+    {
+     "name": "New England Patriots",
+     "color": "#002244",
+     "color2": "#C60C30"
+    },
+    {
+     "name": "Dallas Cowboys",
+     "color": "#002244",
+     "color2": "#B0B7BC"
+    }
+   ],
+   "reveal": {
+    "answer": 0,
+    "notes": [
+     "10-6",
+     "9-7"
+    ],
+    "fact": "Under Bill Belichick, with Tom Brady at QB, the 2005 New England Patriots went 10-6. They lost in the Divisional round."
+   },
+   "role": "pat1",
+   "call": "Extra point"
+  },
+  {
+   "type": "odd_one_out",
+   "season": 2022,
+   "prompt": "Which of these teams did NOT make the 2022 playoffs?",
+   "options": [
+    {
+     "name": "Chicago Bears",
+     "color": "#0B162A",
+     "color2": "#E64100"
+    },
+    {
+     "name": "Seattle Seahawks",
+     "color": "#002244",
+     "color2": "#69be28"
+    },
+    {
+     "name": "Buffalo Bills",
+     "color": "#00338D",
+     "color2": "#C60C30"
+    },
+    {
+     "name": "Los Angeles Chargers",
+     "color": "#007BC7",
+     "color2": "#ffc20e"
+    }
+   ],
+   "reveal": {
+    "answer": 0,
+    "notes": [
+     "3-14 · missed playoffs",
+     "9-8 · lost in the Wild Card round",
+     "13-3 · lost in the Divisional round",
+     "10-7 · lost in the Wild Card round"
+    ],
+    "fact": "The 2022 Chicago Bears lost 10 games in a row during a 3-14 season."
+   },
+   "role": "pat2",
+   "call": "Two-point try"
   }
  ]
 }
