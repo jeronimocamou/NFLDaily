@@ -1,119 +1,129 @@
 {
  "date": "2027-08-17",
  "number": 290,
+ "format": "drive",
  "rounds": [
   {
-   "type": "head_to_head",
-   "kind": "player",
-   "season": 2008,
-   "prompt": "In 2008, who had more receiving yards?",
-   "options": [
-    {
-     "name": "Calvin Johnson",
-     "sub": "WR · Detroit Lions",
-     "color": "#0076B6",
-     "color2": "#B0B7BC"
-    },
-    {
-     "name": "Wes Welker",
-     "sub": "WR · New England Patriots",
-     "color": "#002244",
-     "color2": "#C60C30"
-    }
-   ],
+   "type": "guess_number",
+   "metric": "wins",
+   "season": 2020,
+   "prompt": "How many regular-season games did the 2020 Cincinnati Bengals win?",
+   "hint": "They played 16 games.",
+   "subject": {
+    "name": "Cincinnati Bengals",
+    "color": "#FB4F14",
+    "color2": "#000000"
+   },
+   "min": 0,
+   "max": 16,
+   "start": 8,
+   "step": 1,
+   "bump": 1,
+   "scoring": {
+    "type": "steps",
+    "steps": [
+     100,
+     60,
+     30,
+     10
+    ]
+   },
    "reveal": {
-    "answer": 0,
-    "notes": [
-     "1,331 yds",
-     "1,165 yds"
-    ],
-    "fact": "Calvin Johnson caught 78 passes for 1,331 yards and 12 TDs for the 2008 Detroit Lions (5th in the NFL in receiving yards). The team went 0-16."
-   }
+    "answer": 4,
+    "answer_label": "4 wins (4-11-1)",
+    "fact": "The 2020 Cincinnati Bengals (4-11-1) lost 38-3 to the Baltimore Ravens in Week 17."
+   },
+   "role": "play",
+   "call": "Deep shot"
   },
   {
    "type": "odd_one_out",
-   "season": 2001,
-   "prompt": "Only one of these teams made the 2001 playoffs. Which one?",
+   "season": 2023,
+   "prompt": "Only one of these teams made the 2023 playoffs. Which one?",
    "options": [
     {
-     "name": "Tennessee Titans",
-     "color": "#4495D2",
-     "color2": "#D50A0A"
+     "name": "Chicago Bears",
+     "color": "#0B162A",
+     "color2": "#E64100"
     },
-    {
-     "name": "Cleveland Browns",
-     "color": "#FF3C00",
-     "color2": "#311D00"
-    },
-    {
-     "name": "New Orleans Saints",
-     "color": "#D3BC8D",
-     "color2": "#000000"
-    },
-    {
-     "name": "New York Jets",
-     "color": "#003F2D",
-     "color2": "#000000"
-    }
-   ],
-   "reveal": {
-    "answer": 3,
-    "notes": [
-     "7-9 · missed playoffs",
-     "7-9 · missed playoffs",
-     "7-9 · missed playoffs",
-     "10-6 · lost in the Wild Card round"
-    ],
-    "fact": "Under Herm Edwards, with Vinny Testaverde at QB, the 2001 New York Jets went 10-6. They lost in the Wild Card round."
-   }
-  },
-  {
-   "type": "guess_number",
-   "metric": "points_for",
-   "season": 2000,
-   "prompt": "How many points did the 2000 Arizona Cardinals score in the regular season?",
-   "hint": "League average in 2000: 331 points.",
-   "subject": {
-    "name": "Arizona Cardinals",
-    "color": "#97233F",
-    "color2": "#000000"
-   },
-   "min": 150,
-   "max": 650,
-   "start": 331,
-   "step": 1,
-   "bump": 5,
-   "scoring": {
-    "type": "linear",
-    "exact": 10,
-    "zero_at": 110
-   },
-   "reveal": {
-    "answer": 210,
-    "answer_label": "210 points",
-    "fact": "The 2000 Arizona Cardinals (3-13) lost 48-7 to the Dallas Cowboys in Week 8."
-   }
-  },
-  {
-   "type": "rank_four",
-   "kind": "team",
-   "season": 2021,
-   "prompt": "Rank the 2021 AFC South by regular-season record, best first.",
-   "options": [
     {
      "name": "Jacksonville Jaguars",
      "color": "#006778",
      "color2": "#000000"
     },
     {
-     "name": "Tennessee Titans",
-     "color": "#4495D2",
-     "color2": "#D50A0A"
+     "name": "Detroit Lions",
+     "color": "#0076B6",
+     "color2": "#B0B7BC"
     },
     {
-     "name": "Houston Texans",
-     "color": "#03202F",
+     "name": "New Orleans Saints",
+     "color": "#D3BC8D",
+     "color2": "#000000"
+    }
+   ],
+   "reveal": {
+    "answer": 2,
+    "notes": [
+     "7-10 · missed playoffs",
+     "9-8 · missed playoffs",
+     "12-5 · lost in the conference championship",
+     "9-8 · missed playoffs"
+    ],
+    "fact": "The Lions won their first division title in 30 years."
+   },
+   "role": "play",
+   "call": "Slant route"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "player",
+   "season": 2003,
+   "prompt": "In 2003, who threw more touchdown passes?",
+   "options": [
+    {
+     "name": "Matt Hasselbeck",
+     "sub": "QB · Seattle Seahawks",
+     "color": "#002244",
+     "color2": "#69be28"
+    },
+    {
+     "name": "Aaron Brooks",
+     "sub": "QB · New Orleans Saints",
+     "color": "#D3BC8D",
+     "color2": "#000000"
+    }
+   ],
+   "reveal": {
+    "answer": 0,
+    "notes": [
+     "26 TD",
+     "24 TD"
+    ],
+    "fact": "Matt Hasselbeck threw for 3,844 yards and 26 TDs for the 2003 Seattle Seahawks (3rd in the NFL in TD passes). The team went 10-6 and lost in the Wild Card round."
+   },
+   "role": "play",
+   "call": "Quick pass"
+  },
+  {
+   "type": "odd_one_out",
+   "season": 2008,
+   "prompt": "Which of these teams did NOT make the 2008 playoffs?",
+   "options": [
+    {
+     "name": "New York Giants",
+     "color": "#0B2265",
      "color2": "#A71930"
+    },
+    {
+     "name": "Arizona Cardinals",
+     "color": "#97233F",
+     "color2": "#000000"
+    },
+    {
+     "name": "San Francisco 49ers",
+     "color": "#AA0000",
+     "color2": "#B3995D"
     },
     {
      "name": "Indianapolis Colts",
@@ -122,44 +132,261 @@
     }
    ],
    "reveal": {
+    "answer": 2,
+    "notes": [
+     "12-4 · lost in the Divisional round",
+     "9-7 · lost the Super Bowl",
+     "7-9 · missed playoffs",
+     "12-4 · lost in the Wild Card round"
+    ],
+    "fact": "Under Mike Singletary, with J.T. O'Sullivan at QB, the 2008 San Francisco 49ers went 7-9. They missed the playoffs."
+   },
+   "role": "play",
+   "call": "Slant route"
+  },
+  {
+   "type": "rank_four",
+   "kind": "player",
+   "season": 2005,
+   "prompt": "Rank these 2005 quarterbacks by touchdown passes, most first.",
+   "options": [
+    {
+     "name": "Peyton Manning",
+     "sub": "QB · Indianapolis Colts",
+     "color": "#002C5F",
+     "color2": "#a5acaf"
+    },
+    {
+     "name": "Tom Brady",
+     "sub": "QB · New England Patriots",
+     "color": "#002244",
+     "color2": "#C60C30"
+    },
+    {
+     "name": "Carson Palmer",
+     "sub": "QB · Cincinnati Bengals",
+     "color": "#FB4F14",
+     "color2": "#000000"
+    },
+    {
+     "name": "Brett Favre",
+     "sub": "QB · Green Bay Packers",
+     "color": "#203731",
+     "color2": "#FFB612"
+    }
+   ],
+   "reveal": {
     "answer": [
-     1,
-     3,
      2,
-     0
+     0,
+     1,
+     3
     ],
     "notes": [
-     "3-14",
-     "12-5",
-     "4-13",
-     "9-8"
+     "28 TD",
+     "26 TD",
+     "32 TD",
+     "20 TD"
     ],
-    "fact": "The 2021 Tennessee Titans (12-5) beat the Miami Dolphins 34-3 in Week 17. They lost in the Divisional round."
-   }
+    "fact": "Carson Palmer threw for 3,836 yards and 32 TDs for the 2005 Cincinnati Bengals, leading the NFL in TD passes. The team went 11-5 and lost in the Wild Card round."
+   },
+   "role": "play",
+   "call": "Run up the middle"
   },
   {
    "type": "who_am_i",
-   "season": 2005,
-   "prompt": "Who had this 2005 season? (running back)",
+   "season": 2016,
+   "prompt": "Who had this 2016 season? (running back)",
    "clues": [
-    "1,232 rushing yds",
-    "2 rushing TD",
-    "4.0 yds/carry",
-    "39 catches",
-    "369 receiving yds"
+    "1,272 rushing yds",
+    "8 rushing TD",
+    "4.9 yds/carry",
+    "27 catches",
+    "151 receiving yds"
    ],
    "options": [
     {
-     "name": "Willis McGahee"
+     "name": "DeMarco Murray"
     },
     {
-     "name": "Clinton Portis"
+     "name": "Jordan Howard"
     },
     {
-     "name": "Reuben Droughns"
+     "name": "LeSean McCoy"
     },
     {
-     "name": "Warrick Dunn"
+     "name": "Jay Ajayi"
+    }
+   ],
+   "max_attempts": 2,
+   "scoring": {
+    "type": "attempts",
+    "points": [
+     100,
+     50
+    ]
+   },
+   "reveal": {
+    "answer": 3,
+    "hint": "He played for the Miami Dolphins.",
+    "notes": [
+     "RB · Tennessee Titans",
+     "RB · Chicago Bears",
+     "RB · Buffalo Bills",
+     "RB · Miami Dolphins"
+    ],
+    "fact": "Jay Ajayi ran for 1,272 yards and 8 TDs for the 2016 Miami Dolphins (4th in the NFL in rushing yards). The team went 10-6 and lost in the Wild Card round."
+   },
+   "role": "play",
+   "call": "Flea flicker"
+  },
+  {
+   "type": "rank_four",
+   "kind": "team",
+   "season": 1999,
+   "prompt": "Rank these 1999 teams by regular-season record, best first.",
+   "options": [
+    {
+     "name": "Philadelphia Eagles",
+     "color": "#004C54",
+     "color2": "#A5ACAF"
+    },
+    {
+     "name": "Tampa Bay Buccaneers",
+     "color": "#A71930",
+     "color2": "#322F2B"
+    },
+    {
+     "name": "Cleveland Browns",
+     "color": "#FF3C00",
+     "color2": "#311D00"
+    },
+    {
+     "name": "New York Jets",
+     "color": "#003F2D",
+     "color2": "#000000"
+    }
+   ],
+   "reveal": {
+    "answer": [
+     1,
+     3,
+     0,
+     2
+    ],
+    "notes": [
+     "5-11",
+     "11-5",
+     "2-14",
+     "8-8"
+    ],
+    "fact": "The 1999 Tampa Bay Buccaneers (11-5) lost 45-0 to the Oakland Raiders in Week 15. They lost in the conference championship."
+   },
+   "role": "play",
+   "call": "Run up the middle"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "player",
+   "season": 2009,
+   "prompt": "In 2009, who had more receptions?",
+   "options": [
+    {
+     "name": "Brandon Marshall",
+     "sub": "WR · Denver Broncos",
+     "color": "#002244",
+     "color2": "#FB4F14"
+    },
+    {
+     "name": "Reggie Wayne",
+     "sub": "WR · Indianapolis Colts",
+     "color": "#002C5F",
+     "color2": "#a5acaf"
+    }
+   ],
+   "reveal": {
+    "answer": 0,
+    "notes": [
+     "101 catches",
+     "100 catches"
+    ],
+    "fact": "Brandon Marshall caught 101 passes for 1,120 yards and 10 TDs for the 2009 Denver Broncos. The team went 8-8."
+   },
+   "role": "play",
+   "call": "Quick pass"
+  },
+  {
+   "type": "rank_four",
+   "kind": "player",
+   "season": 2001,
+   "prompt": "Rank these 2001 receivers by receiving yards, most first.",
+   "options": [
+    {
+     "name": "Keyshawn Johnson",
+     "sub": "WR · Tampa Bay Buccaneers",
+     "color": "#A71930",
+     "color2": "#322F2B"
+    },
+    {
+     "name": "Johnnie Morton",
+     "sub": "WR · Detroit Lions",
+     "color": "#0076B6",
+     "color2": "#B0B7BC"
+    },
+    {
+     "name": "Terrell Owens",
+     "sub": "WR · San Francisco 49ers",
+     "color": "#AA0000",
+     "color2": "#B3995D"
+    },
+    {
+     "name": "Qadry Ismail",
+     "sub": "WR · Baltimore Ravens",
+     "color": "#241773",
+     "color2": "#9E7C0C"
+    }
+   ],
+   "reveal": {
+    "answer": [
+     2,
+     0,
+     1,
+     3
+    ],
+    "notes": [
+     "1,266 yds",
+     "1,154 yds",
+     "1,412 yds",
+     "1,059 yds"
+    ],
+    "fact": "Terrell Owens caught 93 passes for 1,412 yards and 16 TDs for the 2001 San Francisco 49ers (3rd in the NFL in receiving yards). The team went 12-4 and lost in the Wild Card round."
+   },
+   "role": "play",
+   "call": "Run up the middle"
+  },
+  {
+   "type": "who_am_i",
+   "season": 2022,
+   "prompt": "Who had this 2022 season? (quarterback)",
+   "clues": [
+    "4,282 passing yds",
+    "30 TD",
+    "11 INT",
+    "69.8% completions",
+    "366 rushing yds"
+   ],
+   "options": [
+    {
+     "name": "Daniel Jones"
+    },
+    {
+     "name": "Russell Wilson"
+    },
+    {
+     "name": "Geno Smith"
+    },
+    {
+     "name": "Josh Allen"
     }
    ],
    "max_attempts": 2,
@@ -172,15 +399,575 @@
    },
    "reveal": {
     "answer": 2,
+    "hint": "He played for the Seattle Seahawks.",
+    "notes": [
+     "QB · New York Giants",
+     "QB · Denver Broncos",
+     "QB · Seattle Seahawks",
+     "QB · Buffalo Bills"
+    ],
+    "fact": "Geno Smith threw for 4,282 yards and 30 TDs for the 2022 Seattle Seahawks (8th in the NFL in passing yards). The team went 9-8 and lost in the Wild Card round."
+   },
+   "role": "play",
+   "call": "Flea flicker"
+  },
+  {
+   "type": "rank_four",
+   "kind": "player",
+   "season": 2014,
+   "prompt": "Rank these 2014 running backs by rushing yards, most first.",
+   "options": [
+    {
+     "name": "Lamar Miller",
+     "sub": "RB · Miami Dolphins",
+     "color": "#008E97",
+     "color2": "#F58220"
+    },
+    {
+     "name": "DeMarco Murray",
+     "sub": "RB · Dallas Cowboys",
+     "color": "#002244",
+     "color2": "#B0B7BC"
+    },
+    {
+     "name": "Le'Veon Bell",
+     "sub": "RB · Pittsburgh Steelers",
+     "color": "#000000",
+     "color2": "#FFB612"
+    },
+    {
+     "name": "Arian Foster",
+     "sub": "RB · Houston Texans",
+     "color": "#03202F",
+     "color2": "#A71930"
+    }
+   ],
+   "reveal": {
+    "answer": [
+     1,
+     2,
+     3,
+     0
+    ],
+    "notes": [
+     "1,099 yds",
+     "1,845 yds",
+     "1,361 yds",
+     "1,246 yds"
+    ],
+    "fact": "DeMarco Murray ran for 1,845 yards and 13 TDs for the 2014 Dallas Cowboys, leading the NFL in rushing yards. The team went 12-4 and lost in the Divisional round."
+   },
+   "role": "play",
+   "call": "Run up the middle"
+  },
+  {
+   "type": "odd_one_out",
+   "season": 2012,
+   "prompt": "Only one of these teams made the 2012 playoffs. Which one?",
+   "options": [
+    {
+     "name": "New York Giants",
+     "color": "#0B2265",
+     "color2": "#A71930"
+    },
+    {
+     "name": "Carolina Panthers",
+     "color": "#0085CA",
+     "color2": "#000000"
+    },
+    {
+     "name": "Chicago Bears",
+     "color": "#0B162A",
+     "color2": "#E64100"
+    },
+    {
+     "name": "Minnesota Vikings",
+     "color": "#4F2683",
+     "color2": "#FFC62F"
+    }
+   ],
+   "reveal": {
+    "answer": 3,
+    "notes": [
+     "9-7 · missed playoffs",
+     "7-9 · missed playoffs",
+     "10-6 · missed playoffs",
+     "10-6 · lost in the Wild Card round"
+    ],
+    "fact": "Adrian Peterson ran for 2,097 yards, nine short of Eric Dickerson's single-season record, and won MVP."
+   },
+   "role": "play",
+   "call": "Slant route"
+  },
+  {
+   "type": "guess_number",
+   "metric": "wins",
+   "season": 2004,
+   "prompt": "How many regular-season games did the 2004 Atlanta Falcons win?",
+   "hint": "They played 16 games.",
+   "subject": {
+    "name": "Atlanta Falcons",
+    "color": "#A71930",
+    "color2": "#000000"
+   },
+   "min": 0,
+   "max": 16,
+   "start": 8,
+   "step": 1,
+   "bump": 1,
+   "scoring": {
+    "type": "steps",
+    "steps": [
+     100,
+     60,
+     30,
+     10
+    ]
+   },
+   "reveal": {
+    "answer": 11,
+    "answer_label": "11 wins (11-5)",
+    "fact": "The 2004 Atlanta Falcons (11-5) lost 56-10 to the Kansas City Chiefs in Week 7. They lost in the conference championship."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
+  {
+   "type": "odd_one_out",
+   "season": 2021,
+   "prompt": "Which of these teams did NOT make the 2021 playoffs?",
+   "options": [
+    {
+     "name": "Washington Football Team",
+     "color": "#5A1414",
+     "color2": "#FFB612"
+    },
+    {
+     "name": "Los Angeles Rams",
+     "color": "#003594",
+     "color2": "#FFD100"
+    },
+    {
+     "name": "Tampa Bay Buccaneers",
+     "color": "#A71930",
+     "color2": "#322F2B"
+    },
+    {
+     "name": "Las Vegas Raiders",
+     "color": "#000000",
+     "color2": "#A5ACAF"
+    }
+   ],
+   "reveal": {
+    "answer": 0,
+    "notes": [
+     "7-10 · missed playoffs",
+     "12-5 · won the Super Bowl",
+     "13-4 · lost in the Divisional round",
+     "10-7 · lost in the Wild Card round"
+    ],
+    "fact": "The 2021 Washington Football Team (7-10) lost 56-14 to the Dallas Cowboys in Week 16."
+   },
+   "role": "play",
+   "call": "Slant route"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "team",
+   "season": 2017,
+   "prompt": "In 2017, who had the better regular-season record?",
+   "options": [
+    {
+     "name": "Green Bay Packers",
+     "color": "#203731",
+     "color2": "#FFB612"
+    },
+    {
+     "name": "Dallas Cowboys",
+     "color": "#002244",
+     "color2": "#B0B7BC"
+    }
+   ],
+   "reveal": {
+    "answer": 1,
+    "notes": [
+     "7-9",
+     "9-7"
+    ],
+    "fact": "The 2017 Dallas Cowboys (9-7) beat the San Francisco 49ers 40-10 in Week 7."
+   },
+   "role": "play",
+   "call": "Quick pass"
+  },
+  {
+   "type": "guess_number",
+   "metric": "receiving_yards",
+   "season": 2002,
+   "prompt": "How many receiving yards did Jimmy Smith have in 2002?",
+   "hint": "He played 16 games that season.",
+   "subject": {
+    "name": "Jimmy Smith",
+    "sub": "WR · Jacksonville Jaguars",
+    "color": "#006778",
+    "color2": "#000000"
+   },
+   "min": 600,
+   "max": 2000,
+   "start": 1300,
+   "step": 10,
+   "bump": 50,
+   "scoring": {
+    "type": "linear",
+    "exact": 50,
+    "zero_at": 650
+   },
+   "reveal": {
+    "answer": 1027,
+    "answer_label": "1,027 receiving yards",
+    "fact": "Jimmy Smith caught 80 passes for 1,027 yards and 7 TDs for the 2002 Jacksonville Jaguars. The team went 6-10."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "player",
+   "season": 2000,
+   "prompt": "In 2000, who had more receptions?",
+   "options": [
+    {
+     "name": "Keenan McCardell",
+     "sub": "WR · Jacksonville Jaguars",
+     "color": "#006778",
+     "color2": "#000000"
+    },
+    {
+     "name": "Muhsin Muhammad",
+     "sub": "WR · Carolina Panthers",
+     "color": "#0085CA",
+     "color2": "#000000"
+    }
+   ],
+   "reveal": {
+    "answer": 1,
+    "notes": [
+     "94 catches",
+     "102 catches"
+    ],
+    "fact": "Muhsin Muhammad caught 102 passes for 1,183 yards and 6 TDs for the 2000 Carolina Panthers. The team went 7-9."
+   },
+   "role": "play",
+   "call": "Quick pass"
+  },
+  {
+   "type": "odd_one_out",
+   "season": 2018,
+   "prompt": "Which of these teams did NOT make the 2018 playoffs?",
+   "options": [
+    {
+     "name": "Pittsburgh Steelers",
+     "color": "#000000",
+     "color2": "#FFB612"
+    },
+    {
+     "name": "Los Angeles Chargers",
+     "color": "#007BC7",
+     "color2": "#ffc20e"
+    },
+    {
+     "name": "New Orleans Saints",
+     "color": "#D3BC8D",
+     "color2": "#000000"
+    },
+    {
+     "name": "Baltimore Ravens",
+     "color": "#241773",
+     "color2": "#9E7C0C"
+    }
+   ],
+   "reveal": {
+    "answer": 0,
+    "notes": [
+     "9-6-1 · missed playoffs",
+     "12-4 · lost in the Divisional round",
+     "13-3 · lost in the conference championship",
+     "10-6 · lost in the Wild Card round"
+    ],
+    "fact": "The 2018 Pittsburgh Steelers (9-6-1) beat the Carolina Panthers 52-21 in Week 10."
+   },
+   "role": "play",
+   "call": "Slant route"
+  },
+  {
+   "type": "guess_number",
+   "metric": "passing_yards",
+   "season": 2015,
+   "prompt": "How many passing yards did Aaron Rodgers throw for in 2015?",
+   "hint": "He played 16 games that season.",
+   "subject": {
+    "name": "Aaron Rodgers",
+    "sub": "QB · Green Bay Packers",
+    "color": "#203731",
+    "color2": "#FFB612"
+   },
+   "min": 2000,
+   "max": 5600,
+   "start": 3800,
+   "step": 25,
+   "bump": 100,
+   "scoring": {
+    "type": "linear",
+    "exact": 100,
+    "zero_at": 1000
+   },
+   "reveal": {
+    "answer": 3821,
+    "answer_label": "3,821 passing yards",
+    "fact": "Aaron Rodgers threw for 3,821 yards and 31 TDs for the 2015 Green Bay Packers. The team went 10-6 and lost in the Divisional round."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
+  {
+   "type": "who_am_i",
+   "season": 2019,
+   "prompt": "Who had this 2019 season? (wide receiver)",
+   "clues": [
+    "1,174 receiving yds",
+    "83 catches",
+    "6 TD",
+    "138 targets"
+   ],
+   "options": [
+    {
+     "name": "Jarvis Landry"
+    },
+    {
+     "name": "Kenny Golladay"
+    },
+    {
+     "name": "DeVante Parker"
+    },
+    {
+     "name": "Julian Edelman"
+    }
+   ],
+   "max_attempts": 2,
+   "scoring": {
+    "type": "attempts",
+    "points": [
+     100,
+     50
+    ]
+   },
+   "reveal": {
+    "answer": 0,
     "hint": "He played for the Cleveland Browns.",
     "notes": [
-     "RB · Buffalo Bills",
-     "RB · Washington Redskins",
-     "RB · Cleveland Browns",
-     "RB · Atlanta Falcons"
+     "WR · Cleveland Browns",
+     "WR · Detroit Lions",
+     "WR · Miami Dolphins",
+     "WR · New England Patriots"
     ],
-    "fact": "Reuben Droughns ran for 1,232 yards and 2 TDs for the 2005 Cleveland Browns (10th in the NFL in rushing yards). The team went 6-10."
-   }
+    "fact": "Jarvis Landry caught 83 passes for 1,174 yards and 6 TDs for the 2019 Cleveland Browns (10th in the NFL in receiving yards). The team went 6-10."
+   },
+   "role": "play",
+   "call": "Flea flicker"
+  },
+  {
+   "type": "guess_number",
+   "metric": "passing_tds",
+   "season": 2025,
+   "prompt": "How many touchdown passes did Lamar Jackson throw in 2025?",
+   "hint": "He played 13 games that season.",
+   "subject": {
+    "name": "Lamar Jackson",
+    "sub": "QB · Baltimore Ravens",
+    "color": "#241773",
+    "color2": "#9E7C0C"
+   },
+   "min": 5,
+   "max": 60,
+   "start": 32,
+   "step": 1,
+   "bump": 1,
+   "scoring": {
+    "type": "linear",
+    "exact": 1,
+    "zero_at": 12
+   },
+   "reveal": {
+    "answer": 21,
+    "answer_label": "21 touchdown passes",
+    "fact": "Lamar Jackson threw for 2,549 yards and 21 TDs for the 2025 Baltimore Ravens. The team went 8-9."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
+  {
+   "type": "odd_one_out",
+   "season": 2006,
+   "prompt": "Only one of these teams made the 2006 playoffs. Which one?",
+   "options": [
+    {
+     "name": "New York Jets",
+     "color": "#003F2D",
+     "color2": "#000000"
+    },
+    {
+     "name": "Jacksonville Jaguars",
+     "color": "#006778",
+     "color2": "#000000"
+    },
+    {
+     "name": "Miami Dolphins",
+     "color": "#008E97",
+     "color2": "#F58220"
+    },
+    {
+     "name": "Pittsburgh Steelers",
+     "color": "#000000",
+     "color2": "#FFB612"
+    }
+   ],
+   "reveal": {
+    "answer": 0,
+    "notes": [
+     "10-6 · lost in the Wild Card round",
+     "8-8 · missed playoffs",
+     "6-10 · missed playoffs",
+     "8-8 · missed playoffs"
+    ],
+    "fact": "The 2006 New York Jets (10-6) lost 41-0 to the Jacksonville Jaguars in Week 5. They lost in the Wild Card round."
+   },
+   "role": "play",
+   "call": "Slant route"
+  },
+  {
+   "type": "guess_number",
+   "metric": "points_for",
+   "season": 2024,
+   "prompt": "How many points did the 2024 Washington Commanders score in the regular season?",
+   "hint": "League average in 2024: 390 points.",
+   "subject": {
+    "name": "Washington Commanders",
+    "color": "#5A1414",
+    "color2": "#FFB612"
+   },
+   "min": 150,
+   "max": 650,
+   "start": 390,
+   "step": 1,
+   "bump": 5,
+   "scoring": {
+    "type": "linear",
+    "exact": 10,
+    "zero_at": 110
+   },
+   "reveal": {
+    "answer": 485,
+    "answer_label": "485 points",
+    "fact": "The 2024 Washington Commanders (12-5) beat the Carolina Panthers 40-7 in Week 7. They lost in the conference championship."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "player",
+   "season": 2013,
+   "prompt": "In 2013, who had more receptions?",
+   "options": [
+    {
+     "name": "Jordan Cameron",
+     "sub": "TE · Cleveland Browns",
+     "color": "#FF3C00",
+     "color2": "#311D00"
+    },
+    {
+     "name": "Tony Gonzalez",
+     "sub": "TE · Atlanta Falcons",
+     "color": "#A71930",
+     "color2": "#000000"
+    }
+   ],
+   "reveal": {
+    "answer": 1,
+    "notes": [
+     "80 catches",
+     "83 catches"
+    ],
+    "fact": "Tony Gonzalez caught 83 passes for 859 yards and 8 TDs for the 2013 Atlanta Falcons. The team went 4-12."
+   },
+   "role": "play",
+   "call": "Quick pass"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "team",
+   "season": 2002,
+   "prompt": "In 2002, who had the better regular-season record?",
+   "options": [
+    {
+     "name": "San Francisco 49ers",
+     "color": "#AA0000",
+     "color2": "#B3995D"
+    },
+    {
+     "name": "Cleveland Browns",
+     "color": "#FF3C00",
+     "color2": "#311D00"
+    }
+   ],
+   "reveal": {
+    "answer": 0,
+    "notes": [
+     "10-6",
+     "9-7"
+    ],
+    "fact": "Under Steve Mariucci, with Jeff Garcia at QB, the 2002 San Francisco 49ers went 10-6. They lost in the Divisional round."
+   },
+   "role": "pat1",
+   "call": "Extra point"
+  },
+  {
+   "type": "odd_one_out",
+   "season": 2013,
+   "prompt": "Only one of these teams made the 2013 playoffs. Which one?",
+   "options": [
+    {
+     "name": "Baltimore Ravens",
+     "color": "#241773",
+     "color2": "#9E7C0C"
+    },
+    {
+     "name": "Carolina Panthers",
+     "color": "#0085CA",
+     "color2": "#000000"
+    },
+    {
+     "name": "Chicago Bears",
+     "color": "#0B162A",
+     "color2": "#E64100"
+    },
+    {
+     "name": "Dallas Cowboys",
+     "color": "#002244",
+     "color2": "#B0B7BC"
+    }
+   ],
+   "reveal": {
+    "answer": 1,
+    "notes": [
+     "8-8 · missed playoffs",
+     "12-4 · lost in the Divisional round",
+     "8-8 · missed playoffs",
+     "8-8 · missed playoffs"
+    ],
+    "fact": "The 2013 Carolina Panthers won 8 straight games on the way to a 12-4 record. They lost in the Divisional round."
+   },
+   "role": "pat2",
+   "call": "Two-point try"
   }
  ]
 }

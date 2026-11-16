@@ -4,7 +4,7 @@ import { handler, send } from "../lib/http.js";
 import { db, dbEnabled } from "../lib/db.js";
 import { DATE_RE, currentWindow } from "../lib/puzzles.js";
 import { USERNAME_RE, createSession, currentUser, destroySession, hashPassword, verifyPassword } from "../lib/auth.js";
-import { importGames, statsFor } from "../lib/results.js";
+import { statsFor } from "../lib/results.js";
 
 const MAX_FAILS = 10;
 
@@ -26,7 +26,7 @@ export default handler(["GET", "POST"], async (req, res) => {
     });
   }
 
-  const { action, username = "", password = "", games } = req.body;
+  const { action, username = "", password = "" } = req.body;
 
   if (action === "logout") {
     await destroySession(pool, req, res);
@@ -45,8 +45,7 @@ export default handler(["GET", "POST"], async (req, res) => {
     );
     if (!rows[0]) return send(res, 409, { error: "That username is taken." });
     await createSession(pool, req, res, rows[0].id);
-    const imported = await importGames(pool, rows[0].id, games);
-    return send(res, 200, { user: { username: rows[0].username }, imported });
+    return send(res, 200, { user: { username: rows[0].username } });
   }
 
   if (action === "login") {
@@ -68,8 +67,7 @@ export default handler(["GET", "POST"], async (req, res) => {
     }
     await pool.query("UPDATE users SET failed_logins = 0, locked_until = NULL WHERE id = $1", [user.id]);
     await createSession(pool, req, res, user.id);
-    const imported = await importGames(pool, user.id, games);
-    return send(res, 200, { user: { username: user.username }, imported });
+    return send(res, 200, { user: { username: user.username } });
   }
 
   send(res, 400, { error: "Unknown action" });

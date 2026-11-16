@@ -10,12 +10,8 @@ export default handler(["GET"], async (req, res) => {
   const user = await currentUser(pool, req);
   let mine = null;
   if (user) {
-    const { rows } = await pool.query(
-      `SELECT date, SUM(score)::int AS total, COUNT(*) FILTER (WHERE done)::int AS done
-       FROM results WHERE user_id = $1 GROUP BY date`,
-      [user.id],
-    );
-    mine = Object.fromEntries(rows.map((r) => [r.date, { total: r.total, done: r.done }]));
+    const { rows } = await pool.query("SELECT date, points, yards, done FROM drives WHERE user_id = $1", [user.id]);
+    mine = Object.fromEntries(rows.map((r) => [r.date, { done: r.done, points: r.points, yards: r.yards }]));
   }
   send(res, 200, { dates: archiveDates(), mine });
 });

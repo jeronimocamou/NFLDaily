@@ -1,83 +1,551 @@
 {
  "date": "2027-03-04",
  "number": 124,
+ "format": "drive",
  "rounds": [
   {
-   "type": "head_to_head",
-   "kind": "player",
-   "season": 2022,
-   "prompt": "In 2022, who had more receiving yards?",
+   "type": "who_am_i",
+   "season": 2013,
+   "prompt": "Who had this 2013 season? (quarterback)",
+   "clues": [
+    "3,197 passing yds",
+    "21 TD",
+    "8 INT",
+    "58.4% completions",
+    "524 rushing yds"
+   ],
    "options": [
     {
-     "name": "Brandon Aiyuk",
-     "sub": "WR · San Francisco 49ers",
-     "color": "#AA0000",
-     "color2": "#B3995D"
+     "name": "Robert Griffin III"
     },
     {
-     "name": "Ja'Marr Chase",
+     "name": "Tom Brady"
+    },
+    {
+     "name": "Colin Kaepernick"
+    },
+    {
+     "name": "Alex Smith"
+    }
+   ],
+   "max_attempts": 2,
+   "scoring": {
+    "type": "attempts",
+    "points": [
+     100,
+     50
+    ]
+   },
+   "reveal": {
+    "answer": 2,
+    "hint": "He played for the San Francisco 49ers.",
+    "notes": [
+     "QB · Washington Redskins",
+     "QB · New England Patriots",
+     "QB · San Francisco 49ers",
+     "QB · Kansas City Chiefs"
+    ],
+    "fact": "Colin Kaepernick threw for 3,197 yards and 21 TDs for the 2013 San Francisco 49ers. The team went 12-4 and lost in the conference championship."
+   },
+   "role": "play",
+   "call": "Flea flicker"
+  },
+  {
+   "type": "rank_four",
+   "kind": "player",
+   "season": 2019,
+   "prompt": "Rank these 2019 quarterbacks by passing yards, most first.",
+   "options": [
+    {
+     "name": "Kirk Cousins",
+     "sub": "QB · Minnesota Vikings",
+     "color": "#4F2683",
+     "color2": "#FFC62F"
+    },
+    {
+     "name": "Sam Darnold",
+     "sub": "QB · New York Jets",
+     "color": "#003F2D",
+     "color2": "#000000"
+    },
+    {
+     "name": "Jared Goff",
+     "sub": "QB · Los Angeles Rams",
+     "color": "#003594",
+     "color2": "#FFD100"
+    },
+    {
+     "name": "Gardner Minshew",
+     "sub": "QB · Jacksonville Jaguars",
+     "color": "#006778",
+     "color2": "#000000"
+    }
+   ],
+   "reveal": {
+    "answer": [
+     2,
+     0,
+     3,
+     1
+    ],
+    "notes": [
+     "3,603 yds",
+     "3,024 yds",
+     "4,638 yds",
+     "3,271 yds"
+    ],
+    "fact": "Jared Goff threw for 4,638 yards and 22 TDs for the 2019 Los Angeles Rams (3rd in the NFL in passing yards). The team went 9-7."
+   },
+   "role": "play",
+   "call": "Run up the middle"
+  },
+  {
+   "type": "rank_four",
+   "kind": "player",
+   "season": 2006,
+   "prompt": "Rank these 2006 receivers by receiving yards, most first.",
+   "options": [
+    {
+     "name": "Terrell Owens",
+     "sub": "WR · Dallas Cowboys",
+     "color": "#002244",
+     "color2": "#B0B7BC"
+    },
+    {
+     "name": "Terry Glenn",
+     "sub": "WR · Dallas Cowboys",
+     "color": "#002244",
+     "color2": "#B0B7BC"
+    },
+    {
+     "name": "Lee Evans",
+     "sub": "WR · Buffalo Bills",
+     "color": "#00338D",
+     "color2": "#C60C30"
+    },
+    {
+     "name": "Chad Johnson",
      "sub": "WR · Cincinnati Bengals",
      "color": "#FB4F14",
      "color2": "#000000"
     }
    ],
    "reveal": {
-    "answer": 1,
-    "notes": [
-     "1,015 yds",
-     "1,046 yds"
+    "answer": [
+     3,
+     2,
+     0,
+     1
     ],
-    "fact": "Ja'Marr Chase caught 87 passes for 1,046 yards and 9 TDs for the 2022 Cincinnati Bengals. The team went 12-4 and lost in the conference championship."
-   }
+    "notes": [
+     "1,180 yds",
+     "1,047 yds",
+     "1,291 yds",
+     "1,370 yds"
+    ],
+    "fact": "Chad Johnson caught 87 passes for 1,370 yards and 7 TDs for the 2006 Cincinnati Bengals, leading the NFL in receiving yards. The team went 8-8."
+   },
+   "role": "play",
+   "call": "Run up the middle"
   },
   {
-   "type": "odd_one_out",
-   "season": 2013,
-   "prompt": "Which of these teams did NOT make the 2013 playoffs?",
+   "type": "guess_number",
+   "metric": "passing_tds",
+   "season": 2002,
+   "prompt": "How many touchdown passes did Chad Pennington throw in 2002?",
+   "hint": "He played 15 games that season.",
+   "subject": {
+    "name": "Chad Pennington",
+    "sub": "QB · New York Jets",
+    "color": "#003F2D",
+    "color2": "#000000"
+   },
+   "min": 5,
+   "max": 60,
+   "start": 32,
+   "step": 1,
+   "bump": 1,
+   "scoring": {
+    "type": "linear",
+    "exact": 1,
+    "zero_at": 12
+   },
+   "reveal": {
+    "answer": 22,
+    "answer_label": "22 touchdown passes",
+    "fact": "Chad Pennington threw for 3,120 yards and 22 TDs for the 2002 New York Jets (7th in the NFL in TD passes). The team went 9-7 and lost in the Divisional round."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
+  {
+   "type": "guess_number",
+   "metric": "receptions",
+   "season": 1999,
+   "prompt": "How many receptions did Germane Crowell have in 1999?",
+   "hint": "He played 16 games that season.",
+   "subject": {
+    "name": "Germane Crowell",
+    "sub": "WR · Detroit Lions",
+    "color": "#0076B6",
+    "color2": "#B0B7BC"
+   },
+   "min": 40,
+   "max": 150,
+   "start": 95,
+   "step": 1,
+   "bump": 1,
+   "scoring": {
+    "type": "linear",
+    "exact": 3,
+    "zero_at": 35
+   },
+   "reveal": {
+    "answer": 81,
+    "answer_label": "81 receptions",
+    "fact": "Germane Crowell caught 81 passes for 1,338 yards and 7 TDs for the 1999 Detroit Lions (5th in the NFL in receiving yards). The team went 8-8 and lost in the Wild Card round."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "team",
+   "season": 2010,
+   "prompt": "In 2010, who had the better regular-season record?",
    "options": [
     {
-     "name": "Chicago Bears",
-     "color": "#0B162A",
-     "color2": "#E64100"
+     "name": "Seattle Seahawks",
+     "color": "#002244",
+     "color2": "#69be28"
     },
+    {
+     "name": "Dallas Cowboys",
+     "color": "#002244",
+     "color2": "#B0B7BC"
+    }
+   ],
+   "reveal": {
+    "answer": 0,
+    "notes": [
+     "7-9",
+     "6-10"
+    ],
+    "fact": "The Seahawks became the first team to win a division with a losing record, then upset the Saints in the playoffs behind Marshawn Lynch's 'Beast Quake' run."
+   },
+   "role": "play",
+   "call": "Quick pass"
+  },
+  {
+   "type": "rank_four",
+   "kind": "player",
+   "season": 2009,
+   "prompt": "Rank these 2009 quarterbacks by touchdown passes, most first.",
+   "options": [
+    {
+     "name": "Kyle Orton",
+     "sub": "QB · Denver Broncos",
+     "color": "#002244",
+     "color2": "#FB4F14"
+    },
+    {
+     "name": "Peyton Manning",
+     "sub": "QB · Indianapolis Colts",
+     "color": "#002C5F",
+     "color2": "#a5acaf"
+    },
+    {
+     "name": "Tom Brady",
+     "sub": "QB · New England Patriots",
+     "color": "#002244",
+     "color2": "#C60C30"
+    },
+    {
+     "name": "Tony Romo",
+     "sub": "QB · Dallas Cowboys",
+     "color": "#002244",
+     "color2": "#B0B7BC"
+    }
+   ],
+   "reveal": {
+    "answer": [
+     1,
+     2,
+     3,
+     0
+    ],
+    "notes": [
+     "21 TD",
+     "33 TD",
+     "28 TD",
+     "26 TD"
+    ],
+    "fact": "Peyton Manning threw for 4,500 yards and 33 TDs for the 2009 Indianapolis Colts (2nd in the NFL in TD passes). The team went 14-2 and lost the Super Bowl."
+   },
+   "role": "play",
+   "call": "Run up the middle"
+  },
+  {
+   "type": "guess_number",
+   "metric": "receiving_yards",
+   "season": 2011,
+   "prompt": "How many receiving yards did A.J. Green have in 2011?",
+   "hint": "He played 15 games that season.",
+   "subject": {
+    "name": "A.J. Green",
+    "sub": "WR · Cincinnati Bengals",
+    "color": "#FB4F14",
+    "color2": "#000000"
+   },
+   "min": 600,
+   "max": 2000,
+   "start": 1300,
+   "step": 10,
+   "bump": 50,
+   "scoring": {
+    "type": "linear",
+    "exact": 50,
+    "zero_at": 650
+   },
+   "reveal": {
+    "answer": 1057,
+    "answer_label": "1,057 receiving yards",
+    "fact": "A.J. Green caught 65 passes for 1,057 yards and 7 TDs for the 2011 Cincinnati Bengals. The team went 9-7 and lost in the Wild Card round."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "team",
+   "season": 2025,
+   "prompt": "In 2025, who had the better regular-season record?",
+   "options": [
+    {
+     "name": "New York Giants",
+     "color": "#0B2265",
+     "color2": "#A71930"
+    },
+    {
+     "name": "Kansas City Chiefs",
+     "color": "#E31837",
+     "color2": "#FFB612"
+    }
+   ],
+   "reveal": {
+    "answer": 1,
+    "notes": [
+     "4-13",
+     "6-11"
+    ],
+    "fact": "The 2025 Kansas City Chiefs (6-11) went 1-9 in games decided by 8 points or less."
+   },
+   "role": "play",
+   "call": "Quick pass"
+  },
+  {
+   "type": "who_am_i",
+   "season": 2007,
+   "prompt": "Who had this 2007 season? (quarterback)",
+   "clues": [
+    "3,409 passing yds",
+    "27 TD",
+    "17 INT",
+    "62.4% completions",
+    "15 rushing yds"
+   ],
+   "options": [
+    {
+     "name": "Carson Palmer"
+    },
+    {
+     "name": "Drew Brees"
+    },
+    {
+     "name": "Kurt Warner"
+    },
+    {
+     "name": "Eli Manning"
+    }
+   ],
+   "max_attempts": 2,
+   "scoring": {
+    "type": "attempts",
+    "points": [
+     100,
+     50
+    ]
+   },
+   "reveal": {
+    "answer": 2,
+    "hint": "He played for the Arizona Cardinals.",
+    "notes": [
+     "QB · Cincinnati Bengals",
+     "QB · New Orleans Saints",
+     "QB · Arizona Cardinals",
+     "QB · New York Giants"
+    ],
+    "fact": "Kurt Warner threw for 3,409 yards and 27 TDs for the 2007 Arizona Cardinals. The team went 8-8."
+   },
+   "role": "play",
+   "call": "Flea flicker"
+  },
+  {
+   "type": "guess_number",
+   "metric": "wins",
+   "season": 2003,
+   "prompt": "How many regular-season games did the 2003 Cincinnati Bengals win?",
+   "hint": "They played 16 games.",
+   "subject": {
+    "name": "Cincinnati Bengals",
+    "color": "#FB4F14",
+    "color2": "#000000"
+   },
+   "min": 0,
+   "max": 16,
+   "start": 8,
+   "step": 1,
+   "bump": 1,
+   "scoring": {
+    "type": "steps",
+    "steps": [
+     100,
+     60,
+     30,
+     10
+    ]
+   },
+   "reveal": {
+    "answer": 8,
+    "answer_label": "8 wins (8-8)",
+    "fact": "Under Marvin Lewis, with Jon Kitna at QB, the 2003 Cincinnati Bengals went 8-8. They missed the playoffs."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "team",
+   "season": 2016,
+   "prompt": "In 2016, who had the better regular-season record?",
+   "options": [
+    {
+     "name": "Cincinnati Bengals",
+     "color": "#FB4F14",
+     "color2": "#000000"
+    },
+    {
+     "name": "Indianapolis Colts",
+     "color": "#002C5F",
+     "color2": "#a5acaf"
+    }
+   ],
+   "reveal": {
+    "answer": 1,
+    "notes": [
+     "6-9-1",
+     "8-8"
+    ],
+    "fact": "The 2016 Indianapolis Colts (8-8) beat the New York Jets 41-10 in Week 13."
+   },
+   "role": "play",
+   "call": "Quick pass"
+  },
+  {
+   "type": "rank_four",
+   "kind": "team",
+   "season": 2018,
+   "prompt": "Rank the 2018 AFC South by regular-season record, best first.",
+   "options": [
     {
      "name": "Indianapolis Colts",
      "color": "#002C5F",
      "color2": "#a5acaf"
     },
     {
+     "name": "Houston Texans",
+     "color": "#03202F",
+     "color2": "#A71930"
+    },
+    {
+     "name": "Jacksonville Jaguars",
+     "color": "#006778",
+     "color2": "#000000"
+    },
+    {
+     "name": "Tennessee Titans",
+     "color": "#4495D2",
+     "color2": "#D50A0A"
+    }
+   ],
+   "reveal": {
+    "answer": [
+     1,
+     0,
+     3,
+     2
+    ],
+    "notes": [
+     "10-6",
+     "11-5",
+     "5-11",
+     "9-7"
+    ],
+    "fact": "The 2018 Houston Texans won 9 straight games on the way to a 11-5 record. They lost in the Wild Card round."
+   },
+   "role": "play",
+   "call": "Run up the middle"
+  },
+  {
+   "type": "odd_one_out",
+   "season": 2015,
+   "prompt": "Which of these teams did NOT make the 2015 playoffs?",
+   "options": [
+    {
      "name": "New England Patriots",
      "color": "#002244",
      "color2": "#C60C30"
     },
     {
-     "name": "Green Bay Packers",
-     "color": "#203731",
-     "color2": "#FFB612"
+     "name": "San Diego Chargers",
+     "color": "#007BC7",
+     "color2": "#ffc20e"
+    },
+    {
+     "name": "Minnesota Vikings",
+     "color": "#4F2683",
+     "color2": "#FFC62F"
+    },
+    {
+     "name": "Arizona Cardinals",
+     "color": "#97233F",
+     "color2": "#000000"
     }
    ],
    "reveal": {
-    "answer": 0,
+    "answer": 1,
     "notes": [
-     "8-8 · missed playoffs",
-     "11-5 · lost in the Divisional round",
      "12-4 · lost in the conference championship",
-     "8-7-1 · lost in the Wild Card round"
+     "4-12 · missed playoffs",
+     "11-5 · lost in the Wild Card round",
+     "13-3 · lost in the conference championship"
     ],
-    "fact": "The 2013 Chicago Bears (8-8) lost 54-11 to the Philadelphia Eagles in Week 16."
-   }
+    "fact": "The 2015 San Diego Chargers (4-12) lost all six division games."
+   },
+   "role": "play",
+   "call": "Slant route"
   },
   {
    "type": "guess_number",
    "metric": "passing_yards",
-   "season": 2021,
-   "prompt": "How many passing yards did Baker Mayfield throw for in 2021?",
-   "hint": "He played 14 games that season.",
+   "season": 2012,
+   "prompt": "How many passing yards did Eli Manning throw for in 2012?",
+   "hint": "He played 16 games that season.",
    "subject": {
-    "name": "Baker Mayfield",
-    "sub": "QB · Cleveland Browns",
-    "color": "#FF3C00",
-    "color2": "#311D00"
+    "name": "Eli Manning",
+    "sub": "QB · New York Giants",
+    "color": "#0B2265",
+    "color2": "#A71930"
    },
    "min": 2000,
    "max": 5600,
@@ -90,36 +558,115 @@
     "zero_at": 1000
    },
    "reveal": {
-    "answer": 3010,
-    "answer_label": "3,010 passing yards",
-    "fact": "Baker Mayfield threw for 3,010 yards and 17 TDs for the 2021 Cleveland Browns. The team went 8-9."
-   }
+    "answer": 3948,
+    "answer_label": "3,948 passing yards",
+    "fact": "Eli Manning threw for 3,948 yards and 26 TDs for the 2012 New York Giants. The team went 9-7."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "team",
+   "season": 2024,
+   "prompt": "In 2024, who had the better regular-season record?",
+   "options": [
+    {
+     "name": "Houston Texans",
+     "color": "#03202F",
+     "color2": "#A71930"
+    },
+    {
+     "name": "Dallas Cowboys",
+     "color": "#002244",
+     "color2": "#B0B7BC"
+    }
+   ],
+   "reveal": {
+    "answer": 0,
+    "notes": [
+     "10-7",
+     "7-10"
+    ],
+    "fact": "Under DeMeco Ryans, with C.J. Stroud at QB, the 2024 Houston Texans went 10-7. They lost in the Divisional round."
+   },
+   "role": "play",
+   "call": "Quick pass"
   },
   {
    "type": "rank_four",
    "kind": "team",
-   "season": 2024,
-   "prompt": "Rank the 2024 NFC South by points scored, best first.",
+   "season": 2014,
+   "prompt": "Rank the 2014 NFC West by regular-season record, best first.",
    "options": [
     {
-     "name": "Tampa Bay Buccaneers",
+     "name": "Seattle Seahawks",
+     "color": "#002244",
+     "color2": "#69be28"
+    },
+    {
+     "name": "Arizona Cardinals",
+     "color": "#97233F",
+     "color2": "#000000"
+    },
+    {
+     "name": "San Francisco 49ers",
+     "color": "#AA0000",
+     "color2": "#B3995D"
+    },
+    {
+     "name": "St. Louis Rams",
+     "color": "#003594",
+     "color2": "#FFD100"
+    }
+   ],
+   "reveal": {
+    "answer": [
+     0,
+     1,
+     2,
+     3
+    ],
+    "notes": [
+     "12-4",
+     "11-5",
+     "8-8",
+     "6-10"
+    ],
+    "fact": "The 2014 Seattle Seahawks (12-4) allowed the fewest points in the league (254). They lost the Super Bowl."
+   },
+   "role": "play",
+   "call": "Run up the middle"
+  },
+  {
+   "type": "rank_four",
+   "kind": "player",
+   "season": 2023,
+   "prompt": "Rank these 2023 quarterbacks by touchdown passes, most first.",
+   "options": [
+    {
+     "name": "Jared Goff",
+     "sub": "QB · Detroit Lions",
+     "color": "#0076B6",
+     "color2": "#B0B7BC"
+    },
+    {
+     "name": "Trevor Lawrence",
+     "sub": "QB · Jacksonville Jaguars",
+     "color": "#006778",
+     "color2": "#000000"
+    },
+    {
+     "name": "C.J. Stroud",
+     "sub": "QB · Houston Texans",
+     "color": "#03202F",
+     "color2": "#A71930"
+    },
+    {
+     "name": "Baker Mayfield",
+     "sub": "QB · Tampa Bay Buccaneers",
      "color": "#A71930",
      "color2": "#322F2B"
-    },
-    {
-     "name": "New Orleans Saints",
-     "color": "#D3BC8D",
-     "color2": "#000000"
-    },
-    {
-     "name": "Carolina Panthers",
-     "color": "#0085CA",
-     "color2": "#000000"
-    },
-    {
-     "name": "Atlanta Falcons",
-     "color": "#A71930",
-     "color2": "#000000"
     }
    ],
    "reveal": {
@@ -130,37 +677,39 @@
      1
     ],
     "notes": [
-     "502 pts",
-     "338 pts",
-     "341 pts",
-     "389 pts"
+     "30 TD",
+     "21 TD",
+     "23 TD",
+     "28 TD"
     ],
-    "fact": "The 2024 Tampa Bay Buccaneers (10-7) beat the Carolina Panthers 48-14 in Week 17. They lost in the Wild Card round."
-   }
+    "fact": "Jared Goff threw for 4,575 yards and 30 TDs for the 2023 Detroit Lions (4th in the NFL in TD passes). The team went 12-5 and lost in the conference championship."
+   },
+   "role": "play",
+   "call": "Run up the middle"
   },
   {
    "type": "who_am_i",
-   "season": 2019,
-   "prompt": "Who had this 2019 season? (quarterback)",
+   "season": 2005,
+   "prompt": "Who had this 2005 season? (quarterback)",
    "clues": [
-    "3,494 passing yds",
+    "3,161 passing yds",
     "16 TD",
-    "14 INT",
-    "59.5% completions",
-    "73 rushing yds"
+    "11 INT",
+    "61.3% completions",
+    "139 rushing yds"
    ],
    "options": [
     {
-     "name": "Kirk Cousins"
+     "name": "Drew Bledsoe"
     },
     {
-     "name": "Andy Dalton"
+     "name": "Steve McNair"
     },
     {
-     "name": "Kyler Murray"
+     "name": "Jake Plummer"
     },
     {
-     "name": "Philip Rivers"
+     "name": "Carson Palmer"
     }
    ],
    "max_attempts": 2,
@@ -173,15 +722,257 @@
    },
    "reveal": {
     "answer": 1,
-    "hint": "He played for the Cincinnati Bengals.",
+    "hint": "He played for the Tennessee Titans.",
     "notes": [
-     "QB · Minnesota Vikings",
-     "QB · Cincinnati Bengals",
-     "QB · Arizona Cardinals",
-     "QB · Los Angeles Chargers"
+     "QB · Dallas Cowboys",
+     "QB · Tennessee Titans",
+     "QB · Denver Broncos",
+     "QB · Cincinnati Bengals"
     ],
-    "fact": "Andy Dalton threw for 3,494 yards and 16 TDs for the 2019 Cincinnati Bengals. The team went 2-14."
-   }
+    "fact": "Steve McNair threw for 3,161 yards and 16 TDs for the 2005 Tennessee Titans. The team went 4-12."
+   },
+   "role": "play",
+   "call": "Flea flicker"
+  },
+  {
+   "type": "rank_four",
+   "kind": "team",
+   "season": 2000,
+   "prompt": "Rank these 2000 teams by regular-season record, best first.",
+   "options": [
+    {
+     "name": "Dallas Cowboys",
+     "color": "#002244",
+     "color2": "#B0B7BC"
+    },
+    {
+     "name": "Atlanta Falcons",
+     "color": "#A71930",
+     "color2": "#000000"
+    },
+    {
+     "name": "Washington Redskins",
+     "color": "#5A1414",
+     "color2": "#FFB612"
+    },
+    {
+     "name": "Detroit Lions",
+     "color": "#0076B6",
+     "color2": "#B0B7BC"
+    }
+   ],
+   "reveal": {
+    "answer": [
+     3,
+     2,
+     0,
+     1
+    ],
+    "notes": [
+     "5-11",
+     "4-12",
+     "8-8",
+     "9-7"
+    ],
+    "fact": "Under Gary Moeller, with Charlie Batch at QB, the 2000 Detroit Lions went 9-7. They missed the playoffs."
+   },
+   "role": "play",
+   "call": "Run up the middle"
+  },
+  {
+   "type": "guess_number",
+   "metric": "points_for",
+   "season": 2017,
+   "prompt": "How many points did the 2017 Minnesota Vikings score in the regular season?",
+   "hint": "League average in 2017: 348 points.",
+   "subject": {
+    "name": "Minnesota Vikings",
+    "color": "#4F2683",
+    "color2": "#FFC62F"
+   },
+   "min": 150,
+   "max": 650,
+   "start": 348,
+   "step": 1,
+   "bump": 5,
+   "scoring": {
+    "type": "linear",
+    "exact": 10,
+    "zero_at": 110
+   },
+   "reveal": {
+    "answer": 382,
+    "answer_label": "382 points",
+    "fact": "The Vikings beat the Saints in the playoffs on the 'Minneapolis Miracle', a 61-yard touchdown on the final play."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
+  {
+   "type": "guess_number",
+   "metric": "passing_tds",
+   "season": 2022,
+   "prompt": "How many touchdown passes did Patrick Mahomes throw in 2022?",
+   "hint": "He played 17 games that season.",
+   "subject": {
+    "name": "Patrick Mahomes",
+    "sub": "QB · Kansas City Chiefs",
+    "color": "#E31837",
+    "color2": "#FFB612"
+   },
+   "min": 5,
+   "max": 60,
+   "start": 32,
+   "step": 1,
+   "bump": 1,
+   "scoring": {
+    "type": "linear",
+    "exact": 1,
+    "zero_at": 12
+   },
+   "reveal": {
+    "answer": 41,
+    "answer_label": "41 touchdown passes",
+    "fact": "Patrick Mahomes threw for 5,250 yards and 41 TDs for the 2022 Kansas City Chiefs, leading the NFL in TD passes. The team went 14-3 and won the Super Bowl."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "player",
+   "season": 2021,
+   "prompt": "In 2021, who threw more touchdown passes?",
+   "options": [
+    {
+     "name": "Justin Herbert",
+     "sub": "QB · Los Angeles Chargers",
+     "color": "#007BC7",
+     "color2": "#ffc20e"
+    },
+    {
+     "name": "Josh Allen",
+     "sub": "QB · Buffalo Bills",
+     "color": "#00338D",
+     "color2": "#C60C30"
+    }
+   ],
+   "reveal": {
+    "answer": 0,
+    "notes": [
+     "38 TD",
+     "36 TD"
+    ],
+    "fact": "Justin Herbert threw for 5,014 yards and 38 TDs for the 2021 Los Angeles Chargers (3rd in the NFL in TD passes). The team went 9-8."
+   },
+   "role": "play",
+   "call": "Quick pass"
+  },
+  {
+   "type": "odd_one_out",
+   "season": 2020,
+   "prompt": "Which of these teams did NOT make the 2020 playoffs?",
+   "options": [
+    {
+     "name": "Indianapolis Colts",
+     "color": "#002C5F",
+     "color2": "#a5acaf"
+    },
+    {
+     "name": "New Orleans Saints",
+     "color": "#D3BC8D",
+     "color2": "#000000"
+    },
+    {
+     "name": "Baltimore Ravens",
+     "color": "#241773",
+     "color2": "#9E7C0C"
+    },
+    {
+     "name": "Atlanta Falcons",
+     "color": "#A71930",
+     "color2": "#000000"
+    }
+   ],
+   "reveal": {
+    "answer": 3,
+    "notes": [
+     "11-5 · lost in the Wild Card round",
+     "12-4 · lost in the Divisional round",
+     "11-5 · lost in the Divisional round",
+     "4-12 · missed playoffs"
+    ],
+    "fact": "The 2020 Atlanta Falcons (4-12) beat the Las Vegas Raiders 43-6 in Week 12."
+   },
+   "role": "play",
+   "call": "Slant route"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "team",
+   "season": 2014,
+   "prompt": "In 2014, who had the better regular-season record?",
+   "options": [
+    {
+     "name": "Denver Broncos",
+     "color": "#002244",
+     "color2": "#FB4F14"
+    },
+    {
+     "name": "Detroit Lions",
+     "color": "#0076B6",
+     "color2": "#B0B7BC"
+    }
+   ],
+   "reveal": {
+    "answer": 0,
+    "notes": [
+     "12-4",
+     "11-5"
+    ],
+    "fact": "The 2014 Denver Broncos (12-4) swept their division rivals. They lost in the Divisional round."
+   },
+   "role": "pat1",
+   "call": "Extra point"
+  },
+  {
+   "type": "odd_one_out",
+   "season": 2025,
+   "prompt": "Which of these teams did NOT make the 2025 playoffs?",
+   "options": [
+    {
+     "name": "Denver Broncos",
+     "color": "#002244",
+     "color2": "#FB4F14"
+    },
+    {
+     "name": "Arizona Cardinals",
+     "color": "#97233F",
+     "color2": "#000000"
+    },
+    {
+     "name": "Carolina Panthers",
+     "color": "#0085CA",
+     "color2": "#000000"
+    },
+    {
+     "name": "Seattle Seahawks",
+     "color": "#002244",
+     "color2": "#69be28"
+    }
+   ],
+   "reveal": {
+    "answer": 1,
+    "notes": [
+     "14-3 · lost in the conference championship",
+     "3-14 · missed playoffs",
+     "8-9 · lost in the Wild Card round",
+     "14-3 · won the Super Bowl"
+    ],
+    "fact": "The 2025 Arizona Cardinals lost 9 games in a row during a 3-14 season."
+   },
+   "role": "pat2",
+   "call": "Two-point try"
   }
  ]
 }

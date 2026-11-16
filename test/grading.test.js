@@ -7,11 +7,14 @@ import { grade, isPlayable, publicPuzzle, loadPuzzle, index } from "../lib/puzzl
 const files = readdirSync(new URL("../puzzles/", import.meta.url)).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f));
 const puzzles = files.map((f) => JSON.parse(readFileSync(new URL(`../puzzles/${f}`, import.meta.url), "utf8")));
 
-test("every puzzle has 5 valid rounds from 5 different seasons", () => {
+test("every puzzle is a drive: 24 plays plus two point-after questions", () => {
   assert.ok(puzzles.length >= 365);
   for (const p of puzzles) {
-    assert.equal(p.rounds.length, 5, p.date);
-    assert.equal(new Set(p.rounds.map((r) => r.season)).size, 5, p.date);
+    assert.equal(p.format, "drive", p.date);
+    assert.equal(p.rounds.length, 26, p.date);
+    assert.deepEqual(p.rounds.slice(24).map((r) => r.role), ["pat1", "pat2"], p.date);
+    assert.ok(p.rounds.slice(0, 24).every((r) => r.role === "play" && r.call), p.date);
+    for (const r of p.rounds.slice(24)) assert.ok(["head_to_head", "odd_one_out"].includes(r.type), `${p.date} single-answer PAT`);
     for (const r of p.rounds) {
       assert.ok(r.reveal && r.reveal.fact, `${p.date} ${r.type} has a reveal`);
       if (r.type === "guess_number") assert.ok(r.reveal.answer >= r.min && r.reveal.answer <= r.max, `${p.date} answer in range`);

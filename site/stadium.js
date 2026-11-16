@@ -66,4 +66,5 @@ export function startStadium(canvas) {
   }
   setTimeout(wave, 2500);
   setInterval(wave, 15000);
+  return { cheer: wave };
 }

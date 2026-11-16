@@ -1,17 +1,153 @@
 {
  "date": "2026-12-06",
  "number": 36,
+ "format": "drive",
  "rounds": [
+  {
+   "type": "odd_one_out",
+   "season": 2005,
+   "prompt": "Only one of these teams made the 2005 playoffs. Which one?",
+   "options": [
+    {
+     "name": "New York Giants",
+     "color": "#0B2265",
+     "color2": "#A71930"
+    },
+    {
+     "name": "Baltimore Ravens",
+     "color": "#241773",
+     "color2": "#9E7C0C"
+    },
+    {
+     "name": "San Diego Chargers",
+     "color": "#007BC7",
+     "color2": "#ffc20e"
+    },
+    {
+     "name": "Miami Dolphins",
+     "color": "#008E97",
+     "color2": "#F58220"
+    }
+   ],
+   "reveal": {
+    "answer": 0,
+    "notes": [
+     "11-5 · lost in the Wild Card round",
+     "6-10 · missed playoffs",
+     "9-7 · missed playoffs",
+     "9-7 · missed playoffs"
+    ],
+    "fact": "The 2005 New York Giants (11-5) beat the Washington Redskins 36-0 in Week 8. They lost in the Wild Card round."
+   },
+   "role": "play",
+   "call": "Slant route"
+  },
   {
    "type": "head_to_head",
    "kind": "team",
-   "season": 2009,
-   "prompt": "In 2009, who had the better regular-season record?",
+   "season": 2000,
+   "prompt": "In 2000, who had the better regular-season record?",
    "options": [
     {
-     "name": "Denver Broncos",
+     "name": "Kansas City Chiefs",
+     "color": "#E31837",
+     "color2": "#FFB612"
+    },
+    {
+     "name": "New England Patriots",
      "color": "#002244",
-     "color2": "#FB4F14"
+     "color2": "#C60C30"
+    }
+   ],
+   "reveal": {
+    "answer": 0,
+    "notes": [
+     "7-9",
+     "5-11"
+    ],
+    "fact": "The 2000 Kansas City Chiefs (7-9) beat the San Diego Chargers 42-10 in Week 3."
+   },
+   "role": "play",
+   "call": "Quick pass"
+  },
+  {
+   "type": "guess_number",
+   "metric": "points_for",
+   "season": 2019,
+   "prompt": "How many points did the 2019 Los Angeles Rams score in the regular season?",
+   "hint": "League average in 2019: 365 points.",
+   "subject": {
+    "name": "Los Angeles Rams",
+    "color": "#003594",
+    "color2": "#FFD100"
+   },
+   "min": 150,
+   "max": 650,
+   "start": 365,
+   "step": 1,
+   "bump": 5,
+   "scoring": {
+    "type": "linear",
+    "exact": 10,
+    "zero_at": 110
+   },
+   "reveal": {
+    "answer": 394,
+    "answer_label": "394 points",
+    "fact": "The 2019 Los Angeles Rams (9-7) lost 45-6 to the Baltimore Ravens in Week 12."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "player",
+   "season": 2007,
+   "prompt": "In 2007, who threw for more passing yards?",
+   "options": [
+    {
+     "name": "Tom Brady",
+     "sub": "QB · New England Patriots",
+     "color": "#002244",
+     "color2": "#C60C30"
+    },
+    {
+     "name": "Brett Favre",
+     "sub": "QB · Green Bay Packers",
+     "color": "#203731",
+     "color2": "#FFB612"
+    }
+   ],
+   "reveal": {
+    "answer": 0,
+    "notes": [
+     "4,806 yds",
+     "4,157 yds"
+    ],
+    "fact": "Tom Brady threw for 4,806 yards and 50 TDs for the 2007 New England Patriots, leading the NFL in passing yards. The team went 16-0 and lost the Super Bowl."
+   },
+   "role": "play",
+   "call": "Quick pass"
+  },
+  {
+   "type": "odd_one_out",
+   "season": 2013,
+   "prompt": "Only one of these teams made the 2013 playoffs. Which one?",
+   "options": [
+    {
+     "name": "Tennessee Titans",
+     "color": "#4495D2",
+     "color2": "#D50A0A"
+    },
+    {
+     "name": "Pittsburgh Steelers",
+     "color": "#000000",
+     "color2": "#FFB612"
+    },
+    {
+     "name": "San Diego Chargers",
+     "color": "#007BC7",
+     "color2": "#ffc20e"
     },
     {
      "name": "Arizona Cardinals",
@@ -20,28 +156,118 @@
     }
    ],
    "reveal": {
-    "answer": 1,
+    "answer": 2,
     "notes": [
-     "8-8",
-     "10-6"
+     "7-9 · missed playoffs",
+     "8-8 · missed playoffs",
+     "9-7 · lost in the Divisional round",
+     "10-6 · missed playoffs"
     ],
-    "fact": "Under Ken Whisenhunt, with Kurt Warner at QB, the 2009 Arizona Cardinals went 10-6. They lost in the Divisional round."
-   }
+    "fact": "Under Mike McCoy, with Philip Rivers at QB, the 2013 San Diego Chargers went 9-7. They lost in the Divisional round."
+   },
+   "role": "play",
+   "call": "Slant route"
+  },
+  {
+   "type": "who_am_i",
+   "season": 2021,
+   "prompt": "Who had this 2021 season? (wide receiver)",
+   "clues": [
+    "1,015 receiving yds",
+    "104 catches",
+    "6 TD",
+    "140 targets"
+   ],
+   "options": [
+    {
+     "name": "Stefon Diggs"
+    },
+    {
+     "name": "Davante Adams"
+    },
+    {
+     "name": "Jaylen Waddle"
+    },
+    {
+     "name": "Michael Pittman"
+    }
+   ],
+   "max_attempts": 2,
+   "scoring": {
+    "type": "attempts",
+    "points": [
+     100,
+     50
+    ]
+   },
+   "reveal": {
+    "answer": 2,
+    "hint": "He played for the Miami Dolphins.",
+    "notes": [
+     "WR · Buffalo Bills",
+     "WR · Green Bay Packers",
+     "WR · Miami Dolphins",
+     "WR · Indianapolis Colts"
+    ],
+    "fact": "Jaylen Waddle caught 104 passes for 1,015 yards and 6 TDs for the 2021 Miami Dolphins. The team went 9-8."
+   },
+   "role": "play",
+   "call": "Flea flicker"
+  },
+  {
+   "type": "rank_four",
+   "kind": "team",
+   "season": 1999,
+   "prompt": "Rank these 1999 teams by regular-season record, best first.",
+   "options": [
+    {
+     "name": "San Francisco 49ers",
+     "color": "#AA0000",
+     "color2": "#B3995D"
+    },
+    {
+     "name": "Carolina Panthers",
+     "color": "#0085CA",
+     "color2": "#000000"
+    },
+    {
+     "name": "Arizona Cardinals",
+     "color": "#97233F",
+     "color2": "#000000"
+    },
+    {
+     "name": "New Orleans Saints",
+     "color": "#D3BC8D",
+     "color2": "#000000"
+    }
+   ],
+   "reveal": {
+    "answer": [
+     1,
+     2,
+     0,
+     3
+    ],
+    "notes": [
+     "4-12",
+     "8-8",
+     "6-10",
+     "3-13"
+    ],
+    "fact": "The 1999 Carolina Panthers (8-8) beat the New Orleans Saints 45-13 in Week 17."
+   },
+   "role": "play",
+   "call": "Run up the middle"
   },
   {
    "type": "odd_one_out",
-   "season": 2003,
-   "prompt": "Which of these teams did NOT make the 2003 playoffs?",
+   "season": 2025,
+   "prompt": "Which of these teams did NOT make the 2025 playoffs?",
    "options": [
     {
-     "name": "Philadelphia Eagles",
-     "color": "#004C54",
-     "color2": "#A5ACAF"
-    },
-    {
-     "name": "St. Louis Rams",
-     "color": "#003594",
-     "color2": "#FFD100"
+     "name": "Atlanta Falcons",
+     "color": "#A71930",
+     "color2": "#000000"
     },
     {
      "name": "Seattle Seahawks",
@@ -49,35 +275,187 @@
      "color2": "#69be28"
     },
     {
-     "name": "Cincinnati Bengals",
-     "color": "#FB4F14",
+     "name": "Philadelphia Eagles",
+     "color": "#004C54",
+     "color2": "#A5ACAF"
+    },
+    {
+     "name": "Jacksonville Jaguars",
+     "color": "#006778",
      "color2": "#000000"
     }
    ],
    "reveal": {
-    "answer": 3,
+    "answer": 0,
     "notes": [
-     "12-4 · lost in the conference championship",
-     "12-4 · lost in the Divisional round",
-     "10-6 · lost in the Wild Card round",
-     "8-8 · missed playoffs"
+     "8-9 · missed playoffs",
+     "14-3 · won the Super Bowl",
+     "11-6 · lost in the Wild Card round",
+     "13-4 · lost in the Wild Card round"
     ],
-    "fact": "Under Marvin Lewis, with Jon Kitna at QB, the 2003 Cincinnati Bengals went 8-8. They missed the playoffs."
-   }
+    "fact": "Under Raheem Morris, with Michael Penix at QB, the 2025 Atlanta Falcons went 8-9. They missed the playoffs."
+   },
+   "role": "play",
+   "call": "Slant route"
+  },
+  {
+   "type": "odd_one_out",
+   "season": 2002,
+   "prompt": "Which of these teams did NOT make the 2002 playoffs?",
+   "options": [
+    {
+     "name": "San Francisco 49ers",
+     "color": "#AA0000",
+     "color2": "#B3995D"
+    },
+    {
+     "name": "Denver Broncos",
+     "color": "#002244",
+     "color2": "#FB4F14"
+    },
+    {
+     "name": "Oakland Raiders",
+     "color": "#000000",
+     "color2": "#A5ACAF"
+    },
+    {
+     "name": "Philadelphia Eagles",
+     "color": "#004C54",
+     "color2": "#A5ACAF"
+    }
+   ],
+   "reveal": {
+    "answer": 1,
+    "notes": [
+     "10-6 · lost in the Divisional round",
+     "9-7 · missed playoffs",
+     "11-5 · lost the Super Bowl",
+     "12-4 · lost in the conference championship"
+    ],
+    "fact": "The 2002 Denver Broncos (9-7) beat the Arizona Cardinals 37-7 in Week 17."
+   },
+   "role": "play",
+   "call": "Slant route"
+  },
+  {
+   "type": "rank_four",
+   "kind": "player",
+   "season": 2003,
+   "prompt": "Rank these 2003 quarterbacks by touchdown passes, most first.",
+   "options": [
+    {
+     "name": "Trent Green",
+     "sub": "QB · Kansas City Chiefs",
+     "color": "#E31837",
+     "color2": "#FFB612"
+    },
+    {
+     "name": "Peyton Manning",
+     "sub": "QB · Indianapolis Colts",
+     "color": "#002C5F",
+     "color2": "#a5acaf"
+    },
+    {
+     "name": "Brett Favre",
+     "sub": "QB · Green Bay Packers",
+     "color": "#203731",
+     "color2": "#FFB612"
+    },
+    {
+     "name": "Brad Johnson",
+     "sub": "QB · Tampa Bay Buccaneers",
+     "color": "#A71930",
+     "color2": "#322F2B"
+    }
+   ],
+   "reveal": {
+    "answer": [
+     2,
+     1,
+     3,
+     0
+    ],
+    "notes": [
+     "24 TD",
+     "29 TD",
+     "32 TD",
+     "26 TD"
+    ],
+    "fact": "Brett Favre threw for 3,361 yards and 32 TDs for the 2003 Green Bay Packers, leading the NFL in TD passes. The team went 10-6 and lost in the Divisional round."
+   },
+   "role": "play",
+   "call": "Run up the middle"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "team",
+   "season": 2008,
+   "prompt": "In 2008, who had the better regular-season record?",
+   "options": [
+    {
+     "name": "San Diego Chargers",
+     "color": "#007BC7",
+     "color2": "#ffc20e"
+    },
+    {
+     "name": "Tampa Bay Buccaneers",
+     "color": "#A71930",
+     "color2": "#322F2B"
+    }
+   ],
+   "reveal": {
+    "answer": 1,
+    "notes": [
+     "8-8",
+     "9-7"
+    ],
+    "fact": "Under Jon Gruden, with Jeff Garcia at QB, the 2008 Tampa Bay Buccaneers went 9-7. They missed the playoffs."
+   },
+   "role": "play",
+   "call": "Quick pass"
+  },
+  {
+   "type": "guess_number",
+   "metric": "points_for",
+   "season": 2015,
+   "prompt": "How many points did the 2015 Oakland Raiders score in the regular season?",
+   "hint": "League average in 2015: 365 points.",
+   "subject": {
+    "name": "Oakland Raiders",
+    "color": "#000000",
+    "color2": "#A5ACAF"
+   },
+   "min": 150,
+   "max": 650,
+   "start": 365,
+   "step": 1,
+   "bump": 5,
+   "scoring": {
+    "type": "linear",
+    "exact": 10,
+    "zero_at": 110
+   },
+   "reveal": {
+    "answer": 359,
+    "answer_label": "359 points",
+    "fact": "Under Jack Del Rio, with Derek Carr at QB, the 2015 Oakland Raiders went 7-9. They missed the playoffs."
+   },
+   "role": "play",
+   "call": "Deep shot"
   },
   {
    "type": "guess_number",
    "metric": "wins",
-   "season": 2004,
-   "prompt": "How many regular-season games did the 2004 Tennessee Titans win?",
-   "hint": "They played 16 games.",
+   "season": 2024,
+   "prompt": "How many regular-season games did the 2024 New York Jets win?",
+   "hint": "They played 17 games.",
    "subject": {
-    "name": "Tennessee Titans",
-    "color": "#4495D2",
-    "color2": "#D50A0A"
+    "name": "New York Jets",
+    "color": "#003F2D",
+    "color2": "#000000"
    },
    "min": 0,
-   "max": 16,
+   "max": 17,
    "start": 8,
    "step": 1,
    "bump": 1,
@@ -92,80 +470,141 @@
    },
    "reveal": {
     "answer": 5,
-    "answer_label": "5 wins (5-11)",
-    "fact": "Under Jeff Fisher, with Steve McNair at QB, the 2004 Tennessee Titans went 5-11. They missed the playoffs."
-   }
-  },
-  {
-   "type": "rank_four",
-   "kind": "player",
-   "season": 2011,
-   "prompt": "Rank these 2011 running backs by rushing yards, most first.",
-   "options": [
-    {
-     "name": "LeSean McCoy",
-     "sub": "RB · Philadelphia Eagles",
-     "color": "#004C54",
-     "color2": "#A5ACAF"
-    },
-    {
-     "name": "Ben Tate",
-     "sub": "RB · Houston Texans",
-     "color": "#03202F",
-     "color2": "#A71930"
-    },
-    {
-     "name": "Chris Wells",
-     "sub": "RB · Arizona Cardinals",
-     "color": "#97233F",
-     "color2": "#000000"
-    },
-    {
-     "name": "Marshawn Lynch",
-     "sub": "RB · Seattle Seahawks",
-     "color": "#002244",
-     "color2": "#69be28"
-    }
-   ],
-   "reveal": {
-    "answer": [
-     0,
-     3,
-     2,
-     1
-    ],
-    "notes": [
-     "1,309 yds",
-     "942 yds",
-     "1,047 yds",
-     "1,204 yds"
-    ],
-    "fact": "LeSean McCoy ran for 1,309 yards and 17 TDs for the 2011 Philadelphia Eagles (4th in the NFL in rushing yards). The team went 8-8."
-   }
+    "answer_label": "5 wins (5-12)",
+    "fact": "Under Robert Saleh, with Aaron Rodgers at QB, the 2024 New York Jets went 5-12. They missed the playoffs."
+   },
+   "role": "play",
+   "call": "Deep shot"
   },
   {
    "type": "who_am_i",
-   "season": 2021,
-   "prompt": "Who had this 2021 season? (running back)",
+   "season": 2004,
+   "prompt": "Who had this 2004 season? (running back)",
    "clues": [
-    "1,159 rushing yds",
-    "6 rushing TD",
-    "4.7 yds/carry",
-    "34 catches",
-    "224 receiving yds"
+    "1,457 rushing yds",
+    "12 rushing TD",
+    "4.0 yds/carry",
+    "15 catches",
+    "84 receiving yds"
    ],
    "options": [
     {
-     "name": "Dalvin Cook"
+     "name": "Fred Taylor"
     },
     {
-     "name": "Austin Ekeler"
+     "name": "Rudi Johnson"
     },
     {
-     "name": "Antonio Gibson"
+     "name": "Ahman Green"
     },
     {
-     "name": "Elijah Mitchell"
+     "name": "Edgerrin James"
+    }
+   ],
+   "max_attempts": 2,
+   "scoring": {
+    "type": "attempts",
+    "points": [
+     100,
+     50
+    ]
+   },
+   "reveal": {
+    "answer": 1,
+    "hint": "He played for the Cincinnati Bengals.",
+    "notes": [
+     "RB · Jacksonville Jaguars",
+     "RB · Cincinnati Bengals",
+     "RB · Green Bay Packers",
+     "RB · Indianapolis Colts"
+    ],
+    "fact": "Rudi Johnson ran for 1,457 yards and 12 TDs for the 2004 Cincinnati Bengals (6th in the NFL in rushing yards). The team went 8-8."
+   },
+   "role": "play",
+   "call": "Flea flicker"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "player",
+   "season": 2020,
+   "prompt": "In 2020, who had more receptions?",
+   "options": [
+    {
+     "name": "Keenan Allen",
+     "sub": "WR · Los Angeles Chargers",
+     "color": "#007BC7",
+     "color2": "#ffc20e"
+    },
+    {
+     "name": "Justin Jefferson",
+     "sub": "WR · Minnesota Vikings",
+     "color": "#4F2683",
+     "color2": "#FFC62F"
+    }
+   ],
+   "reveal": {
+    "answer": 0,
+    "notes": [
+     "100 catches",
+     "88 catches"
+    ],
+    "fact": "Keenan Allen caught 100 passes for 992 yards and 8 TDs for the 2020 Los Angeles Chargers. The team went 7-9."
+   },
+   "role": "play",
+   "call": "Quick pass"
+  },
+  {
+   "type": "guess_number",
+   "metric": "points_for",
+   "season": 2022,
+   "prompt": "How many points did the 2022 Philadelphia Eagles score in the regular season?",
+   "hint": "League average in 2022: 371 points.",
+   "subject": {
+    "name": "Philadelphia Eagles",
+    "color": "#004C54",
+    "color2": "#A5ACAF"
+   },
+   "min": 150,
+   "max": 650,
+   "start": 371,
+   "step": 1,
+   "bump": 5,
+   "scoring": {
+    "type": "linear",
+    "exact": 10,
+    "zero_at": 110
+   },
+   "reveal": {
+    "answer": 477,
+    "answer_label": "477 points",
+    "fact": "The Eagles went 14-3 but lost Super Bowl LVII 38-35 to the Chiefs."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
+  {
+   "type": "who_am_i",
+   "season": 2017,
+   "prompt": "Who had this 2017 season? (quarterback)",
+   "clues": [
+    "4,577 passing yds",
+    "32 TD",
+    "8 INT",
+    "66.3% completions",
+    "28 rushing yds"
+   ],
+   "options": [
+    {
+     "name": "Tom Brady"
+    },
+    {
+     "name": "Jared Goff"
+    },
+    {
+     "name": "Drew Brees"
+    },
+    {
+     "name": "Russell Wilson"
     }
    ],
    "max_attempts": 2,
@@ -178,15 +617,317 @@
    },
    "reveal": {
     "answer": 0,
-    "hint": "He played for the Minnesota Vikings.",
+    "hint": "He played for the New England Patriots.",
     "notes": [
-     "RB · Minnesota Vikings",
-     "RB · Los Angeles Chargers",
-     "RB · Washington Football Team",
-     "RB · San Francisco 49ers"
+     "QB · New England Patriots",
+     "QB · Los Angeles Rams",
+     "QB · New Orleans Saints",
+     "QB · Seattle Seahawks"
     ],
-    "fact": "Dalvin Cook ran for 1,159 yards and 6 TDs for the 2021 Minnesota Vikings (5th in the NFL in rushing yards). The team went 8-9."
-   }
+    "fact": "Tom Brady threw for 4,577 yards and 32 TDs for the 2017 New England Patriots, leading the NFL in passing yards. The team went 13-3 and lost the Super Bowl."
+   },
+   "role": "play",
+   "call": "Flea flicker"
+  },
+  {
+   "type": "odd_one_out",
+   "season": 2014,
+   "prompt": "Which of these teams did NOT make the 2014 playoffs?",
+   "options": [
+    {
+     "name": "Miami Dolphins",
+     "color": "#008E97",
+     "color2": "#F58220"
+    },
+    {
+     "name": "Baltimore Ravens",
+     "color": "#241773",
+     "color2": "#9E7C0C"
+    },
+    {
+     "name": "Green Bay Packers",
+     "color": "#203731",
+     "color2": "#FFB612"
+    },
+    {
+     "name": "Pittsburgh Steelers",
+     "color": "#000000",
+     "color2": "#FFB612"
+    }
+   ],
+   "reveal": {
+    "answer": 0,
+    "notes": [
+     "8-8 · missed playoffs",
+     "10-6 · lost in the Divisional round",
+     "12-4 · lost in the conference championship",
+     "11-5 · lost in the Wild Card round"
+    ],
+    "fact": "The 2014 Miami Dolphins (8-8) beat the San Diego Chargers 37-0 in Week 9."
+   },
+   "role": "play",
+   "call": "Slant route"
+  },
+  {
+   "type": "guess_number",
+   "metric": "rushing_yards",
+   "season": 2010,
+   "prompt": "How many rushing yards did BenJarvus Green-Ellis run for in 2010?",
+   "hint": "He played 16 games that season.",
+   "subject": {
+    "name": "BenJarvus Green-Ellis",
+    "sub": "RB · New England Patriots",
+    "color": "#002244",
+    "color2": "#C60C30"
+   },
+   "min": 500,
+   "max": 2200,
+   "start": 1350,
+   "step": 10,
+   "bump": 50,
+   "scoring": {
+    "type": "linear",
+    "exact": 50,
+    "zero_at": 650
+   },
+   "reveal": {
+    "answer": 1008,
+    "answer_label": "1,008 rushing yards",
+    "fact": "BenJarvus Green-Ellis ran for 1,008 yards and 13 TDs for the 2010 New England Patriots. The team went 14-2 and lost in the Divisional round."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
+  {
+   "type": "who_am_i",
+   "season": 2016,
+   "prompt": "Who had this 2016 season? (wide receiver)",
+   "clues": [
+    "1,257 receiving yds",
+    "97 catches",
+    "14 TD",
+    "152 targets"
+   ],
+   "options": [
+    {
+     "name": "Brandin Cooks"
+    },
+    {
+     "name": "Julio Jones"
+    },
+    {
+     "name": "Jordy Nelson"
+    },
+    {
+     "name": "Doug Baldwin"
+    }
+   ],
+   "max_attempts": 2,
+   "scoring": {
+    "type": "attempts",
+    "points": [
+     100,
+     50
+    ]
+   },
+   "reveal": {
+    "answer": 2,
+    "hint": "He played for the Green Bay Packers.",
+    "notes": [
+     "WR · New Orleans Saints",
+     "WR · Atlanta Falcons",
+     "WR · Green Bay Packers",
+     "WR · Seattle Seahawks"
+    ],
+    "fact": "Jordy Nelson caught 97 passes for 1,257 yards and 14 TDs for the 2016 Green Bay Packers (6th in the NFL in receiving yards). The team went 10-6 and lost in the conference championship."
+   },
+   "role": "play",
+   "call": "Flea flicker"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "player",
+   "season": 2001,
+   "prompt": "In 2001, who ran for more rushing yards?",
+   "options": [
+    {
+     "name": "Shaun Alexander",
+     "sub": "RB · Seattle Seahawks",
+     "color": "#002244",
+     "color2": "#69be28"
+    },
+    {
+     "name": "Corey Dillon",
+     "sub": "RB · Cincinnati Bengals",
+     "color": "#FB4F14",
+     "color2": "#000000"
+    }
+   ],
+   "reveal": {
+    "answer": 0,
+    "notes": [
+     "1,318 yds",
+     "1,315 yds"
+    ],
+    "fact": "Shaun Alexander ran for 1,318 yards and 14 TDs for the 2001 Seattle Seahawks (5th in the NFL in rushing yards). The team went 9-7."
+   },
+   "role": "play",
+   "call": "Quick pass"
+  },
+  {
+   "type": "guess_number",
+   "metric": "rushing_yards",
+   "season": 2006,
+   "prompt": "How many rushing yards did Ahman Green run for in 2006?",
+   "hint": "He played 14 games that season.",
+   "subject": {
+    "name": "Ahman Green",
+    "sub": "RB · Green Bay Packers",
+    "color": "#203731",
+    "color2": "#FFB612"
+   },
+   "min": 500,
+   "max": 2200,
+   "start": 1350,
+   "step": 10,
+   "bump": 50,
+   "scoring": {
+    "type": "linear",
+    "exact": 50,
+    "zero_at": 650
+   },
+   "reveal": {
+    "answer": 1059,
+    "answer_label": "1,059 rushing yards",
+    "fact": "Ahman Green ran for 1,059 yards and 5 TDs for the 2006 Green Bay Packers. The team went 8-8."
+   },
+   "role": "play",
+   "call": "Deep shot"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "player",
+   "season": 2012,
+   "prompt": "In 2012, who threw more touchdown passes?",
+   "options": [
+    {
+     "name": "Andrew Luck",
+     "sub": "QB · Indianapolis Colts",
+     "color": "#002C5F",
+     "color2": "#a5acaf"
+    },
+    {
+     "name": "Josh Freeman",
+     "sub": "QB · Tampa Bay Buccaneers",
+     "color": "#A71930",
+     "color2": "#322F2B"
+    }
+   ],
+   "reveal": {
+    "answer": 1,
+    "notes": [
+     "23 TD",
+     "27 TD"
+    ],
+    "fact": "Josh Freeman threw for 4,065 yards and 27 TDs for the 2012 Tampa Bay Buccaneers (7th in the NFL in TD passes). The team went 7-9."
+   },
+   "role": "play",
+   "call": "Quick pass"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "team",
+   "season": 2011,
+   "prompt": "In 2011, who had the better regular-season record?",
+   "options": [
+    {
+     "name": "Carolina Panthers",
+     "color": "#0085CA",
+     "color2": "#000000"
+    },
+    {
+     "name": "Minnesota Vikings",
+     "color": "#4F2683",
+     "color2": "#FFC62F"
+    }
+   ],
+   "reveal": {
+    "answer": 0,
+    "notes": [
+     "6-10",
+     "3-13"
+    ],
+    "fact": "The 2011 Carolina Panthers (6-10) beat the Tampa Bay Buccaneers 48-16 in Week 16."
+   },
+   "role": "play",
+   "call": "Quick pass"
+  },
+  {
+   "type": "head_to_head",
+   "kind": "team",
+   "season": 2004,
+   "prompt": "In 2004, who had the better regular-season record?",
+   "options": [
+    {
+     "name": "Houston Texans",
+     "color": "#03202F",
+     "color2": "#A71930"
+    },
+    {
+     "name": "Miami Dolphins",
+     "color": "#008E97",
+     "color2": "#F58220"
+    }
+   ],
+   "reveal": {
+    "answer": 0,
+    "notes": [
+     "7-9",
+     "4-12"
+    ],
+    "fact": "The 2004 Houston Texans (7-9) lost 49-14 to the Indianapolis Colts in Week 10."
+   },
+   "role": "pat1",
+   "call": "Extra point"
+  },
+  {
+   "type": "odd_one_out",
+   "season": 2012,
+   "prompt": "Only one of these teams made the 2012 playoffs. Which one?",
+   "options": [
+    {
+     "name": "Washington Redskins",
+     "color": "#5A1414",
+     "color2": "#FFB612"
+    },
+    {
+     "name": "New Orleans Saints",
+     "color": "#D3BC8D",
+     "color2": "#000000"
+    },
+    {
+     "name": "Miami Dolphins",
+     "color": "#008E97",
+     "color2": "#F58220"
+    },
+    {
+     "name": "Pittsburgh Steelers",
+     "color": "#000000",
+     "color2": "#FFB612"
+    }
+   ],
+   "reveal": {
+    "answer": 0,
+    "notes": [
+     "10-6 · lost in the Wild Card round",
+     "7-9 · missed playoffs",
+     "7-9 · missed playoffs",
+     "8-8 · missed playoffs"
+    ],
+    "fact": "Under Mike Shanahan, with Robert Griffin at QB, the 2012 Washington Redskins went 10-6. They lost in the Wild Card round."
+   },
+   "role": "pat2",
+   "call": "Two-point try"
   }
  ]
 }
