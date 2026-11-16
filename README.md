@@ -57,6 +57,17 @@ Then open http://localhost:8000. Add `?date=2026-12-25` to play any generated da
 
 ## Deploying
 
+### Vercel (recommended)
+
+`vercel.json` serves `site/` as a static site with no build step. To set it up once:
+
+1. Go to https://vercel.com/new and sign in with GitHub.
+2. Import the `nfldaily` repository and click **Deploy**. Leave all settings at their defaults.
+
+From then on, every push to `main` updates the live site, and every other branch gets its own preview URL.
+
+### GitHub Pages
+
 `.github/workflows/pages.yml` publishes `site/` to GitHub Pages on every push to `main`. To turn it on, open the repo's **Settings → Pages** and set **Source** to **GitHub Actions**.
 
 ## Notes
