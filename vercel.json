@@ -1,16 +1,14 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "installCommand": "",
   "buildCommand": "",
   "outputDirectory": "site",
+  "functions": {
+    "api/*.js": { "includeFiles": "puzzles/**" }
+  },
   "headers": [
     {
-      "source": "/puzzles/(.*)",
-      "headers": [{ "key": "Cache-Control", "value": "public, max-age=300, must-revalidate" }]
-    },
-    {
-      "source": "/(app.js|style.css)",
+      "source": "/(app.js|style.css|index.html)?",
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }]
     }
   ]
