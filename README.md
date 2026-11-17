@@ -53,6 +53,12 @@ site/pixel.js               pixel-art stadium renderer (shared by the site backg
 - **Installable:** `site/manifest.webmanifest` and pixel icons (`node scripts/make-icons.mjs`) let players add the game to their home screen. The results and profile screens offer an install button where the browser supports one, and instructions on iPhone.
 - **Analytics:** the site loads Vercel Web Analytics (page views only, no cookies) on the real domain. It does nothing until Analytics is turned on in the Vercel project.
 
+### Badges and commentary
+
+After every play a one-line broadcast call sums it up ("He's got nobody near him!", "Fourth down… converted! Gutsy call!"). Lines are picked from the play itself, so a replay or a reload shows the same call.
+
+There are 12 badges: first touchdown, a Bomb, three Bombs in one drive, a 4th-down conversion, a touchdown in 4 plays or fewer, a touchdown with no incompletions, scoring after 3 straight incompletions, 3/7/30-day streaks, 10 drives and 10 touchdowns. They're worked out from your drive history by `site/badges.js`, which the browser runs for anonymous players and `/api/account` runs for signed-in ones, so nothing extra is stored and badges follow a signed-in player across devices. New badges show on the final screen, and the full case is in your profile.
+
 ### Look and sharing
 
 - The background is a pixel-art stadium drawn on a canvas by `site/stadium.js`: a field down the middle with crowds on both sides, and a crowd wave every 15 seconds (skipped with reduced motion). Dark mode turns it into a night game.

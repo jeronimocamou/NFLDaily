@@ -1,6 +1,7 @@
 import { startStadium } from "./stadium.js";
 import { createFieldView } from "./fieldview.js";
 import * as sound from "./sound.js";
+import { BADGES, earnedBadges } from "./badges.js";
 import { RULES, CODE_EMOJI, TIERS, downText, driveRank, fieldSpot, isCurrent, newDrive, resolve, snap, summary, tierFor } from "./drive.js";
 
 // Fourth & Daily client. Each day is one drive: down 21-17, ball on your own
@@ -313,6 +314,36 @@ function startTicker() {
 
 // ---- Cards ------------------------------------------------------------------------------------
 /** After a play: one big line (tier and yards), your answer, and nothing else. */
+// ---- Commentary ---------------------------------------------------------------------------
+const CALLS = {
+  td: ["He's in! Ballgame!", "Touchdown! The crowd goes wild!", "Into the end zone! What a drive!", "Six on the board! Game over!"],
+  fourth: ["Fourth down… converted! Gutsy call!", "They went for it, and they got it!", "Ice in the veins on fourth down!"],
+  third: ["Big conversion on third down!", "Moves the chains on third down!"],
+  bomb: ["He's got nobody near him!", "Launched deep… and hauled in!", "That's a dime! Forty yards in the air!", "Takes the top off the defense!"],
+  seam: ["Right down the seam!", "Splits the safeties for a big gain!", "Threads the needle over the middle!"],
+  check: ["Dump-off, moves the chains.", "Short and safe. Drive stays alive.", "Takes what the defense gives him."],
+  miss: ["Incomplete. Thrown behind him.", "Broken up at the last second!", "Off his fingertips. Incomplete.", "Nobody there. Incomplete."],
+  timeout: ["Held it too long. Incomplete.", "The pocket collapses. Thrown away."],
+  downs: ["The defense holds!", "Stuffed when it mattered most."],
+  out: ["So close. The clock wins this one."],
+};
+
+/** One broadcast line for a play: picked from the play itself, the same every time. */
+function callFor(ev, downBefore, i) {
+  let pool;
+  if (ev.td) pool = CALLS.td;
+  else if (ev.over && drive?.result === "downs") pool = CALLS.downs;
+  else if (ev.over && drive?.result === "out") pool = CALLS.out;
+  else if (ev.firstDown && downBefore === 4) pool = CALLS.fourth;
+  else if (ev.firstDown && downBefore === 3) pool = CALLS.third;
+  else if (ev.hit) pool = CALLS[tierFor(ev.rarity).key];
+  else pool = ev.timedOut ? CALLS.timeout : CALLS.miss;
+  // Seeded by the date, then stepping by play, so back-to-back plays get different lines.
+  let seed = 0;
+  for (const c of date) seed = (seed * 31 + c.charCodeAt(0)) % 9973;
+  return pool[(seed + i) % pool.length];
+}
+
 function playResult(round, st, i) {
   const ev = lastPlay?.idx === i ? lastPlay.event : null;
   const guess = st.guesses?.at(-1);
@@ -329,9 +360,11 @@ function playResult(round, st, i) {
     sub = st.timedOut || !guess ? "Time ran out" : `✗ ${yours}`;
   }
   const over = ev?.over && !ev?.td ? (drive.result === "downs" ? " · Turnover on downs" : " · That's the game") : "";
+  const call = ev ? callFor(ev, lastPlay.downBefore, i) : null;
   return h("div", { class: `play-result pr-${cls}` },
     h("div", { class: "pr-big" }, big),
-    h("div", { class: "pr-sub" }, sub + over));
+    h("div", { class: "pr-sub" }, sub + over),
+    call ? h("p", { class: "pr-call" }, `🎙️ ${call}`) : null);
 }
 
 function errorLine(msg) {
@@ -576,7 +609,7 @@ async function finishPlay(i, state, event, reveal, guesses, answers = null) {
   const before = drive;
   qdata[i] = { done: true, hit: event.hit, rarity: event.rarity, guesses, reveal, answers, timedOut: event.timedOut };
   drive = state;
-  lastPlay = { idx: i, event };
+  lastPlay = { idx: i, event, downBefore: before.down };
   persistLocal();
   busy = false;
   animating = true;
@@ -692,6 +725,28 @@ function challengeCompare(sum) {
 }
 
 // ---- Streak ----------------------------------------------------------------------------------------
+// ---- Badges -------------------------------------------------------------------------------
+function myBadges() {
+  if (signedIn() && account.stats?.badges) return account.stats.badges;
+  const drives = Object.entries(store.drives)
+    .filter(([, d]) => d.state?.phase === "over")
+    .map(([d, x]) => ({ date: d, onTime: x.onTime, log: x.state.log }));
+  return earnedBadges(drives);
+}
+
+function badgeChip(b, earned, fresh = false) {
+  return h("li", { class: `badge ${earned ? "earned" : "locked"} ${fresh ? "fresh" : ""}`, title: b.desc },
+    h("span", { class: "b-emoji", "aria-hidden": "true" }, earned ? b.emoji : "🔒"),
+    h("span", { class: "b-name" }, b.name),
+    h("span", { class: "b-desc" }, b.desc));
+}
+
+/** Badges first earned on this drive's day. */
+function newBadgesFor(day) {
+  const got = myBadges();
+  return BADGES.filter((b) => got[b.id] === day);
+}
+
 function currentStreak() {
   return (signedIn() && account.stats ? account.stats.streak : localStats().streak) || 0;
 }
@@ -770,6 +825,13 @@ function renderSummary() {
     streak > 1 ? h("p", { class: "streak-line" }, `🔥 ${streak}-day streak`) : null,
     challengeCompare(sum),
     h("div", { class: "grid", "aria-label": "Drive chart" }, grid),
+    (() => {
+      const fresh = newBadgesFor(date);
+      return fresh.length
+        ? h("div", { class: "new-badges" }, h("p", { class: "nb-head" }, fresh.length > 1 ? "🏅 New badges!" : "🏅 New badge!"),
+            h("ul", { class: "badge-list" }, fresh.map((b) => badgeChip(b, true, true))))
+        : null;
+    })(),
     h("button", { type: "button", class: "btn primary", onclick: share }, "Share your drive"),
     toast,
     cta,
@@ -918,8 +980,13 @@ function renderProfile() {
   const s = signedIn() && account.stats ? account.stats : localStats();
   const stat = (n, l) => h("div", {}, h("div", { class: "n" }, String(n)), h("div", { class: "l" }, l));
   const b = s.bestDrive;
+  const got = myBadges();
+  const nGot = BADGES.filter((x) => got[x.id]).length;
   const parts = [
     h("div", { class: "stat-row" }, stat(s.played, "Played"), stat(s.tds, "Touchdowns"), stat(s.streak, "Streak"), stat(s.best, "Best streak")),
+    h("details", { class: "badge-case" },
+      h("summary", {}, `🏅 Badges ${nGot}/${BADGES.length}`),
+      h("ul", { class: "badge-list" }, BADGES.map((x) => badgeChip(x, !!got[x.id])))),
     h("p", { class: "hint center" }, s.drives
       ? `Average drive: ${s.avgYards} yds · Best: ${b.yards} yds in ${b.clock} plays`
       : "No drives yet."),
