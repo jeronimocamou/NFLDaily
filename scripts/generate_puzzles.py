@@ -976,6 +976,7 @@ def main():
                 d += dt.timedelta(days=1)
 
     # Remember the wording of every kept day, so a new day never repeats it too soon.
+    gen.prompt_used = {}
     for f in sorted(OUT.glob("20*.json")):
         day = dt.date.fromisoformat(f.stem)
         if day <= last:
