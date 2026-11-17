@@ -3,7 +3,7 @@
 // source of truth for leaderboards) always agree.
 //
 // You're down 21-17 with the ball on your own 25. Every play is one question:
-// type a right answer to gain yards: a check-down (7), seam route (20) or bomb (40),
+// type a right answer to gain yards: a check-down (10), seam route (20) or bomb (40),
 // depending on how deep a cut the answer is.
 // A wrong answer, or running out the 30-second timer, is an incomplete pass.
 // You have 4 downs to gain 10 yards. Reach the end zone to win (touchdown +
@@ -25,7 +25,7 @@ export const VERSION = 3; // drives saved by older rule sets restart
  * answer) bombs.
  */
 export const TIERS = [
-  { key: "check", name: "Check Down", yards: 7, code: "m", upTo: 0.4 },
+  { key: "check", name: "Check Down", yards: 10, code: "m", upTo: 0.4 },
   { key: "seam", name: "Seam Route", yards: 20, code: "g", upTo: 0.75 },
   { key: "bomb", name: "Bomb", yards: 40, code: "b", upTo: 1 },
 ];

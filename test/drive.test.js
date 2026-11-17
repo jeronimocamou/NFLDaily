@@ -12,8 +12,8 @@ function play(s, result, secs = 10) {
   return resolve(live, Q, result, secs, N);
 }
 
-test("three tiers: check-down 7, seam route 20, bomb 40; wrong is incomplete", () => {
-  assert.deepEqual([0, 0.39, 0.4, 0.74, 0.75, 1].map((r) => gainFor(hit(r))), [7, 7, 20, 20, 40, 40]);
+test("three tiers: check-down 10, seam route 20, bomb 40; wrong is incomplete", () => {
+  assert.deepEqual([0, 0.39, 0.4, 0.74, 0.75, 1].map((r) => gainFor(hit(r))), [10, 10, 20, 20, 40, 40]);
   assert.deepEqual([0, 0.5, 1].map((r) => tierFor(r).name), ["Check Down", "Seam Route", "Bomb"]);
   assert.equal(gainFor(miss), 0);
   // 10 answers split 4 / 3 / 3
@@ -30,9 +30,9 @@ test("questions come in order and move the chains", () => {
   assert.equal(s.yl, 45);
   assert.equal(downText(s), "1st & 10");
   assert.equal(snap(s, 0, N).live.round, 1);
-  s = play(s, hit(0)).state; // check-down
-  assert.equal(downText(s), "2nd & 3");
-  assert.equal(fieldSpot(s.yl), "OPP 48");
+  s = play(s, hit(0)).state; // check-down: always a first down
+  assert.equal(downText(s), "1st & 10");
+  assert.equal(fieldSpot(s.yl), "OPP 45");
 });
 
 test("four misses is a turnover on downs; running out of time is incomplete", () => {
@@ -51,7 +51,7 @@ test("four misses is a turnover on downs; running out of time is incomplete", ()
 test("touchdown wins with an automatic extra point", () => {
   let s = newDrive();
   s = play(s, hit(1)).state; // bomb: 40
-  s = play(s, hit(0)).state; // check-down: 7
+  s = play(s, hit(0)).state; // check-down: 10
   s = play(s, hit(1)).state; // bomb: touchdown
   assert.equal(s.phase, "over");
   assert.equal(s.result, "td");
@@ -74,7 +74,7 @@ test("rarity comes from our stats: answers ranked by obviousness", () => {
   assert.equal(rarityOf("backup", prior), 2 / 3, "ties share a rank");
   assert.equal(rarityOf("only", { only: 1 }), 1);
   const ys = answerYards({ brady: { name: "Brady" }, backup: { name: "Backup" } }, { brady: 10, backup: 1 });
-  assert.deepEqual(ys.map((a) => [a.name, a.yards, a.tier]), [["Backup", 40, "bomb"], ["Brady", 7, "check"]]);
+  assert.deepEqual(ys.map((a) => [a.name, a.yards, a.tier]), [["Backup", 40, "bomb"], ["Brady", 10, "check"]]);
 });
 
 test("ranking: points, then yards, then fewer plays", () => {

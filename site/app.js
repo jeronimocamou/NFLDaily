@@ -98,7 +98,6 @@ let liveStart = 0; // local time the live play was snapped
 let busy = false;
 let animating = false;
 let showFinal = false;
-let crowd = null;
 
 const signedIn = () => Boolean(account.user);
 const nPlays = () => (puzzle.rounds ? puzzle.rounds.length : puzzle.plays);
@@ -156,23 +155,26 @@ function startTicker() {
 }
 
 // ---- Cards ------------------------------------------------------------------------------------
-function crowdLine(i) {
-  const c = crowd?.rounds?.[i];
-  if (!c) return null;
-  const players = `${c.plays.toLocaleString()} player${c.plays === 1 ? "" : "s"}`;
-  const text = c.plays === 1 ? "You're the first to run this play!" : `${c.perfectPct}% of players named a right answer (${players})`;
-  return h("p", { class: "crowd" }, "👥 ", text);
-}
-
-function resultBox(line, fact, i) {
+/** After a play: one big line (tier and yards), your answer, and nothing else. */
+function playResult(round, st, i) {
   const ev = lastPlay?.idx === i ? lastPlay.event : null;
-  const tier = !ev ? "mid" : ev.td || ev.yards >= 15 ? "good" : ev.yards > 0 ? "mid" : "low";
-  const code = ev ? drive.log.find((e) => e.round === i)?.code : null;
-  return h("div", { class: "result", style: { "--tier": `var(--${tier})` } },
-    ev ? h("div", { class: "pts" }, `${code ? CODE_EMOJI[code] : ""} ${ev.text}`.trim()) : null,
-    line ? h("p", {}, line) : null,
-    crowdLine(i),
-    fact ? h("p", { class: "fact" }, fact) : null);
+  const guess = st.guesses?.at(-1);
+  const yours = guess ? (st.answers?.find((a) => a.id === guess)?.name || nameFor(round.answer_kind, guess) || "Your answer") : null;
+  let big, cls, sub;
+  if (st.hit) {
+    const tier = tierFor(st.rarity);
+    big = ev?.td ? "🏈 TOUCHDOWN" : `${TIER_EMOJI[tier.key]} ${tier.name.toUpperCase()} +${tier.yards}`;
+    cls = ev?.td ? "td" : tier.key;
+    sub = `✓ ${yours}${ev?.firstDown && !ev?.td ? " · First down!" : ""}`;
+  } else {
+    big = "INCOMPLETE";
+    cls = "miss";
+    sub = st.timedOut || !guess ? "Time ran out" : `✗ ${yours}`;
+  }
+  const over = ev?.over && !ev?.td ? (drive.result === "downs" ? " · Turnover on downs" : " · That's the game") : "";
+  return h("div", { class: `play-result pr-${cls}` },
+    h("div", { class: "pr-big" }, big),
+    h("div", { class: "pr-sub" }, sub + over));
 }
 
 function errorLine(msg) {
@@ -195,9 +197,9 @@ function roundShell(round, i, ...body) {
   return h("article", { class: `card ${live ? "live" : ""}` },
     live ? h("div", { class: "playclock" }, h("div", { id: "playclock-bar" })) : null,
     h("div", { class: "round-label" }, h("span", {}, `Play ${n} · ${live ? downText(drive) : "result"}`), h("span", { class: "season-chip" }, String(round.season))),
-    h("h2", { class: "prompt" }, round.prompt),
-    round.hint ? h("p", { class: "hint" }, round.hint) : null,
-    tierLine(round),
+    h("h2", { class: `prompt ${live ? "" : "small"}` }, round.prompt),
+    live && round.hint ? h("p", { class: "hint" }, round.hint) : null,
+    live ? tierLine(round) : null,
     ...body);
 }
 
@@ -245,29 +247,6 @@ function tierLine(round) {
     [round.tiers.check, "check-down", "check-downs"],
   ].filter(([n]) => n).map(([n, one, many]) => `${n} ${n === 1 ? one : many}`);
   return h("p", { class: "tier-line" }, parts.join(" · "));
-}
-
-/** Every right answer, grouped by tier, with yours highlighted. */
-function answersList(round, st) {
-  const list = st.answers
-    || (st.reveal ? Object.entries(st.reveal.valid).map(([id, v]) => ({ id, name: v.name, note: v.note })) : []);
-  if (!list.length) return null;
-  const row = (a) => h("li", { class: a.yours ? "yours" : "" },
-    h("span", { class: "a-name" }, a.name),
-    h("span", { class: "a-note" }, a.note || ""));
-  if (!list[0].tier) {
-    return h("div", { class: "answers" }, h("p", { class: "hint" }, `All ${list.length} right answers`), h("ol", {}, list.map(row)));
-  }
-  const groups = [...TIERS].reverse().map((t) => {
-    const items = list.filter((a) => a.tier === t.key);
-    if (!items.length) return null;
-    const head = h("p", { class: `tier-head tier-${t.key}` }, `${TIER_EMOJI[t.key]} ${t.name}`, h("span", {}, `+${t.yards} yds`));
-    const shown = items.slice(0, 6);
-    const more = items.slice(6);
-    return h("div", { class: "tier-group" }, head, h("ol", {}, shown.map(row)),
-      more.length ? h("details", {}, h("summary", {}, `${more.length} more`), h("ol", {}, more.map(row))) : null);
-  });
-  return h("div", { class: "answers" }, h("p", { class: "hint" }, `All ${list.length} right answers`), groups);
 }
 
 function renderQuestion(round, i) {
@@ -324,25 +303,9 @@ function renderQuestion(round, i) {
     if (st.error) body.push(errorLine(st.error));
     setTimeout(() => input.focus({ preventScroll: true }), 50);
   } else {
-    const guess = st.guesses?.at(-1);
-    const yours = guess ? (st.answers?.find((a) => a.id === guess)?.name || nameFor(round.answer_kind, guess) || "Your answer") : null;
-    let line;
-    if (st.timedOut || !guess) line = "Time ran out on that one.";
-    else if (st.hit) {
-      const tier = tierFor(st.rarity);
-      line = `${yours} is right: ${tier.key === "bomb" ? "a deep cut. Bombs away!" : tier.key === "seam" ? "a solid pull up the seam." : "the safe check-down."}`;
-    } else line = `${yours} isn't one of the right answers.`;
-    body.push(resultBox(line, st.reveal?.fact, i), nextButton(), answersList(round, st));
+    body.push(playResult(round, st, i), nextButton());
   }
-  const card = roundShell(round, i, ...body);
-  // After the play, lead with what happened and what's next; the answers follow.
-  const result = card.querySelector(".result");
-  if (result) {
-    const next = result.nextElementSibling;
-    (card.querySelector(".tier-line") || card.querySelector(".prompt + .hint") || card.querySelector(".prompt")).after(result);
-    if (next) result.after(next);
-  }
-  return card;
+  return roundShell(round, i, ...body);
 }
 
 /** Before the first snap, or when coming back mid-drive. */
@@ -353,7 +316,7 @@ function huddleCard() {
     intro
       ? h("div", {},
           h("h2", { class: "prompt" }, "Down 21-17. Your ball on the 25. Go win it."),
-          h("p", {}, "Every play is a question. Type a right answer to move the ball. The obvious answers are a check-down (7 yards), less obvious ones a seam route (20), and the deepest cuts are the bomb (40). A wrong answer is an incomplete pass."),
+          h("p", {}, "Every play is a question. Type a right answer to move the ball. The obvious answers are a check-down (10 yards, always a first down), less obvious ones a seam route (20), and the deepest cuts are the bomb (40). A wrong answer is an incomplete pass."),
           h("p", {}, "You have 4 downs to gain 10 yards. Reach the end zone to win."))
       : h("h2", { class: "prompt" }, `${downText(drive)} at ${fieldSpot(drive.yl)}.`),
     nextButton());
@@ -435,7 +398,6 @@ async function finishPlay(i, state, event, reveal, guesses, answers = null) {
   animating = false;
   if (drive.phase === "over") await onDriveOver();
   render();
-  refreshCrowd();
 }
 
 async function onDriveOver() {
@@ -481,9 +443,6 @@ function renderSummary() {
   clearInterval(renderSummary.timer);
   renderSummary.timer = setInterval(tick, 1000);
 
-  let crowdText = null;
-  if (crowd?.players > 1 && crowd.beat != null) crowdText = `Better than ${crowd.beat}% of ${crowd.players.toLocaleString()} drives today · ${crowd.tdPct}% scored a TD`;
-  else if (crowd?.players === 1) crowdText = "You're the first to finish this drive!";
   const cta = account.enabled && !signedIn()
     ? h("p", { class: "cta" }, "Want to be on the leaderboard? ", h("button", { type: "button", class: "link", onclick: openProfile }, "Create a free account"), " before tomorrow's drive.")
     : null;
@@ -501,7 +460,6 @@ function renderSummary() {
     h("p", { class: "out-of" }, `${sum.won ? "You win! " : "Final. "}${sum.why}`),
     h("p", { class: "drive-line" }, `${sum.yards} yds in ${sum.plays} plays`),
     h("div", { class: "grid", "aria-label": "Drive chart" }, grid),
-    crowdText ? h("p", { class: "crowd center" }, "👥 ", crowdText) : null,
     h("button", { type: "button", class: "btn primary", onclick: share }, "Share your drive"),
     toast,
     cta,
@@ -535,20 +493,6 @@ function renderBanner() {
   );
 }
 
-async function refreshCrowd() {
-  if (!account.enabled || !puzzle || !drive) return;
-  const scoreParam = drive.phase === "over" ? `&score=${driveRank(summary(drive))}` : "";
-  try {
-    const data = await api(`stats?date=${date}${scoreParam}`);
-    if (data.enabled) {
-      crowd = data;
-      if (!animating) render();
-    }
-  } catch {
-    /* stats are a nice-to-have */
-  }
-}
-
 async function loadPuzzle() {
   const data = await api(`puzzle?date=${date}`);
   puzzle = data.puzzle;
@@ -571,11 +515,9 @@ async function loadPuzzle() {
   }
   showFinal = drive.phase === "over";
   $("#puzzle-meta").textContent = `#${puzzle.number} · ${prettyDate(date)}`;
-  crowd = null;
   renderBanner();
   render();
   if (drive.phase === "live") startTicker();
-  refreshCrowd();
 }
 
 // ---- Stats & account ------------------------------------------------------------------------------

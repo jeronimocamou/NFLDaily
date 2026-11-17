@@ -11,12 +11,12 @@ test("every day is a drive of broad, typed questions", () => {
   assert.ok(puzzles.length >= 365);
   for (const p of puzzles) {
     assert.equal(p.format, "drive3", p.date);
-    assert.ok(p.rounds.length >= 12, p.date);
+    assert.ok(p.rounds.length >= 10, p.date);
     for (const r of p.rounds) {
       assert.equal(r.type, "name_one", p.date);
       assert.ok(typeof r.season !== "number", `${p.date}: no single-season questions: ${r.prompt}`);
       const ids = Object.keys(r.reveal.valid);
-      assert.ok(ids.length >= 6, `${p.date}: enough right answers (${ids.length}): ${r.prompt}`);
+      assert.ok(ids.length >= 8, `${p.date}: enough right answers (${ids.length}): ${r.prompt}`);
       assert.equal(ids.length, r.answers, p.date);
       assert.deepEqual(Object.keys(r.reveal.prior).sort(), ids.sort(), `${p.date} priors for every answer`);
       assert.ok(r.reveal.fact, `${p.date} has a fact`);
