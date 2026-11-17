@@ -592,7 +592,7 @@ class NameOneMixin:
             by = {}
             for r in rows:
                 by.setdefault(r["franchise"], []).append(r["season"])
-            if not 4 <= len(by) <= 22:
+            if not 8 <= len(by) <= 22:
                 continue
             if not self.fresh_topic(("tsn", label, t, lo, hi), ("tts", label)):
                 continue

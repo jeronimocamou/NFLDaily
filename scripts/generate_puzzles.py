@@ -25,7 +25,7 @@ import random
 import sqlite3
 from pathlib import Path
 
-from playbook import NameOneMixin
+from playbook import NAME_REUSE_DAYS, NameOneMixin
 
 ROOT = Path(__file__).resolve().parent.parent
 DB = ROOT / "data" / "nfl.sqlite"
@@ -847,20 +847,35 @@ class Generator(NameOneMixin):
         self.today = set()
         self.date = date
         rounds = []
+        prompts = self.__dict__.setdefault("prompt_used", {})
+        def stale(r, window):
+            # Also check the wording: days kept from before a rebuild used other keys.
+            last = prompts.get(r["prompt"])
+            return last is not None and (date - last).days < window
         for _ in range(PLAYS):
-            r = self.broad_play(rng)
+            r = None
+            for _try in range(8):
+                r = self.broad_play(rng)
+                if r is None or not stale(r, NAME_REUSE_DAYS):
+                    break
+                r = None
             # Running low on fresh questions: let the oldest ones come back first.
             for days in (180, 120, 60, 30, 10):
                 if r is not None:
                     break
                 self.relax = days
                 try:
-                    r = self.broad_play(rng)
+                    for _try in range(8):
+                        r = self.broad_play(rng)
+                        if r is None or not stale(r, days):
+                            break
+                        r = None
                 finally:
                     self.relax = None
             if r is None:
                 raise RuntimeError("no question left")
             r["role"] = "play"
+            prompts[r["prompt"]] = date
             rounds.append(r)
         rng.shuffle(rounds)  # don't serve the same kind of question back to back
         rounds = easy_first(rounds)
@@ -959,6 +974,13 @@ def main():
             while d <= last:
                 gen.day(d)
                 d += dt.timedelta(days=1)
+
+    # Remember the wording of every kept day, so a new day never repeats it too soon.
+    for f in sorted(OUT.glob("20*.json")):
+        day = dt.date.fromisoformat(f.stem)
+        if day <= last:
+            for r in json.loads(f.read_text(encoding="utf-8"))["rounds"]:
+                gen.prompt_used[r["prompt"]] = max(day, gen.prompt_used.get(r["prompt"], day))
 
     added = 0
     d = last + dt.timedelta(days=1)
