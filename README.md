@@ -3,8 +3,12 @@
 A daily football trivia game played as one drive. **You're down 21–17 with the ball on your own 25.** Every play is one question you answer by typing a name:
 
 - *"Name a QB who started a game for the Cleveland Browns since 1999"* (42 right answers)
-- *"Name a player who played for both the Jets and the Patriots"*
+- *"Name a receiver who had 1,000+ receiving yards in a season for an AFC North team since 2010"*
+- *"Name a franchise that won 13+ games in a season in the 2010s"*
 - *"Name a running back who ran for 1,500+ yards in a season in the 2010s"*
+- *"Name a player who played for both the Jets and the Patriots"* (the hardest kind, so it's rarer)
+
+Every drive opens with an easy, league-wide question (never a "played for both" on the first two plays).
 
 A right answer is a pass, and how far it goes depends on how deep a cut it is:
 
@@ -91,7 +95,7 @@ Add puzzles. This keeps every existing day as it is and appends new days through
 python3 scripts/generate_puzzles.py
 ```
 
-A question can come back after a year (`REUSE_DAYS`), never sooner, and no answer repeats among the all-time questions within one drive. To redo days nobody has played yet, use `--from YYYY-MM-DD`.
+The exact same question doesn't come back for 8 months (`NAME_REUSE_DAYS` in `scripts/playbook.py`), and the same team + stat in a different era or threshold not within 3 weeks. Team questions come in several eras (since 1999, the 2000s, the 2010s, since 2010, since 2015, the 2020s) and at team, division and league level, which gives a pool of a few thousand questions. If the pool ever runs low, the oldest questions come back first. To redo days nobody has played yet, use `--from YYYY-MM-DD`.
 
 A GitHub Action (`.github/workflows/puzzles.yml`) does this on the 1st of every month. It refreshes the trivia data (so new seasons show up after each Super Bowl), adds puzzles, runs the tests and commits to `main`, which redeploys the site. You can also run it from the repo's **Actions** tab. `--rebuild` regenerates every day from launch (puzzle #1 = 2026-11-17) and changes past puzzles, so avoid it once players have played.
 

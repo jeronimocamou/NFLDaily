@@ -11,7 +11,8 @@ lists every player and team, so the list doesn't give answers away.
 """
 
 MAX_PER_KIND = 3  # at most this many of one question type per drive
-NAME_REUSE_DAYS = 30  # a question can come back after a month
+NAME_REUSE_DAYS = 240  # the exact same question doesn't come back for ~8 months
+TOPIC_REUSE_DAYS = 21  # nor the same team + stat in another era/threshold within 3 weeks
 
 
 def fmt(n):
@@ -47,13 +48,15 @@ ERA_FEATS = [
     (("WR", "TE"), "receiving_tds", "caught {t}+ touchdown passes in a season", [16]),
 ]
 CAREER_LISTS = [
-    (("QB",), "passing_yards", "has {t}+ career passing yards", [25000, 30000]),
-    (("QB",), "passing_tds", "has {t}+ career touchdown passes", [150, 200]),
-    (("RB",), "rushing_yards", "has {t}+ career rushing yards", [6000, 7000]),
-    (("RB",), "rushing_tds", "has {t}+ career rushing touchdowns", [50, 60]),
-    (("WR", "TE"), "receiving_yards", "has {t}+ career receiving yards", [7000, 8000]),
-    (("WR", "TE"), "receptions", "has {t}+ career catches", [500, 600]),
-    (("WR", "TE"), "receiving_tds", "has {t}+ career touchdown catches", [40, 50]),
+    (("QB",), "passing_yards", "has {t}+ career passing yards", [25000, 30000, 35000, 40000]),
+    (("QB",), "passing_tds", "has {t}+ career touchdown passes", [150, 200, 250]),
+    (("RB",), "rushing_yards", "has {t}+ career rushing yards", [6000, 7000, 8000, 9000]),
+    (("RB",), "rushing_tds", "has {t}+ career rushing touchdowns", [50, 60, 70]),
+    (("WR", "TE"), "receiving_yards", "has {t}+ career receiving yards", [7000, 8000, 9000, 10000]),
+    (("WR", "TE"), "receptions", "has {t}+ career catches", [500, 600, 700]),
+    (("WR", "TE"), "receiving_tds", "has {t}+ career touchdown catches", [40, 50, 60]),
+    (("TE",), "receiving_yards", "has {t}+ career receiving yards", [4000, 5000]),
+    (("TE",), "receptions", "has {t}+ career catches", [350, 450]),
 ]
 # Single-season feats over a whole span of years: lots of right answers.
 SPAN_FEATS = [
@@ -67,6 +70,15 @@ SPAN_FEATS = [
     (("TE",), "receiving_yards", "had {t}+ receiving yards in a season", [800, 700]),
 ]
 DECADES = [(1999, 2025, "since 1999"), (2000, 2009, "in the 2000s"), (2010, 2019, "in the 2010s"), (2020, 2025, "in the 2020s")]
+# Eras for team questions. Recent eras are the easiest for most fans.
+TEAM_ERAS = DECADES + [(2010, 2025, "since 2010"), (2015, 2025, "since 2015")]
+
+
+def era_chip(lo, hi):
+    """The little label on the question card."""
+    if hi < 2025:
+        return f"{lo}s"
+    return "2020s" if lo == 2020 else f"Since {lo}"
 
 
 def who_word(positions):
@@ -75,6 +87,17 @@ def who_word(positions):
 
 class NameOneMixin:
     """Mixed into the Generator in generate_puzzles.py."""
+
+    def fresh_topic(self, key, topic):
+        """fresh() for the exact question, plus no question on the same topic
+        (team + stat in any era or threshold) in the last TOPIC_REUSE_DAYS."""
+        last = self.used.get(topic)
+        if last is not None and (self.date - last).days < TOPIC_REUSE_DAYS and not getattr(self, "relax", None):
+            return False
+        if not self.fresh(key, NAME_REUSE_DAYS):
+            return False
+        self.used[topic] = self.date
+        return True
 
     # ---- answer helpers -------------------------------------------------------------
     def player_weight(self, pid):
@@ -162,14 +185,14 @@ class NameOneMixin:
     def pass_franchise_qbs(self, rng):
         for _ in range(60):
             f = rng.choice(self.d.franchises)
-            lo, hi, when = rng.choice(DECADES)
+            lo, hi, when = rng.choice(TEAM_ERAS)
             rows = self._cached(("qbs", f["franchise"], lo, hi), lambda: [r for r in self.d.qb_starts if r["franchise"] == f["franchise"] and lo <= r["season"] <= hi])
             by = {}
             for r in rows:
                 b = by.setdefault(r["player_id"], {"name": r["name"], "starts": 0, "first": r["season"], "last": r["season"]})
                 b["starts"] += r["starts"]
                 b["first"], b["last"] = min(b["first"], r["season"]), max(b["last"], r["season"])
-            if not 10 <= len(by) <= 45 or not self.fresh(("n1q", f["franchise"], lo), NAME_REUSE_DAYS):
+            if not 8 <= len(by) <= 45 or not self.fresh_topic(("n1q", f["franchise"], lo, hi), ("tq", f["franchise"])):
                 continue
             items = [(pid, b["name"], f"{b['starts']} start{'s' if b['starts'] != 1 else ''} ({b['first']}{'' if b['first'] == b['last'] else '–' + str(b['last'])})")
                      for pid, b in sorted(by.items(), key=lambda kv: -kv[1]["starts"])]
@@ -180,7 +203,7 @@ class NameOneMixin:
             top_id = max(by, key=lambda k: by[k]["starts"])
             fact = (f"{len(by)} different quarterbacks started for the {f['name']} {when}. "
                     f"{by[top_id]['name']} started the most ({by[top_id]['starts']}).")
-            season = "Since 1999" if lo == 1999 else f"{lo}s"
+            season = era_chip(lo, hi)
             return self.name_one("pass", season, f"Name a QB who started a game for the {f['name']} {when}.", "player", valid, prior, fact)
         return None
 
@@ -189,16 +212,19 @@ class NameOneMixin:
             f = rng.choice(self.d.franchises)
             stat, word = rng.choice([("rushing_yards", "ran for"), ("receiving_yards", "had")])
             tail = "yards" if stat == "rushing_yards" else "receiving yards"
-            hits = self._cached(("k", f["franchise"], stat), lambda: [p for p in self.d.players if p["franchise"] == f["franchise"] and p[stat] >= 1000])
+            t = rng.choice([1000, 800])
+            lo, hi, when = rng.choice(TEAM_ERAS)
+            hits = self._cached(("k", f["franchise"], stat, t, lo, hi), lambda: [
+                p for p in self.d.players if p["franchise"] == f["franchise"] and p[stat] >= t and lo <= p["season"] <= hi])
             ids = {p["player_id"] for p in hits}
-            if not 8 <= len(ids) <= 30 or not self.fresh(("n1k", f["franchise"], stat), NAME_REUSE_DAYS):
+            if not 8 <= len(ids) <= 30 or not self.fresh_topic(("n1k", f["franchise"], stat, t, lo, hi), ("tk", f["franchise"], stat)):
                 continue
             items = [(p["player_id"], p["name"], f"{fmt(p[stat])} in {p['season']}") for p in sorted(hits, key=lambda p: p["season"])]
             valid, prior = self.player_answers(items)
             best = max(hits, key=lambda p: p[stat])
             fact = f"The best of these seasons: {best['name']} with {fmt(best[stat])} {tail} in {best['season']}."
-            prompt = f"Name a player who {word} 1,000+ {tail} in a season for the {f['name']} since 1999."
-            return self.name_one("pass", "Since 1999", prompt, "player", valid, prior, fact)
+            prompt = f"Name a player who {word} {fmt(t)}+ {tail} in a season for the {f['name']} {when}."
+            return self.name_one("pass", era_chip(lo, hi), prompt, "player", valid, prior, fact)
         return None
 
     def pass_career_list(self, rng):
@@ -236,11 +262,11 @@ class NameOneMixin:
         r = self._pass_play(rng, season)
         if r is None:
             # Running low: let older questions come back sooner rather than fail.
-            self.relax = True
+            self.relax = 10
             try:
                 r = self._pass_play(rng, season)
             finally:
-                self.relax = False
+                self.relax = None
         return r
 
     def _pass_play(self, rng, season):
@@ -308,11 +334,11 @@ class NameOneMixin:
     def deep_play(self, rng, season):
         r = self._deep_play(rng, season)
         if r is None:
-            self.relax = True
+            self.relax = 10
             try:
                 r = self._deep_play(rng, season)
             finally:
-                self.relax = False
+                self.relax = None
         return r
 
     def deep_leader(self, rng, season):
@@ -372,18 +398,18 @@ class NameOneMixin:
         for _ in range(60):
             pos, stat, label, ts = rng.choice(SPAN_FEATS)
             t = rng.choice(ts)
-            lo, hi, when = rng.choice(DECADES)
+            lo, hi, when = rng.choice(TEAM_ERAS)
             hits = self._cached(("span", stat, pos, t, lo, hi), lambda: sorted(
                 (p for p in self.d.players if p["position"] in pos and p[stat] >= t and lo <= p["season"] <= hi), key=lambda p: -p[stat]))
             if not 15 <= len({p["player_id"] for p in hits}) <= 150:
                 continue
-            if not self.fresh(("bsf", stat, "".join(pos), t, lo), NAME_REUSE_DAYS):
+            if not self.fresh_topic(("bsf", stat, "".join(pos), t, lo, hi), ("tsf", stat, "".join(pos))):
                 continue
             unit = UNIT.get(stat, "TD")
             valid, prior = self.player_answers((p["player_id"], p["name"], f"{fmt(p[stat])} {unit} in {p['season']}") for p in hits)
             top = hits[0]
             fact = f"The biggest: {top['name']} with {fmt(top[stat])} in {top['season']}."
-            return self.name_one("play", "Since 1999" if lo == 1999 else f"{lo}s",
+            return self.name_one("play", era_chip(lo, hi),
                                  f"Name a {who_word(pos)} who {label.format(t=fmt(t))} {when}.", "player", valid, prior, fact)
         return None
 
@@ -421,16 +447,17 @@ class NameOneMixin:
             f = rng.choice(self.d.franchises)
             stat, word, pos = rng.choice([("rushing_yards", "rushing", ("RB", "QB", "WR")), ("receiving_yards", "receiving", ("WR", "TE", "RB")),
                                           ("passing_yards", "passing", ("QB",))])
+            lo, hi, when = rng.choice([(1999, 2025, "since 1999"), (2005, 2025, "since 2005"), (2010, 2025, "since 2010")])
             def build():
                 out = {}
-                for season in self.d.seasons:
+                for season in (s for s in self.d.seasons if lo <= s <= hi):
                     rows = [p for p in self.d.players_by_season[season] if p["franchise"] == f["franchise"] and p["position"] in pos]
                     if rows:
                         top = max(rows, key=lambda p: p[stat])
                         out.setdefault(top["player_id"], []).append(top)
                 return out
-            leaders = self._cached(("leaders", f["franchise"], stat), build)
-            if not 9 <= len(leaders) <= 40 or not self.fresh(("bfl", f["franchise"], stat), NAME_REUSE_DAYS):
+            leaders = self._cached(("leaders", f["franchise"], stat, lo), build)
+            if not 8 <= len(leaders) <= 40 or not self.fresh_topic(("bfl", f["franchise"], stat, lo), ("tl", f["franchise"], stat)):
                 continue
             items = [(pid, rows[0]["name"], f"{len(rows)} season{'s' if len(rows) > 1 else ''} ({', '.join(str(r['season']) for r in rows[:4])}{'…' if len(rows) > 4 else ''})")
                      for pid, rows in sorted(leaders.items(), key=lambda kv: -len(kv[1]))]
@@ -439,7 +466,7 @@ class NameOneMixin:
                 prior[pid] = round(prior[pid] * 0.5 + len(rows), 2)
             most = max(leaders.values(), key=len)
             fact = f"{most[0]['name']} led the {f['name']} in {word} yards {len(most)} times."
-            return self.name_one("play", "Since 1999", f"Name a player who led the {f['name']} in {word} yards in a season since 1999.",
+            return self.name_one("play", era_chip(lo, hi), f"Name a player who led the {f['name']} in {word} yards in a season {when}.",
                                  "player", valid, prior, fact)
         return None
 
@@ -450,44 +477,143 @@ class NameOneMixin:
         return cache[key]
 
     FRANCHISE_SEASON = [
-        (("QB",), "passing_tds", 15, "threw 15+ touchdown passes"),
-        (("QB",), "passing_yards", 3000, "threw for 3,000+ yards"),
-        (("RB",), "rushing_yards", 700, "ran for 700+ yards"),
-        (("RB",), "receptions", 35, "caught 35+ passes"),
-        (("WR",), "receiving_yards", 700, "had 700+ receiving yards"),
-        (("WR",), "receptions", 50, "caught 50+ passes"),
-        (("TE",), "receptions", 35, "caught 35+ passes"),
-        (("WR", "TE", "RB"), "receiving_tds", 6, "caught 6+ touchdown passes"),
-        (("RB", "QB"), "rushing_tds", 6, "ran for 6+ touchdowns"),
+        (("QB",), "passing_tds", [15, 20], "threw {t}+ touchdown passes"),
+        (("QB",), "passing_yards", [3000, 3500], "threw for {t}+ yards"),
+        (("RB",), "rushing_yards", [700, 900], "ran for {t}+ yards"),
+        (("RB",), "receptions", [35, 45], "caught {t}+ passes"),
+        (("WR",), "receiving_yards", [700, 900], "had {t}+ receiving yards"),
+        (("WR",), "receptions", [50, 65], "caught {t}+ passes"),
+        (("TE",), "receptions", [35, 50], "caught {t}+ passes"),
+        (("TE",), "receiving_yards", [400, 600], "had {t}+ receiving yards"),
+        (("WR", "TE", "RB"), "receiving_tds", [6, 8], "caught {t}+ touchdown passes"),
+        (("RB", "QB"), "rushing_tds", [6, 8], "ran for {t}+ touchdowns"),
     ]
 
     def broad_franchise_stat(self, rng):
         """'Name a receiver who had 800+ receiving yards in a season for the Bears since 1999.'"""
         for _ in range(60):
             f = rng.choice(self.d.franchises)
-            pos, stat, t, label = rng.choice(self.FRANCHISE_SEASON)
-            hits = self._cached(("fs", f["franchise"], stat, pos, t), lambda: sorted(
-                (p for p in self.d.players if p["franchise"] == f["franchise"] and p["position"] in pos and p[stat] >= t),
+            pos, stat, ts, label = rng.choice(self.FRANCHISE_SEASON)
+            t = rng.choice(ts)
+            lo, hi, when = rng.choice(TEAM_ERAS)
+            hits = self._cached(("fs", f["franchise"], stat, pos, t, lo, hi), lambda: sorted(
+                (p for p in self.d.players if p["franchise"] == f["franchise"] and p["position"] in pos and p[stat] >= t and lo <= p["season"] <= hi),
                 key=lambda p: -p[stat]))
-            if not 12 <= len({p["player_id"] for p in hits}) <= 80:
+            if not 8 <= len({p["player_id"] for p in hits}) <= 80:
                 continue
-            if not self.fresh(("bfs", f["franchise"], stat, "".join(pos)), NAME_REUSE_DAYS):
+            if not self.fresh_topic(("bfs", f["franchise"], stat, "".join(pos), t, lo, hi), ("ts", f["franchise"], stat)):
                 continue
             unit = UNIT.get(stat, "TD")
             valid, prior = self.player_answers((p["player_id"], p["name"], f"{fmt(p[stat])} {unit} in {p['season']}") for p in hits)
             who = {("QB",): "QB", ("RB",): "running back", ("WR",): "receiver", ("TE",): "tight end"}.get(pos, "player")
             top = hits[0]
             fact = f"The best of these: {top['name']} with {fmt(top[stat])} in {top['season']}."
-            return self.name_one("play", "Since 1999", f"Name a {who} who {label} in a season for the {f['name']} since 1999.",
+            return self.name_one("play", era_chip(lo, hi), f"Name a {who} who {label.format(t=fmt(t))} in a season for the {f['name']} {when}.",
                                  "player", valid, prior, fact)
+        return None
+
+    # ---- Division questions: four teams' worth of answers ---------------------------------
+    DIVISION_SEASON = [
+        (("QB",), "passing_yards", [3500, 4000], "threw for {t}+ yards"),
+        (("QB",), "passing_tds", [25, 30], "threw {t}+ touchdown passes"),
+        (("RB",), "rushing_yards", [1000, 1200], "ran for {t}+ yards"),
+        (("RB",), "rushing_tds", [10, 12], "ran for {t}+ touchdowns"),
+        (("WR", "TE"), "receiving_yards", [1000, 1200], "had {t}+ receiving yards"),
+        (("WR", "TE"), "receptions", [80, 90], "caught {t}+ passes"),
+        (("WR", "TE"), "receiving_tds", [8, 10], "caught {t}+ touchdown passes"),
+        (("TE",), "receptions", [60, 70], "caught {t}+ passes"),
+    ]
+
+    def division_of(self):
+        """Each franchise's current division."""
+        return self._cached(("divisions",), lambda: {r["franchise"]: r["division"] for r in self.d.by_season[self.d.last] if r.get("division")})
+
+    def broad_division(self, rng):
+        """'Name a receiver who had 1,000+ receiving yards in a season for an AFC North team since 2010.'"""
+        div_of = self.division_of()
+        divisions = sorted(set(div_of.values()))
+        for _ in range(60):
+            div = rng.choice(divisions)
+            members = {f for f, d in div_of.items() if d == div}
+            lo, hi, when = rng.choice(TEAM_ERAS)
+            article = "an" if div[0] in "AEIOU" else "a"
+            if rng.random() < 0.25:
+                rows = [r for r in self.d.qb_starts if r["franchise"] in members and lo <= r["season"] <= hi]
+                by = {}
+                for r in rows:
+                    b = by.setdefault(r["player_id"], {"name": r["name"], "starts": 0, "teams": set()})
+                    b["starts"] += r["starts"]
+                    b["teams"].add(self.d.franchise_by_code[r["franchise"]]["name"].split()[-1])
+                if not 12 <= len(by) <= 90 or not self.fresh_topic(("dvq", div, lo, hi), ("tdq", div)):
+                    continue
+                items = [(pid, b["name"], f"{b['starts']} starts ({', '.join(sorted(b['teams']))})") for pid, b in sorted(by.items(), key=lambda kv: -kv[1]["starts"])]
+                valid, prior = self.player_answers(items)
+                for pid, b in by.items():
+                    prior[pid] = round(prior[pid] * 0.3 + b["starts"] / 4, 2)
+                top = max(by.values(), key=lambda b: b["starts"])
+                fact = f"{len(by)} quarterbacks started for {div} teams {when}. {top['name']} started the most ({top['starts']})."
+                return self.name_one("play", era_chip(lo, hi), f"Name a QB who started a game for {article} {div} team {when}.", "player", valid, prior, fact)
+            pos, stat, ts, label = rng.choice(self.DIVISION_SEASON)
+            t = rng.choice(ts)
+            hits = self._cached(("dv", div, stat, pos, t, lo, hi), lambda: sorted(
+                (p for p in self.d.players if p["franchise"] in members and p["position"] in pos and p[stat] >= t and lo <= p["season"] <= hi),
+                key=lambda p: -p[stat]))
+            if not 8 <= len({p["player_id"] for p in hits}) <= 90:
+                continue
+            if not self.fresh_topic(("dvs", div, stat, "".join(pos), t, lo, hi), ("tdv", div, stat)):
+                continue
+            unit = UNIT.get(stat, "TD")
+            valid, prior = self.player_answers((p["player_id"], p["name"], f"{fmt(p[stat])} {unit}, {p['team_name'].split()[-1]} {p['season']}") for p in hits)
+            top = hits[0]
+            fact = f"The best: {top['name']} with {fmt(top[stat])} for the {top['team_name']} in {top['season']}."
+            return self.name_one("play", era_chip(lo, hi), f"Name a {who_word(pos)} who {label.format(t=fmt(t))} in a season for {article} {div} team {when}.",
+                                 "player", valid, prior, fact)
+        return None
+
+    # ---- Team answers: "Name a franchise that ..." ----------------------------------------
+    TEAM_SEASON = [
+        ("won {t}+ games in a season", lambda r, t: r["wins"] >= t, [12, 13, 14]),
+        ("won {t} or fewer games in a season", lambda r, t: r["wins"] <= t, [3, 4]),
+        ("won a playoff game", lambda r, t: r["playoff_wins"] > 0, [0]),
+        ("won its division", lambda r, t: r["division_rank"] == 1, [0]),
+        ("led the NFL in points scored in a season", lambda r, t: r["pf_rank"] == 1, [0]),
+        ("allowed the fewest points in the NFL in a season", lambda r, t: r["pa_rank"] == 1, [0]),
+        ("lost {t}+ games in a row in a season", lambda r, t: r["longest_loss_streak"] >= t, [8, 10]),
+        ("won {t}+ games in a row in a season", lambda r, t: r["longest_win_streak"] >= t, [9, 10]),
+        ("reached the Super Bowl", lambda r, t: r["won_super_bowl"] or r["lost_super_bowl"], [0]),
+    ]
+
+    def broad_team_seasons(self, rng):
+        for _ in range(40):
+            label, test, ts = rng.choice(self.TEAM_SEASON)
+            t = rng.choice(ts)
+            lo, hi, when = rng.choice(TEAM_ERAS)
+            rows = [r for r in self.d.rows if lo <= r["season"] <= hi and test(r, t)]
+            by = {}
+            for r in rows:
+                by.setdefault(r["franchise"], []).append(r["season"])
+            if not 4 <= len(by) <= 22:
+                continue
+            if not self.fresh_topic(("tsn", label, t, lo, hi), ("tts", label)):
+                continue
+            valid = {f: {"name": self.d.franchise_by_code[f]["name"],
+                         "note": f"{len(ss)} time{'s' if len(ss) > 1 else ''} ({', '.join(map(str, sorted(ss)[:5]))}{'…' if len(ss) > 5 else ''})"}
+                     for f, ss in by.items()}
+            prior = {f: round(len(ss) * 2 + self.franchise_weight(f) / 4, 2) for f, ss in by.items()}
+            most = max(by, key=lambda f: len(by[f]))
+            text = label.format(t=t)
+            fact = f"{len(by)} franchises did it {when}; the {self.d.franchise_by_code[most]['name']} did it most ({len(by[most])})."
+            return self.name_one("play", era_chip(lo, hi), f"Name a franchise that {text} {when}.", "team", valid, prior, fact)
         return None
 
     def broad_play(self, rng):
         makers = [
             (lambda: self.broad_span_feat(rng), 3),
-            (lambda: self.broad_franchise_stat(rng), 5),
+            (lambda: self.broad_franchise_stat(rng), 4),
             (lambda: self.pass_franchise_qbs(rng), 3),
-            (lambda: self.broad_both_teams(rng), 3),
+            (lambda: self.broad_division(rng), 4),
+            (lambda: self.broad_team_seasons(rng), 2),
+            (lambda: self.broad_both_teams(rng), 1),
             (lambda: self.pass_franchise_1000(rng), 2),
             (lambda: self.broad_franchise_leaders(rng), 2),
             (lambda: self.pass_career_list(rng), 2),

@@ -367,8 +367,8 @@ class Generator(NameOneMixin):
         window = reuse or REUSE_DAYS
         if key and key[0] in ALL_TIME_KEYS:
             window = min(window, ALL_TIME_REUSE_DAYS)
-        if getattr(self, "relax", False):
-            window = min(window, 10)
+        if getattr(self, "relax", None):
+            window = min(window, self.relax)
         if last is not None and (self.date - last).days < window:
             return False
         self.used[key] = self.date
@@ -849,18 +849,21 @@ class Generator(NameOneMixin):
         rounds = []
         for _ in range(PLAYS):
             r = self.broad_play(rng)
-            if r is None:
-                # Running low on fresh questions: let older ones come back sooner.
-                self.relax = True
+            # Running low on fresh questions: let the oldest ones come back first.
+            for days in (180, 120, 60, 30, 10):
+                if r is not None:
+                    break
+                self.relax = days
                 try:
                     r = self.broad_play(rng)
                 finally:
-                    self.relax = False
+                    self.relax = None
             if r is None:
                 raise RuntimeError("no question left")
             r["role"] = "play"
             rounds.append(r)
         rng.shuffle(rounds)  # don't serve the same kind of question back to back
+        rounds = easy_first(rounds)
         return {"date": date.isoformat(), "number": (date - LAUNCH).days + 1, "format": "drive3", "rounds": rounds}
 
 
@@ -883,6 +886,41 @@ def load_state():
 def write_day(gen, date):
     (OUT / f"{date.isoformat()}.json").write_text(
         json.dumps(gen.day(date), indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def ease(r):
+    """How easy a question is to open a drive with (higher = easier): league-wide
+    questions everyone can answer beat team-specific ones, and "played for
+    both" questions (mostly journeymen) are the hardest."""
+    q = r["prompt"]
+    n = len(r["reveal"]["valid"])
+    if r.get("answer_kind") == "team":
+        base = 10
+    elif "played for both" in q:
+        base = 0
+    elif " for the " not in q and " led the " not in q:
+        base = 8  # league-wide: stars from every team count
+    elif q.startswith("Name a QB who started a game for"):
+        base = 6  # fans know their team's QBs
+    elif " led the " in q and "passing yards" in q:
+        base = 5
+    else:
+        base = 3
+    return base + min(n, 60) / 60
+
+
+def easy_first(rounds):
+    """Open with the easiest question, and never a "played for both" on play 2.
+    The rest keep their shuffled order."""
+    rounds = list(rounds)
+    first = max(range(len(rounds)), key=lambda i: ease(rounds[i]))
+    rounds.insert(0, rounds.pop(first))
+    if len(rounds) > 2 and "played for both" in rounds[1]["prompt"]:
+        for i in range(2, len(rounds)):
+            if "played for both" not in rounds[i]["prompt"]:
+                rounds[1], rounds[i] = rounds[i], rounds[1]
+                break
+    return rounds
 
 
 def main():
