@@ -6,9 +6,10 @@
 // (higher, longer and faster for deeper answers), and the result pops up.
 import { PALETTE, drawField, drawText } from "./pixel.js";
 
-const YARD = 2; // art pixels per yard
-const W = 248; // 120 yards plus a little apron at each end
-const H = 50;
+const YARD = 4; // art pixels per yard
+const W = 496; // the whole field: 120 yards plus a little apron at each end
+const H = 80; // the field's width (sideline to sideline)
+const VW = 176; // the camera shows about 44 yards at a time
 const LOS = "#4aa3ff";
 const FIRST = "#ffd23f";
 const ease = (t) => 1 - Math.pow(1 - t, 3);
@@ -24,9 +25,14 @@ const CONFETTI = ["#ffd23f", "#ff6b5a", "#5ef08a", "#4aa3ff", "#f4f4ec", "#ff9a3
  * (sounds and screen effects live in the app; the field just calls these).
  */
 export function createFieldView(canvas, hooks = {}) {
-  canvas.width = W;
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+  canvas.width = VW;
   canvas.height = H;
-  const ctx = canvas.getContext("2d", { alpha: false });
+  const view = canvas.getContext("2d", { alpha: false });
+  const world = document.createElement("canvas");
+  world.width = W;
+  world.height = H;
+  const ctx = world.getContext("2d", { alpha: false });
   const base = document.createElement("canvas");
   base.width = W;
   base.height = H;
@@ -35,8 +41,40 @@ export function createFieldView(canvas, hooks = {}) {
     c.fillStyle = color;
     c.fillRect(x, y, w, h);
   };
-  const r = fill(ctx);
-  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+  const paint = fill(ctx);
+  // Every drawing call marks the world dirty; a short animation loop eases the
+  // camera toward its target and copies the visible window to the screen.
+  let camX = 0;
+  let camTarget = 0;
+  let lastDraw = 0;
+  let looping = false;
+  const clampCam = (x) => Math.max(0, Math.min(W - VW, x));
+  function present() {
+    const d = camTarget - camX;
+    camX = Math.abs(d) < 0.5 ? camTarget : camX + d * (reduceMotion.matches ? 1 : 0.16);
+    view.drawImage(world, Math.round(camX), 0, VW, H, 0, 0, VW, H);
+    return Math.abs(camTarget - camX) >= 0.5;
+  }
+  function loop() {
+    const moving = present();
+    if (moving || performance.now() - lastDraw < 300) requestAnimationFrame(loop);
+    else looping = false;
+  }
+  function touched() {
+    lastDraw = performance.now();
+    if (!looping) {
+      looping = true;
+      requestAnimationFrame(loop);
+    }
+  }
+  const r = (x, y, w, h, color) => {
+    paint(x, y, w, h, color);
+    touched();
+  };
+  /** Point the camera so world x sits at `frac` of the screen width. */
+  const look = (x, frac = 0.5) => {
+    camTarget = clampCam(x - VW * frac);
+  };
   const call = (name, ...args) => hooks[name]?.(...args);
 
   let teams = {
@@ -75,30 +113,35 @@ export function createFieldView(canvas, hooks = {}) {
     r(x - 1, y, 3, 1, PALETTE.line); // laces
   }
 
-  /** A tiny player standing at (x, feet y). pose: stand | run0 | run1 | up | jump */
+  /** A player standing at (x, feet y), drawn at 2 art pixels per sprite pixel. pose: stand | run0 | run1 | up | jump */
   function player(x, y, team, pose = "stand") {
     x = Math.round(x);
-    y = Math.round(y) - (pose === "jump" ? 3 : 0);
+    y = Math.round(y) - (pose === "jump" ? 6 : 0);
     const { c1, c2 } = team;
-    r(x - 1, y - 9, 3, 2, c2); // helmet
-    r(x - 2, y - 7, 5, 3, c1); // jersey
-    r(x, y - 6, 1, 1, c2); // number
-    r(x - 1, y - 4, 3, 1, "#e6e6e6"); // pants
+    const px = (dx, dy, w, h, c) => r(x + dx * 2, y + dy * 2, w * 2, h * 2, c);
+    r(x - 2, y - 1, 6, 2, "#1b4d1a"); // shadow
+    px(-1, -10, 3, 2, c2); // helmet
+    px(1, -9, 1, 1, "#e6e6e6"); // face mask
+    px(-2, -8, 5, 3, c1); // jersey
+    px(-2, -8, 5, 1, c2); // shoulder stripe
+    px(0, -7, 1, 1, "#ffffff"); // number
+    px(-1, -5, 3, 1, "#e6e6e6"); // pants
     if (pose === "run1") {
-      r(x - 2, y - 3, 1, 3, c2);
-      r(x + 2, y - 3, 1, 3, c2);
+      px(-2, -4, 1, 3, c2);
+      px(2, -4, 1, 3, c2);
     } else {
-      r(x - 1, y - 3, 1, 3, c2);
-      r(x + 1, y - 3, 1, 3, c2);
+      px(-1, -4, 1, 3, c2);
+      px(1, -4, 1, 3, c2);
     }
     if (pose === "up" || pose === "jump") {
-      r(x - 3, y - 11, 1, 4, c1);
-      r(x + 3, y - 11, 1, 4, c1);
+      px(-3, -12, 1, 4, c1);
+      px(3, -12, 1, 4, c1);
     }
   }
 
   function scene({ yl, toGo, showFirst = true, flash = null }) {
     ctx.drawImage(base, 0, 0);
+    touched();
     if (flash) r(flash.x, top, flash.w, bottom - top, flash.color);
     r(xOf(yl), top, 1, bottom - top, LOS);
     if (showFirst && toGo && yl + toGo < 100) r(xOf(yl + toGo), top, 1, bottom - top, FIRST);
@@ -108,10 +151,11 @@ export function createFieldView(canvas, hooks = {}) {
   function formation(s) {
     const x = xOf(s.yl);
     scene(s);
-    player(x + 12, mid - 8, teams.them);
-    player(x + 2, mid - 10, teams.mine);
-    player(x - 5, mid + 9, teams.mine);
-    ball(x, mid + 4);
+    player(x + 20, mid - 6, teams.them);
+    player(x + 4, mid - 10, teams.mine);
+    player(x - 10, mid + 22, teams.mine);
+    ball(x, mid + 8);
+    look(x, 0.3); // line of scrimmage on the left third, room to see downfield
   }
 
   function draw(s) {
@@ -143,7 +187,7 @@ export function createFieldView(canvas, hooks = {}) {
   // Big pixel text with a dark outline, centered on x (art pixels).
   function callout(text, x, color, scale = 2) {
     const w = (text.length * 6 - 1) * scale;
-    const cx = Math.max(2, Math.min(W - w - 2, Math.round(x - w / 2)));
+    const cx = Math.max(camTarget + 2, Math.min(camTarget + VW - w - 2, Math.round(x - w / 2)));
     const cy = Math.round(mid - 3.5 * scale);
     for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [1, 1], [-1, 1], [1, -1]]) {
       drawText(r, text, cx + dx, cy + dy, PALETTE.board, scale);
@@ -154,11 +198,11 @@ export function createFieldView(canvas, hooks = {}) {
   /** A pass play: drop back, receiver runs his route, ball in the air, then the catch (or not). */
   async function passPlay(old, toX, { peak, ms, complete }) {
     const x0 = xOf(old.yl);
-    const qb = { x: x0 - 5, y: mid + 9 };
-    const wr0 = { x: x0 + 2, y: mid - 10 };
-    const db0 = { x: x0 + 12, y: mid - 8 };
-    const catchAt = complete ? { x: toX, y: mid - 2 } : { x: x0 + 22, y: mid - 12 };
-    const dbEnd = complete ? { x: toX - 7, y: mid + 2 } : { x: catchAt.x + 2, y: catchAt.y + 1 };
+    const qb = { x: x0 - 10, y: mid + 22 };
+    const wr0 = { x: x0 + 4, y: mid - 10 };
+    const db0 = { x: x0 + 20, y: mid - 6 };
+    const catchAt = complete ? { x: toX, y: mid + 4 } : { x: x0 + 40, y: mid - 8 };
+    const dbEnd = complete ? { x: toX - 12, y: mid + 12 } : { x: catchAt.x + 5, y: catchAt.y + 4 };
     const total = 180 + ms;
     const drop = 180 / total;
     await tween(total, (p, t) => {
@@ -168,18 +212,20 @@ export function createFieldView(canvas, hooks = {}) {
       const wy = lerp(wr0.y, catchAt.y, Math.min(1, p * 1.4));
       const dx = lerp(db0.x, dbEnd.x, Math.pow(p, 1.15));
       const dy = lerp(db0.y, dbEnd.y, p);
-      const qx = qb.x - Math.min(p / drop, 1) * 4;
+      const qx = qb.x - Math.min(p / drop, 1) * 6;
       player(dx, dy, teams.them, p > 0.92 && !complete ? "up" : legs(t));
       player(wx, wy, teams.mine, p < 1 ? legs(t) : "stand");
       player(qx, qb.y, teams.mine, p < drop ? legs(t) : "stand");
       if (p < drop) {
-        ball(qx + 2, qb.y - 6);
+        ball(qx + 5, qb.y - 12);
+        look(x0, 0.3);
       } else {
         const q = (p - drop) / (1 - drop);
-        const bx = lerp(qx + 2, complete ? catchAt.x : catchAt.x + 6, ease(q));
-        const by = lerp(qb.y - 6, complete ? catchAt.y - 6 : mid + 8, q) - Math.sin(Math.PI * q) * peak;
-        r(Math.round(bx) - 1, mid + 12, 3, 1, "#1b4d1a"); // shadow on the grass
+        const bx = lerp(qx + 5, complete ? catchAt.x : catchAt.x + 10, ease(q));
+        const by = lerp(qb.y - 12, complete ? catchAt.y - 12 : mid + 20, q) - Math.sin(Math.PI * q) * peak;
+        r(Math.round(bx) - 1, mid + 26, 3, 1, "#1b4d1a"); // shadow on the grass
         ball(bx, by);
+        look(Math.max(x0 + VW * 0.2, bx), 0.55); // the camera follows the ball downfield
       }
     });
     return { wr: catchAt, db: dbEnd };
@@ -211,15 +257,15 @@ export function createFieldView(canvas, hooks = {}) {
 
     if (!event.yards) {
       // Incomplete: the defender gets a hand on it and the ball hits the turf.
-      const { wr, db } = await passPlay(old, 0, { peak: 8, ms: 520, complete: false });
+      const { wr, db } = await passPlay(old, 0, { peak: 14, ms: 520, complete: false });
       call("onIncomplete");
-      const landX = wr.x + 6;
+      const landX = wr.x + 10;
       await tween(320, (p) => {
         scene(old);
         player(db.x, db.y, teams.them, "up");
         player(wr.x, wr.y, teams.mine, "stand");
-        player(xOf(old.yl) - 9, mid + 9, teams.mine);
-        ball(landX + 6 * p, mid + 8 - Math.abs(Math.sin(Math.PI * 2 * p)) * 4);
+        player(xOf(old.yl) - 16, mid + 22, teams.mine);
+        ball(landX + 8 * p, mid + 20 - Math.abs(Math.sin(Math.PI * 2 * p)) * 6);
       });
       callout(event.timedOut ? "TIME" : "INC", landX, "#f4f4ec");
       await hold(650);
@@ -231,7 +277,7 @@ export function createFieldView(canvas, hooks = {}) {
     const tier = tierOf(event.rarity);
     const toX = event.td ? xOf(105) : xOf(after.yl);
     const { wr, db } = await passPlay(old, toX, {
-      peak: { check: 5, seam: 11, bomb: 18 }[tier],
+      peak: { check: 9, seam: 20, bomb: 32 }[tier],
       ms: { check: 520, seam: 620, bomb: 760 }[tier],
       complete: true,
     });
@@ -240,6 +286,7 @@ export function createFieldView(canvas, hooks = {}) {
     if (tier === "bomb") call("onBomb");
 
     if (event.td) {
+      look(W, 1);
       call("onTouchdown");
       await flashEnd(PALETTE.scoreText, "TD");
       // Touchdown dance, with confetti.
@@ -247,10 +294,10 @@ export function createFieldView(canvas, hooks = {}) {
         scene({ yl: 99, toGo: 0, showFirst: false });
         player(db.x, db.y, teams.them, "stand");
         const step = Math.floor(t / 140) % 4;
-        player(toX, mid + 1, teams.mine, step === 1 ? "jump" : step === 3 ? "up" : "stand");
-        if (step !== 1) ball(toX + 3, mid - 12);
+        player(toX, mid + 10, teams.mine, step === 1 ? "jump" : step === 3 ? "up" : "stand");
+        if (step !== 1) ball(toX + 1, mid - 16);
       });
-      callout("TOUCHDOWN", W / 2, PALETTE.scoreText);
+      callout("TOUCHDOWN", camTarget + VW / 2, PALETTE.scoreText);
       await hold(900);
       draw(after);
       return;
@@ -259,7 +306,8 @@ export function createFieldView(canvas, hooks = {}) {
     scene(old);
     player(db.x, db.y, teams.them, "stand");
     player(wr.x, wr.y, teams.mine, "up");
-    ball(wr.x + 2, wr.y - 12);
+    ball(wr.x + 1, wr.y - 12);
+    look(toX, 0.5);
     callout(`+${event.yards}`, toX, TIER_COLOR[tier], tier === "bomb" ? 3 : 2);
     await hold(tier === "bomb" ? 900 : 650);
     if (event.firstDown) {
@@ -268,7 +316,7 @@ export function createFieldView(canvas, hooks = {}) {
       for (let i = 0; i < 2; i++) {
         draw(after);
         r(fx - 1, top, 3, bottom - top, FIRST);
-        callout("1ST DOWN", (xOf(after.yl) + fx) / 2, FIRST, 1);
+        callout("1ST DOWN", fx, FIRST, 1);
         await hold(220);
         draw(after);
         await hold(120);
