@@ -1,664 +1,1091 @@
 {
  "date": "2026-11-13",
  "number": 13,
- "format": "playbook",
- "layout": {
-  "run": [
-   0,
-   10
-  ],
-  "pass": [
-   10,
-   8
-  ],
-  "deep": [
-   18,
-   6
-  ],
-  "pat1": 24,
-  "pat2": 25
- },
+ "format": "drive3",
  "rounds": [
   {
-   "type": "guess_number",
-   "metric": "franchise_playoff_apps",
+   "type": "name_one",
+   "answer_kind": "player",
    "season": "Since 1999",
-   "prompt": "How many playoff appearances have the Arizona Cardinals had from 1999 through 2025?",
-   "hint": "That's 27 seasons and 437 regular-season games.",
-   "subject": {
-    "name": "Arizona Cardinals",
-    "color": "#97233F",
-    "color2": "#000000"
-   },
-   "min": 0,
-   "max": 27,
-   "start": 13,
-   "step": 1,
-   "bump": 1,
-   "scoring": {
-    "type": "steps",
-    "steps": [
-     100,
-     60,
-     30,
-     10
-    ]
-   },
+   "prompt": "Name a player who had 1,000+ receiving yards in a season for the New Orleans Saints since 1999.",
+   "hint": "There are 8 right answers.",
+   "answers": 8,
    "reveal": {
-    "answer": 5,
-    "answer_label": "5 playoff appearances",
-    "fact": "From 1999 to 2025, the Arizona Cardinals went 181-254-2 with 5 playoff trips, 5 playoff wins and no Super Bowl titles."
+    "valid": {
+     "00-0007744": {
+      "name": "Joe Horn",
+      "note": "1,340 in 2000, 1,265 in 2001, 1,312 in 2002, 1,399 in 2004"
+     },
+     "00-0008210": {
+      "name": "Willie Jackson",
+      "note": "1,046 in 2001"
+     },
+     "00-0024466": {
+      "name": "Marques Colston",
+      "note": "1,038 in 2006, 1,202 in 2007, 1,074 in 2009, 1,023 in 2010, 1,164 in 2011, 1,154 in 2012"
+     },
+     "00-0027696": {
+      "name": "Jimmy Graham",
+      "note": "1,310 in 2011, 1,215 in 2013"
+     },
+     "00-0023310": {
+      "name": "Lance Moore",
+      "note": "1,041 in 2012"
+     },
+     "00-0031236": {
+      "name": "Brandin Cooks",
+      "note": "1,138 in 2015, 1,173 in 2016"
+     },
+     "00-0032765": {
+      "name": "Michael Thomas",
+      "note": "1,137 in 2016, 1,245 in 2017, 1,405 in 2018, 1,725 in 2019"
+     },
+     "00-0037239": {
+      "name": "Chris Olave",
+      "note": "1,042 in 2022, 1,123 in 2023, 1,163 in 2025"
+     }
+    },
+    "prior": {
+     "00-0007744": 29.05,
+     "00-0008210": 5.71,
+     "00-0024466": 35.39,
+     "00-0027696": 29.49,
+     "00-0023310": 14.03,
+     "00-0031236": 35.55,
+     "00-0032765": 20.82,
+     "00-0037239": 10.28
+    },
+    "fact": "The best of these seasons: Michael Thomas with 1,725 receiving yards in 2019."
    },
-   "role": "run"
-  },
-  {
-   "type": "guess_number",
-   "metric": "receptions",
-   "season": 2019,
-   "prompt": "How many receptions did DJ Moore have in 2019?",
-   "hint": "He played 15 games that season.",
-   "subject": {
-    "name": "DJ Moore",
-    "sub": "WR · Carolina Panthers",
-    "color": "#0085CA",
-    "color2": "#000000"
-   },
-   "min": 40,
-   "max": 150,
-   "start": 95,
-   "step": 1,
-   "bump": 1,
-   "scoring": {
-    "type": "linear",
-    "exact": 3,
-    "zero_at": 35
-   },
-   "reveal": {
-    "answer": 87,
-    "answer_label": "87 receptions",
-    "fact": "DJ Moore caught 87 passes for 1,175 yards and 4 TDs for the 2019 Carolina Panthers (9th in the NFL in receiving yards). The team went 5-11."
-   },
-   "role": "run"
-  },
-  {
-   "type": "guess_number",
-   "metric": "wins",
-   "season": 2002,
-   "prompt": "How many regular-season games did the 2002 New England Patriots win?",
-   "hint": "They played 16 games.",
-   "subject": {
-    "name": "New England Patriots",
-    "color": "#002244",
-    "color2": "#C60C30"
-   },
-   "min": 0,
-   "max": 16,
-   "start": 8,
-   "step": 1,
-   "bump": 1,
-   "scoring": {
-    "type": "steps",
-    "steps": [
-     100,
-     60,
-     30,
-     10
-    ]
-   },
-   "reveal": {
-    "answer": 9,
-    "answer_label": "9 wins (9-7)",
-    "fact": "The 2002 New England Patriots (9-7) beat the New York Jets 44-7 in Week 2."
-   },
-   "role": "run"
-  },
-  {
-   "type": "guess_number",
-   "metric": "wins",
-   "season": 2017,
-   "prompt": "How many regular-season games did the 2017 New York Jets win?",
-   "hint": "They played 16 games.",
-   "subject": {
-    "name": "New York Jets",
-    "color": "#003F2D",
-    "color2": "#000000"
-   },
-   "min": 0,
-   "max": 16,
-   "start": 8,
-   "step": 1,
-   "bump": 1,
-   "scoring": {
-    "type": "steps",
-    "steps": [
-     100,
-     60,
-     30,
-     10
-    ]
-   },
-   "reveal": {
-    "answer": 5,
-    "answer_label": "5 wins (5-11)",
-    "fact": "Under Todd Bowles, with Josh McCown at QB, the 2017 New York Jets went 5-11. They missed the playoffs."
-   },
-   "role": "run"
-  },
-  {
-   "type": "guess_number",
-   "metric": "wins",
-   "season": 2021,
-   "prompt": "How many regular-season games did the 2021 Cleveland Browns win?",
-   "hint": "They played 17 games.",
-   "subject": {
-    "name": "Cleveland Browns",
-    "color": "#FF3C00",
-    "color2": "#311D00"
-   },
-   "min": 0,
-   "max": 17,
-   "start": 8,
-   "step": 1,
-   "bump": 1,
-   "scoring": {
-    "type": "steps",
-    "steps": [
-     100,
-     60,
-     30,
-     10
-    ]
-   },
-   "reveal": {
-    "answer": 8,
-    "answer_label": "8 wins (8-9)",
-    "fact": "The 2021 Cleveland Browns (8-9) lost 45-7 to the New England Patriots in Week 10."
-   },
-   "role": "run"
-  },
-  {
-   "type": "guess_number",
-   "metric": "franchise_winning_seasons",
-   "season": "Since 1999",
-   "prompt": "How many winning seasons have the New York Jets had from 1999 through 2025?",
-   "hint": "That's 27 seasons and 437 regular-season games.",
-   "subject": {
-    "name": "New York Jets",
-    "color": "#003F2D",
-    "color2": "#000000"
-   },
-   "min": 0,
-   "max": 27,
-   "start": 13,
-   "step": 1,
-   "bump": 1,
-   "scoring": {
-    "type": "steps",
-    "steps": [
-     100,
-     60,
-     30,
-     10
-    ]
-   },
-   "reveal": {
-    "answer": 9,
-    "answer_label": "9 winning seasons",
-    "fact": "From 1999 to 2025, the New York Jets went 184-253 with 6 playoff trips, 6 playoff wins and no Super Bowl titles."
-   },
-   "role": "run"
-  },
-  {
-   "type": "guess_number",
-   "metric": "passing_tds",
-   "season": 2023,
-   "prompt": "How many touchdown passes did Matthew Stafford throw in 2023?",
-   "hint": "He played 15 games that season.",
-   "subject": {
-    "name": "Matthew Stafford",
-    "sub": "QB · Los Angeles Rams",
-    "color": "#003594",
-    "color2": "#FFD100"
-   },
-   "min": 5,
-   "max": 60,
-   "start": 32,
-   "step": 1,
-   "bump": 1,
-   "scoring": {
-    "type": "linear",
-    "exact": 1,
-    "zero_at": 12
-   },
-   "reveal": {
-    "answer": 24,
-    "answer_label": "24 touchdown passes",
-    "fact": "Matthew Stafford threw for 3,965 yards and 24 TDs for the 2023 Los Angeles Rams. The team went 10-7 and lost in the Wild Card round."
-   },
-   "role": "run"
-  },
-  {
-   "type": "guess_number",
-   "metric": "career_receptions",
-   "season": "Since 1999",
-   "prompt": "How many regular-season receptions did Joe Horn have from 1999 through 2025?",
-   "hint": "Wide receiver, 9 seasons (1999–2007).",
-   "subject": {
-    "name": "Joe Horn",
-    "sub": "WR · 1999–2007",
-    "color": "#D3BC8D",
-    "color2": "#000000"
-   },
-   "min": 200,
-   "max": 1700,
-   "start": 950,
-   "step": 5,
-   "bump": 20,
-   "scoring": {
-    "type": "linear",
-    "exact": 25,
-    "zero_at": 300
-   },
-   "reveal": {
-    "answer": 585,
-    "answer_label": "585 receptions",
-    "fact": "From 1999 to 2025, Joe Horn caught 585 passes for 8,451 yards and 57 TDs in 9 seasons (1999–2007), mostly with the New Orleans Saints. Totals count regular-season games from 1999 on."
-   },
-   "role": "run"
-  },
-  {
-   "type": "guess_number",
-   "metric": "rushing_yards",
-   "season": 2005,
-   "prompt": "How many rushing yards did Larry Johnson run for in 2005?",
-   "hint": "He played 16 games that season.",
-   "subject": {
-    "name": "Larry Johnson",
-    "sub": "RB · Kansas City Chiefs",
-    "color": "#E31837",
-    "color2": "#FFB612"
-   },
-   "min": 500,
-   "max": 2200,
-   "start": 1350,
-   "step": 10,
-   "bump": 50,
-   "scoring": {
-    "type": "linear",
-    "exact": 50,
-    "zero_at": 650
-   },
-   "reveal": {
-    "answer": 1750,
-    "answer_label": "1,750 rushing yards",
-    "fact": "Larry Johnson ran for 1,750 yards and 20 TDs for the 2005 Kansas City Chiefs (3rd in the NFL in rushing yards). The team went 10-6."
-   },
-   "role": "run"
-  },
-  {
-   "type": "guess_number",
-   "metric": "career_rushing_tds",
-   "season": "Since 1999",
-   "prompt": "How many regular-season rushing touchdowns did James Conner score from 1999 through 2025?",
-   "hint": "Running back, 9 seasons (2017–2025).",
-   "subject": {
-    "name": "James Conner",
-    "sub": "RB · 2017–2025",
-    "color": "#97233F",
-    "color2": "#000000"
-   },
-   "min": 10,
-   "max": 180,
-   "start": 95,
-   "step": 1,
-   "bump": 2,
-   "scoring": {
-    "type": "linear",
-    "exact": 3,
-    "zero_at": 40
-   },
-   "reveal": {
-    "answer": 60,
-    "answer_label": "60 rushing touchdowns",
-    "fact": "From 1999 to 2025, James Conner ran for 6,065 yards and 60 TDs in 9 seasons (2017–2025), mostly with the Arizona Cardinals."
-   },
-   "role": "run"
+   "role": "play"
   },
   {
    "type": "name_one",
    "answer_kind": "player",
-   "season": "2010s",
-   "prompt": "Name a QB who started a game for the Buffalo Bills in the 2010s.",
-   "hint": "There are 12 right answers.",
-   "answers": 12,
+   "season": "Since 1999",
+   "prompt": "Name a QB who threw for 4,500+ yards in a season since 1999.",
+   "hint": "There are 29 right answers.",
+   "answers": 29,
    "reveal": {
     "valid": {
-     "00-0023682": {
-      "name": "Ryan Fitzpatrick",
-      "note": "45 starts (2010–2012)"
+     "00-0020531": {
+      "name": "Drew Brees",
+      "note": "5,535 yds in 2011, 5,208 yds in 2016, 5,177 yds in 2012, 5,162 yds in 2013, 5,069 yds in 2008, 4,952 yds in 2014, 4,870 yds in 2015, 4,620 yds in 2010"
      },
-     "00-0028118": {
-      "name": "Tyrod Taylor",
-      "note": "43 starts (2015–2017)"
+     "00-0010346": {
+      "name": "Peyton Manning",
+      "note": "5,477 yds in 2013, 4,727 yds in 2014, 4,700 yds in 2010, 4,659 yds in 2012, 4,557 yds in 2004, 4,500 yds in 2009"
+     },
+     "00-0019596": {
+      "name": "Tom Brady",
+      "note": "5,316 yds in 2021, 5,235 yds in 2011, 4,827 yds in 2012, 4,806 yds in 2007, 4,770 yds in 2015, 4,694 yds in 2022, 4,633 yds in 2020, 4,577 yds in 2017"
+     },
+     "00-0033873": {
+      "name": "Patrick Mahomes",
+      "note": "5,250 yds in 2022, 5,097 yds in 2018, 4,839 yds in 2021, 4,740 yds in 2020"
+     },
+     "00-0022924": {
+      "name": "Ben Roethlisberger",
+      "note": "5,129 yds in 2018, 4,952 yds in 2014"
+     },
+     "00-0031503": {
+      "name": "Jameis Winston",
+      "note": "5,109 yds in 2019"
+     },
+     "00-0026498": {
+      "name": "Matthew Stafford",
+      "note": "5,100 yds in 2011, 4,967 yds in 2012, 4,886 yds in 2021, 4,707 yds in 2025, 4,650 yds in 2013"
+     },
+     "00-0036355": {
+      "name": "Justin Herbert",
+      "note": "5,014 yds in 2021, 4,739 yds in 2022"
+     },
+     "00-0026143": {
+      "name": "Matt Ryan",
+      "note": "4,944 yds in 2016, 4,924 yds in 2018, 4,719 yds in 2012, 4,694 yds in 2014, 4,591 yds in 2015, 4,581 yds in 2020, 4,515 yds in 2013"
+     },
+     "00-0022803": {
+      "name": "Eli Manning",
+      "note": "4,933 yds in 2011"
+     },
+     "00-0036442": {
+      "name": "Joe Burrow",
+      "note": "4,918 yds in 2024, 4,611 yds in 2021"
+     },
+     "00-0029604": {
+      "name": "Kirk Cousins",
+      "note": "4,917 yds in 2016, 4,547 yds in 2022"
+     },
+     "00-0021678": {
+      "name": "Tony Romo",
+      "note": "4,903 yds in 2012"
+     },
+     "00-0033077": {
+      "name": "Dak Prescott",
+      "note": "4,902 yds in 2019, 4,552 yds in 2025, 4,516 yds in 2023"
+     },
+     "00-0033537": {
+      "name": "Deshaun Watson",
+      "note": "4,823 yds in 2020"
+     },
+     "00-0031280": {
+      "name": "Derek Carr",
+      "note": "4,804 yds in 2021"
+     },
+     "00-0022787": {
+      "name": "Matt Schaub",
+      "note": "4,770 yds in 2009"
+     },
+     "00-0029668": {
+      "name": "Andrew Luck",
+      "note": "4,761 yds in 2014, 4,593 yds in 2018"
+     },
+     "00-0003739": {
+      "name": "Daunte Culpepper",
+      "note": "4,717 yds in 2004"
+     },
+     "00-0033106": {
+      "name": "Jared Goff",
+      "note": "4,688 yds in 2018, 4,638 yds in 2019, 4,629 yds in 2024, 4,575 yds in 2023, 4,564 yds in 2025"
+     },
+     "00-0021429": {
+      "name": "Carson Palmer",
+      "note": "4,671 yds in 2015"
+     },
+     "00-0023459": {
+      "name": "Aaron Rodgers",
+      "note": "4,636 yds in 2011"
+     },
+     "00-0036212": {
+      "name": "Tua Tagovailoa",
+      "note": "4,624 yds in 2023"
+     },
+     "00-0022942": {
+      "name": "Philip Rivers",
+      "note": "4,615 yds in 2019, 4,515 yds in 2017"
+     },
+     "00-0006355": {
+      "name": "Trent Green",
+      "note": "4,589 yds in 2004"
+     },
+     "00-0017200": {
+      "name": "Kurt Warner",
+      "note": "4,582 yds in 2008"
      },
      "00-0034857": {
       "name": "Josh Allen",
-      "note": "26 starts (2018–2019)"
+      "note": "4,544 yds in 2020"
      },
-     "00-0030526": {
-      "name": "EJ Manuel",
-      "note": "17 starts (2013–2016)"
+     "00-0024226": {
+      "name": "Jay Cutler",
+      "note": "4,525 yds in 2008"
      },
-     "00-0023541": {
-      "name": "Kyle Orton",
-      "note": "12 starts (2014)"
-     },
-     "00-0027253": {
-      "name": "Thaddeus Lewis",
-      "note": "5 starts (2013)"
-     },
-     "00-0033958": {
-      "name": "Nathan Peterman",
-      "note": "4 starts (2017–2018)"
-     },
-     "00-0025479": {
-      "name": "Trent Edwards",
-      "note": "2 starts (2010)"
-     },
-     "00-0023645": {
-      "name": "Derek Anderson",
-      "note": "2 starts (2018)"
-     },
-     "00-0030533": {
-      "name": "Matt Barkley",
-      "note": "2 starts (2018–2019)"
-     },
-     "00-0026196": {
-      "name": "Brian Brohm",
-      "note": "1 start (2010)"
-     },
-     "00-0030024": {
-      "name": "Jeff Tuel",
-      "note": "1 start (2013)"
+     "00-0034855": {
+      "name": "Baker Mayfield",
+      "note": "4,500 yds in 2024"
      }
     },
     "prior": {
-     "00-0023682": 24.35,
-     "00-0028118": 14.46,
-     "00-0034857": 17.48,
-     "00-0030526": 5.21,
-     "00-0023541": 8.57,
-     "00-0027253": 1.76,
-     "00-0033958": 1.41,
-     "00-0025479": 2.07,
-     "00-0023645": 3.48,
-     "00-0030533": 1.29,
-     "00-0026196": 0.59,
-     "00-0030024": 0.6
+     "00-0020531": 115.33,
+     "00-0010346": 115.62,
+     "00-0019596": 170.42,
+     "00-0033873": 46.76,
+     "00-0022924": 105.85,
+     "00-0031503": 28.2,
+     "00-0026498": 106.91,
+     "00-0036355": 28.24,
+     "00-0026143": 102.7,
+     "00-0022803": 89.49,
+     "00-0036442": 22.36,
+     "00-0029604": 63.4,
+     "00-0021678": 43.63,
+     "00-0033077": 46.85,
+     "00-0033537": 18.39,
+     "00-0031280": 19.12,
+     "00-0022787": 29.14,
+     "00-0029668": 26.51,
+     "00-0003739": 25.25,
+     "00-0033106": 53.55,
+     "00-0021429": 53.29,
+     "00-0023459": 110.94,
+     "00-0036212": 18.74,
+     "00-0022942": 18.72,
+     "00-0006355": 24.7,
+     "00-0017200": 18.38,
+     "00-0034857": 36.6,
+     "00-0024226": 45.32,
+     "00-0034855": 34.06
     },
-    "fact": "12 different quarterbacks started for the Buffalo Bills in the 2010s. Ryan Fitzpatrick started the most (45)."
+    "fact": "The biggest: Drew Brees with 5,535 in 2011."
    },
-   "role": "pass"
-  },
-  {
-   "type": "name_one",
-   "answer_kind": "player",
-   "season": 1999,
-   "prompt": "Name a QB who threw 18+ interceptions in 1999.",
-   "hint": "There are 3 right answers.",
-   "answers": 3,
-   "reveal": {
-    "valid": {
-     "00-0013042": {
-      "name": "Jake Plummer",
-      "note": "24 INT, Arizona Cardinals"
-     },
-     "00-0005106": {
-      "name": "Brett Favre",
-      "note": "23 INT, Green Bay Packers"
-     },
-     "00-0001361": {
-      "name": "Drew Bledsoe",
-      "note": "21 INT, New England Patriots"
-     }
-    },
-    "prior": {
-     "00-0013042": 25.98,
-     "00-0005106": 64.09,
-     "00-0001361": 24.97
-    },
-    "fact": "Jake Plummer led this list with 24 for the Arizona Cardinals."
-   },
-   "role": "pass"
+   "role": "play"
   },
   {
    "type": "name_one",
    "answer_kind": "player",
    "season": "Since 1999",
-   "prompt": "Name a player who ran for 1,000+ yards in a season for the Jacksonville Jaguars since 1999.",
-   "hint": "There are 5 right answers.",
-   "answers": 5,
+   "prompt": "Name a running back who ran for 15+ touchdowns in a season since 1999.",
+   "hint": "There are 33 right answers.",
+   "answers": 33,
    "reveal": {
     "valid": {
-     "00-0016098": {
-      "name": "Fred Taylor",
-      "note": "1,399 in 2000, 1,314 in 2002, 1,572 in 2003, 1,224 in 2004, 1,146 in 2006, 1,202 in 2007"
+     "00-0007661": {
+      "name": "Priest Holmes",
+      "note": "27 TD in 2003, 21 TD in 2002"
+     },
+     "00-0019647": {
+      "name": "Shaun Alexander",
+      "note": "27 TD in 2005, 16 TD in 2002, 16 TD in 2004"
+     },
+     "00-0021976": {
+      "name": "Larry Johnson",
+      "note": "20 TD in 2005, 17 TD in 2006"
+     },
+     "00-0024242": {
+      "name": "DeAngelo Williams",
+      "note": "18 TD in 2008"
+     },
+     "00-0025394": {
+      "name": "Adrian Peterson",
+      "note": "18 TD in 2009"
+     },
+     "00-0027325": {
+      "name": "LeGarrette Blount",
+      "note": "18 TD in 2016"
+     },
+     "00-0036223": {
+      "name": "Jonathan Taylor",
+      "note": "18 TD in 2021, 18 TD in 2025"
+     },
+     "00-0031687": {
+      "name": "Raheem Mostert",
+      "note": "18 TD in 2023"
+     },
+     "00-0004052": {
+      "name": "Stephen Davis",
+      "note": "17 TD in 1999"
+     },
+     "00-0022821": {
+      "name": "Michael Turner",
+      "note": "17 TD in 2008"
+     },
+     "00-0027029": {
+      "name": "LeSean McCoy",
+      "note": "17 TD in 2011"
+     },
+     "00-0032241": {
+      "name": "Todd Gurley",
+      "note": "17 TD in 2018"
+     },
+     "00-0032764": {
+      "name": "Derrick Henry",
+      "note": "17 TD in 2020, 16 TD in 2019, 16 TD in 2024, 16 TD in 2025"
+     },
+     "00-0033948": {
+      "name": "Jamaal Williams",
+      "note": "17 TD in 2022"
+     },
+     "00-0017915": {
+      "name": "Ricky Williams",
+      "note": "16 TD in 2002"
+     },
+     "00-0026796": {
+      "name": "Arian Foster",
+      "note": "16 TD in 2010, 15 TD in 2012"
+     },
+     "00-0032187": {
+      "name": "David Johnson",
+      "note": "16 TD in 2016"
+     },
+     "00-0033293": {
+      "name": "Aaron Jones",
+      "note": "16 TD in 2019"
+     },
+     "00-0033893": {
+      "name": "Dalvin Cook",
+      "note": "16 TD in 2020"
+     },
+     "00-0033906": {
+      "name": "Alvin Kamara",
+      "note": "16 TD in 2020"
+     },
+     "00-0037248": {
+      "name": "James Cook",
+      "note": "16 TD in 2024"
+     },
+     "00-0039139": {
+      "name": "Jahmyr Gibbs",
+      "note": "16 TD in 2024"
+     },
+     "00-0019594": {
+      "name": "Mike Anderson",
+      "note": "15 TD in 2000"
+     },
+     "00-0021179": {
+      "name": "Clinton Portis",
+      "note": "15 TD in 2002"
+     },
+     "00-0006305": {
+      "name": "Ahman Green",
+      "note": "15 TD in 2003"
+     },
+     "00-0023545": {
+      "name": "Brandon Jacobs",
+      "note": "15 TD in 2008"
+     },
+     "00-0024260": {
+      "name": "LenDale White",
+      "note": "15 TD in 2008"
      },
      "00-0024275": {
       "name": "Maurice Jones-Drew",
-      "note": "1,391 in 2009, 1,324 in 2010, 1,606 in 2011"
+      "note": "15 TD in 2009"
      },
-     "00-0033856": {
-      "name": "Leonard Fournette",
-      "note": "1,040 in 2017, 1,152 in 2019"
+     "00-0033045": {
+      "name": "Ezekiel Elliott",
+      "note": "15 TD in 2016"
      },
-     "00-0035831": {
-      "name": "James Robinson",
-      "note": "1,070 in 2020"
+     "00-0033280": {
+      "name": "Christian McCaffrey",
+      "note": "15 TD in 2019"
      },
-     "00-0036973": {
-      "name": "Travis Etienne",
-      "note": "1,125 in 2022, 1,008 in 2023, 1,107 in 2025"
+     "00-0033553": {
+      "name": "James Conner",
+      "note": "15 TD in 2021"
+     },
+     "00-0035657": {
+      "name": "Damien Harris",
+      "note": "15 TD in 2021"
+     },
+     "00-0035700": {
+      "name": "Josh Jacobs",
+      "note": "15 TD in 2024"
      }
     },
     "prior": {
-     "00-0016098": 38.86,
+     "00-0007661": 23.1,
+     "00-0019647": 33.76,
+     "00-0021976": 19.34,
+     "00-0024242": 27.45,
+     "00-0025394": 63.53,
+     "00-0027325": 19.75,
+     "00-0036223": 25.21,
+     "00-0031687": 10.83,
+     "00-0004052": 22.87,
+     "00-0022821": 18.84,
+     "00-0027029": 42.1,
+     "00-0032241": 14.61,
+     "00-0032764": 52.48,
+     "00-0033948": 11.59,
+     "00-0017915": 36.53,
+     "00-0026796": 20.64,
+     "00-0032187": 11.42,
+     "00-0033293": 25.33,
+     "00-0033893": 19.43,
+     "00-0033906": 23.7,
+     "00-0037248": 12.06,
+     "00-0039139": 9.8,
+     "00-0019594": 11.45,
+     "00-0021179": 36.1,
+     "00-0006305": 31.6,
+     "00-0023545": 15.05,
+     "00-0024260": 6.12,
      "00-0024275": 27.32,
-     "00-0033856": 12.96,
-     "00-0035831": 5.9,
-     "00-0036973": 10.51
+     "00-0033045": 32.24,
+     "00-0033280": 25.17,
+     "00-0033553": 18.78,
+     "00-0035657": 5.69,
+     "00-0035700": 21.17
     },
-    "fact": "The best of these seasons: Maurice Jones-Drew with 1,606 yards in 2011."
+    "fact": "The biggest: Priest Holmes with 27 in 2003."
    },
-   "role": "pass"
-  },
-  {
-   "type": "name_one",
-   "answer_kind": "player",
-   "season": 2020,
-   "prompt": "Name a player who caught 90+ passes in 2020.",
-   "hint": "There are 14 right answers.",
-   "answers": 14,
-   "reveal": {
-    "valid": {
-     "00-0031588": {
-      "name": "Stefon Diggs",
-      "note": "127 catches, Buffalo Bills"
-     },
-     "00-0030564": {
-      "name": "DeAndre Hopkins",
-      "note": "115 catches, Arizona Cardinals"
-     },
-     "00-0031381": {
-      "name": "Davante Adams",
-      "note": "115 catches, Green Bay Packers"
-     },
-     "00-0031610": {
-      "name": "Darren Waller",
-      "note": "107 catches, Las Vegas Raiders"
-     },
-     "00-0030506": {
-      "name": "Travis Kelce",
-      "note": "105 catches, Kansas City Chiefs"
-     },
-     "00-0031428": {
-      "name": "Allen Robinson",
-      "note": "102 catches, Chicago Bears"
-     },
-     "00-0030279": {
-      "name": "Keenan Allen",
-      "note": "100 catches, Los Angeles Chargers"
-     },
-     "00-0032211": {
-      "name": "Tyler Lockett",
-      "note": "100 catches, Seattle Seahawks"
-     },
-     "00-0033857": {
-      "name": "JuJu Smith-Schuster",
-      "note": "97 catches, Pittsburgh Steelers"
-     },
-     "00-0032688": {
-      "name": "Robbie Chosen",
-      "note": "95 catches, Carolina Panthers"
-     },
-     "00-0031544": {
-      "name": "Amari Cooper",
-      "note": "92 catches, Dallas Cowboys"
-     },
-     "00-0033908": {
-      "name": "Cooper Kupp",
-      "note": "92 catches, Los Angeles Rams"
-     },
-     "00-0030431": {
-      "name": "Robert Woods",
-      "note": "90 catches, Los Angeles Rams"
-     },
-     "00-0034837": {
-      "name": "Calvin Ridley",
-      "note": "90 catches, Atlanta Falcons"
-     }
-    },
-    "prior": {
-     "00-0031588": 44.22,
-     "00-0030564": 54.05,
-     "00-0031381": 50.34,
-     "00-0031610": 8.57,
-     "00-0030506": 52.39,
-     "00-0031428": 22.87,
-     "00-0030279": 33.7,
-     "00-0032211": 31.08,
-     "00-0033857": 17.05,
-     "00-0032688": 15.21,
-     "00-0031544": 23.18,
-     "00-0033908": 28.68,
-     "00-0030431": 28.06,
-     "00-0034837": 17.26
-    },
-    "fact": "Stefon Diggs led this list with 127 for the Buffalo Bills."
-   },
-   "role": "pass"
+   "role": "play"
   },
   {
    "type": "name_one",
    "answer_kind": "player",
    "season": "2000s",
-   "prompt": "Name a QB who started a game for the Arizona Cardinals in the 2000s.",
-   "hint": "There are 8 right answers.",
-   "answers": 8,
+   "prompt": "Name a QB who threw 30+ touchdown passes in a season in the 2000s.",
+   "hint": "There are 12 right answers.",
+   "answers": 12,
    "reveal": {
     "valid": {
+     "00-0019596": {
+      "name": "Tom Brady",
+      "note": "50 TD in 2007"
+     },
+     "00-0010346": {
+      "name": "Peyton Manning",
+      "note": "49 TD in 2004, 33 TD in 2000, 33 TD in 2009, 31 TD in 2006, 31 TD in 2007"
+     },
+     "00-0003739": {
+      "name": "Daunte Culpepper",
+      "note": "39 TD in 2004, 33 TD in 2000"
+     },
+     "00-0021678": {
+      "name": "Tony Romo",
+      "note": "36 TD in 2007"
+     },
+     "00-0020531": {
+      "name": "Drew Brees",
+      "note": "34 TD in 2008, 34 TD in 2009"
+     },
+     "00-0005106": {
+      "name": "Brett Favre",
+      "note": "33 TD in 2009, 32 TD in 2001, 32 TD in 2003, 30 TD in 2004"
+     },
+     "00-0005755": {
+      "name": "Jeff Garcia",
+      "note": "32 TD in 2001, 31 TD in 2000"
+     },
+     "00-0021429": {
+      "name": "Carson Palmer",
+      "note": "32 TD in 2005"
+     },
+     "00-0022924": {
+      "name": "Ben Roethlisberger",
+      "note": "32 TD in 2007"
+     },
+     "00-0011022": {
+      "name": "Donovan McNabb",
+      "note": "31 TD in 2004"
+     },
      "00-0017200": {
       "name": "Kurt Warner",
-      "note": "57 starts (2005–2009)"
+      "note": "30 TD in 2008"
      },
-     "00-0013042": {
-      "name": "Jake Plummer",
-      "note": "46 starts (2000–2002)"
-     },
-     "00-0021206": {
-      "name": "Josh McCown",
-      "note": "22 starts (2003–2005)"
-     },
-     "00-0024225": {
-      "name": "Matt Leinart",
-      "note": "17 starts (2006–2009)"
-     },
-     "00-0001335": {
-      "name": "Jeff Blake",
-      "note": "13 starts (2003)"
-     },
-     "00-0001907": {
-      "name": "Dave Brown",
-      "note": "2 starts (2000)"
-     },
-     "00-0009266": {
-      "name": "Shaun King",
-      "note": "2 starts (2004)"
-     },
-     "00-0022827": {
-      "name": "John Navarre",
-      "note": "1 start (2004)"
+     "00-0023459": {
+      "name": "Aaron Rodgers",
+      "note": "30 TD in 2009"
      }
     },
     "prior": {
-     "00-0017200": 19.76,
-     "00-0013042": 19.29,
-     "00-0021206": 10.5,
-     "00-0024225": 5.31,
-     "00-0001335": 5.71,
-     "00-0001907": 1.03,
-     "00-0009266": 1.7,
-     "00-0022827": 0.6
+     "00-0019596": 170.42,
+     "00-0010346": 115.62,
+     "00-0003739": 25.25,
+     "00-0021678": 43.63,
+     "00-0020531": 115.33,
+     "00-0005106": 64.09,
+     "00-0005755": 29.34,
+     "00-0021429": 53.29,
+     "00-0022924": 105.85,
+     "00-0011022": 49.14,
+     "00-0017200": 18.38,
+     "00-0023459": 110.94
     },
-    "fact": "8 different quarterbacks started for the Arizona Cardinals in the 2000s. Kurt Warner started the most (57)."
+    "fact": "The biggest: Tom Brady with 50 in 2007."
    },
-   "role": "pass"
+   "role": "play"
   },
   {
    "type": "name_one",
    "answer_kind": "player",
-   "season": 2003,
-   "prompt": "Name a player who had 1,200+ receiving yards in 2003.",
+   "season": "Since 1999",
+   "prompt": "Name a player who had 1,000+ receiving yards in a season for the Baltimore Ravens since 1999.",
+   "hint": "There are 8 right answers.",
+   "answers": 8,
+   "reveal": {
+    "valid": {
+     "00-0008059": {
+      "name": "Qadry Ismail",
+      "note": "1,059 in 1999, 1,059 in 2001"
+     },
+     "00-0010500": {
+      "name": "Derrick Mason",
+      "note": "1,073 in 2005, 1,087 in 2007, 1,037 in 2008, 1,028 in 2009"
+     },
+     "00-0027996": {
+      "name": "Torrey Smith",
+      "note": "1,128 in 2013"
+     },
+     "00-0020337": {
+      "name": "Steve Smith",
+      "note": "1,065 in 2014"
+     },
+     "00-0026901": {
+      "name": "Mike Wallace",
+      "note": "1,017 in 2016"
+     },
+     "00-0034753": {
+      "name": "Mark Andrews",
+      "note": "1,361 in 2021"
+     },
+     "00-0035662": {
+      "name": "Marquise Brown",
+      "note": "1,008 in 2021"
+     },
+     "00-0039064": {
+      "name": "Zay Flowers",
+      "note": "1,059 in 2024, 1,211 in 2025"
+     }
+    },
+    "prior": {
+     "00-0008059": 8.72,
+     "00-0010500": 44.42,
+     "00-0027996": 15.22,
+     "00-0020337": 62.37,
+     "00-0026901": 27.32,
+     "00-0034753": 18.33,
+     "00-0035662": 12.28,
+     "00-0039064": 8.39
+    },
+    "fact": "The best of these seasons: Mark Andrews with 1,361 receiving yards in 2021."
+   },
+   "role": "play"
+  },
+  {
+   "type": "name_one",
+   "answer_kind": "player",
+   "season": "Since 1999",
+   "prompt": "Name a receiver who had 800+ receiving yards in a season for the Los Angeles Rams since 1999.",
    "hint": "There are 6 right answers.",
    "answers": 6,
    "reveal": {
     "valid": {
-     "00-0011754": {
-      "name": "Randy Moss",
-      "note": "1,632 yds, Minnesota Vikings"
+     "00-0033908": {
+      "name": "Cooper Kupp",
+      "note": "1,947 yds in 2021, 1,161 yds in 2019, 974 yds in 2020, 869 yds in 2017, 812 yds in 2022"
      },
-     "00-0022084": {
-      "name": "Anquan Boldin",
-      "note": "1,377 yds, Arizona Cardinals"
+     "00-0039075": {
+      "name": "Puka Nacua",
+      "note": "1,715 yds in 2025, 1,486 yds in 2023, 990 yds in 2024"
      },
-     "00-0020397": {
-      "name": "Chad Johnson",
-      "note": "1,355 yds, Cincinnati Bengals"
+     "00-0030431": {
+      "name": "Robert Woods",
+      "note": "1,219 yds in 2018, 1,134 yds in 2019, 936 yds in 2020"
      },
-     "00-0010500": {
-      "name": "Derrick Mason",
-      "note": "1,303 yds, Tennessee Titans"
+     "00-0031236": {
+      "name": "Brandin Cooks",
+      "note": "1,204 yds in 2018"
      },
-     "00-0007024": {
-      "name": "Marvin Harrison",
-      "note": "1,272 yds, Indianapolis Colts"
+     "00-0027006": {
+      "name": "Kenny Britt",
+      "note": "1,002 yds in 2016"
      },
-     "00-0018958": {
-      "name": "Laveranues Coles",
-      "note": "1,204 yds, Washington Redskins"
+     "00-0036415": {
+      "name": "Van Jefferson",
+      "note": "802 yds in 2021"
      }
     },
     "prior": {
-     "00-0011754": 49.17,
-     "00-0022084": 56.82,
-     "00-0020397": 41.88,
-     "00-0010500": 44.42,
-     "00-0007024": 47.42,
-     "00-0018958": 29.79
+     "00-0033908": 28.68,
+     "00-0039075": 11.83,
+     "00-0030431": 28.06,
+     "00-0031236": 35.55,
+     "00-0027006": 10.22,
+     "00-0036415": 5.79
     },
-    "fact": "Randy Moss led this list with 1,632 for the Minnesota Vikings."
+    "fact": "The best of these: Cooper Kupp with 1,947 in 2021."
    },
-   "role": "pass"
+   "role": "play"
+  },
+  {
+   "type": "name_one",
+   "answer_kind": "player",
+   "season": "Since 1999",
+   "prompt": "Name a player who played for both the San Francisco 49ers and the Kansas City Chiefs.",
+   "hint": "QB, RB, WR or TE since 1999. There are 11 right answers.",
+   "answers": 11,
+   "reveal": {
+    "valid": {
+     "00-0011727": {
+      "name": "Johnnie Morton",
+      "note": "WR · 49ers 2005, Chiefs 2002–2004"
+     },
+     "00-0023436": {
+      "name": "Alex Smith",
+      "note": "QB · 49ers 2005–2012, Chiefs 2013–2017"
+     },
+     "00-0022817": {
+      "name": "Sean Ryan",
+      "note": "TE · 49ers 2008, Chiefs 2009"
+     },
+     "00-0027964": {
+      "name": "Jon Baldwin",
+      "note": "WR · 49ers 2013, Chiefs 2011–2012"
+     },
+     "00-0028202": {
+      "name": "Shaun Draughn",
+      "note": "RB · 49ers 2015–2016, Chiefs 2012"
+     },
+     "00-0031376": {
+      "name": "Jerick McKinnon",
+      "note": "RB · 49ers 2020, Chiefs 2021–2023"
+     },
+     "00-0032062": {
+      "name": "Blake Bell",
+      "note": "TE · 49ers 2015–2016, Chiefs 2019–2023"
+     },
+     "00-0032128": {
+      "name": "Chris Conley",
+      "note": "WR · 49ers 2024, Chiefs 2015–2018"
+     },
+     "00-0032775": {
+      "name": "Demarcus Robinson",
+      "note": "WR · 49ers 2025, Chiefs 2016–2021"
+     },
+     "00-0034286": {
+      "name": "Richie James",
+      "note": "WR · 49ers 2018–2020, Chiefs 2023"
+     },
+     "00-0038090": {
+      "name": "Skyy Moore",
+      "note": "WR · 49ers 2025, Chiefs 2022–2023"
+     }
+    },
+    "prior": {
+     "00-0011727": 15.78,
+     "00-0023436": 46.26,
+     "00-0022817": 1.38,
+     "00-0027964": 2.04,
+     "00-0028202": 2.26,
+     "00-0031376": 6.97,
+     "00-0032062": 2.15,
+     "00-0032128": 7.99,
+     "00-0032775": 8.88,
+     "00-0034286": 3.65,
+     "00-0038090": 1.99
+    },
+    "fact": "11 QBs, running backs, receivers and tight ends have played for both since 1999."
+   },
+   "role": "play"
+  },
+  {
+   "type": "name_one",
+   "answer_kind": "player",
+   "season": "Since 1999",
+   "prompt": "Name a player who led the Dallas Cowboys in passing yards in a season since 1999.",
+   "hint": "There are 10 right answers.",
+   "answers": 10,
+   "reveal": {
+    "valid": {
+     "00-0033077": {
+      "name": "Dak Prescott",
+      "note": "9 seasons (2016, 2017, 2018, 2019…)"
+     },
+     "00-0021678": {
+      "name": "Tony Romo",
+      "note": "8 seasons (2006, 2007, 2008, 2009…)"
+     },
+     "00-0000104": {
+      "name": "Troy Aikman",
+      "note": "2 seasons (1999, 2000)"
+     },
+     "00-0020404": {
+      "name": "Quincy Carter",
+      "note": "2 seasons (2001, 2003)"
+     },
+     "00-0020562": {
+      "name": "Chad Hutchinson",
+      "note": "1 season (2002)"
+     },
+     "00-0016193": {
+      "name": "Vinny Testaverde",
+      "note": "1 season (2004)"
+     },
+     "00-0001361": {
+      "name": "Drew Bledsoe",
+      "note": "1 season (2005)"
+     },
+     "00-0009311": {
+      "name": "Jon Kitna",
+      "note": "1 season (2010)"
+     },
+     "00-0023662": {
+      "name": "Matt Cassel",
+      "note": "1 season (2015)"
+     },
+     "00-0027973": {
+      "name": "Andy Dalton",
+      "note": "1 season (2020)"
+     }
+    },
+    "prior": {
+     "00-0033077": 32.42,
+     "00-0021678": 29.82,
+     "00-0000104": 4.02,
+     "00-0020404": 4.75,
+     "00-0020562": 2.23,
+     "00-0016193": 7.59,
+     "00-0001361": 13.48,
+     "00-0009311": 17.77,
+     "00-0023662": 9.94,
+     "00-0027973": 27.93
+    },
+    "fact": "Dak Prescott led the Dallas Cowboys in passing yards 9 times."
+   },
+   "role": "play"
+  },
+  {
+   "type": "name_one",
+   "answer_kind": "player",
+   "season": "Since 1999",
+   "prompt": "Name a tight end who caught 40+ passes in a season for the Atlanta Falcons since 1999.",
+   "hint": "There are 7 right answers.",
+   "answers": 7,
+   "reveal": {
+    "valid": {
+     "00-0006101": {
+      "name": "Tony Gonzalez",
+      "note": "93 catches in 2012, 83 catches in 2009, 83 catches in 2013, 80 catches in 2011, 70 catches in 2010"
+     },
+     "00-0036970": {
+      "name": "Kyle Pitts",
+      "note": "88 catches in 2025, 68 catches in 2021, 53 catches in 2023, 47 catches in 2024"
+     },
+     "00-0032392": {
+      "name": "Austin Hooper",
+      "note": "75 catches in 2019, 71 catches in 2018, 49 catches in 2017"
+     },
+     "00-0020285": {
+      "name": "Alge Crumpler",
+      "note": "65 catches in 2005, 56 catches in 2006, 48 catches in 2004, 44 catches in 2003, 42 catches in 2007"
+     },
+     "00-0026267": {
+      "name": "Jacob Tamme",
+      "note": "59 catches in 2015"
+     },
+     "00-0034830": {
+      "name": "Hayden Hurst",
+      "note": "56 catches in 2020"
+     },
+     "00-0033858": {
+      "name": "Jonnu Smith",
+      "note": "50 catches in 2023"
+     }
+    },
+    "prior": {
+     "00-0006101": 58.64,
+     "00-0036970": 9.8,
+     "00-0032392": 12.69,
+     "00-0020285": 13.76,
+     "00-0026267": 6.75,
+     "00-0034830": 5.13,
+     "00-0033858": 9.64
+    },
+    "fact": "The best of these: Tony Gonzalez with 93 in 2012."
+   },
+   "role": "play"
+  },
+  {
+   "type": "name_one",
+   "answer_kind": "player",
+   "season": "Since 1999",
+   "prompt": "Name a tight end who caught 40+ passes in a season for the New England Patriots since 1999.",
+   "hint": "There are 6 right answers.",
+   "answers": 6,
+   "reveal": {
+    "valid": {
+     "00-0027656": {
+      "name": "Rob Gronkowski",
+      "note": "90 catches in 2011, 82 catches in 2014, 72 catches in 2015, 69 catches in 2017, 55 catches in 2012, 47 catches in 2018, 42 catches in 2010"
+     },
+     "00-0027713": {
+      "name": "Aaron Hernandez",
+      "note": "79 catches in 2011, 51 catches in 2012, 45 catches in 2010"
+     },
+     "00-0033090": {
+      "name": "Hunter Henry",
+      "note": "66 catches in 2024, 60 catches in 2025, 50 catches in 2021, 42 catches in 2023, 41 catches in 2022"
+     },
+     "00-0026201": {
+      "name": "Martellus Bennett",
+      "note": "55 catches in 2016"
+     },
+     "00-0022943": {
+      "name": "Benjamin Watson",
+      "note": "50 catches in 2006"
+     },
+     "00-0032392": {
+      "name": "Austin Hooper",
+      "note": "45 catches in 2024"
+     }
+    },
+    "prior": {
+     "00-0027656": 32.99,
+     "00-0027713": 5.08,
+     "00-0033090": 14.03,
+     "00-0026201": 13.16,
+     "00-0022943": 18.81,
+     "00-0032392": 12.69
+    },
+    "fact": "The best of these: Rob Gronkowski with 90 in 2011."
+   },
+   "role": "play"
+  },
+  {
+   "type": "name_one",
+   "answer_kind": "player",
+   "season": "2000s",
+   "prompt": "Name a QB who started a game for the Las Vegas Raiders in the 2000s.",
+   "hint": "There are 11 right answers.",
+   "answers": 11,
+   "reveal": {
+    "valid": {
+     "00-0005741": {
+      "name": "Rich Gannon",
+      "note": "58 starts (2000–2004)"
+     },
+     "00-0003292": {
+      "name": "Kerry Collins",
+      "note": "28 starts (2004–2005)"
+     },
+     "00-0025388": {
+      "name": "JaMarcus Russell",
+      "note": "25 starts (2007–2009)"
+     },
+     "00-0023504": {
+      "name": "Andrew Walter",
+      "note": "10 starts (2006–2008)"
+     },
+     "00-0021206": {
+      "name": "Josh McCown",
+      "note": "9 starts (2007)"
+     },
+     "00-0011378": {
+      "name": "Rick Mirer",
+      "note": "8 starts (2003)"
+     },
+     "00-0001823": {
+      "name": "Aaron Brooks",
+      "note": "7 starts (2006)"
+     },
+     "00-0003739": {
+      "name": "Daunte Culpepper",
+      "note": "6 starts (2007)"
+     },
+     "00-0024408": {
+      "name": "Bruce Gradkowski",
+      "note": "4 starts (2009)"
+     },
+     "00-0023502": {
+      "name": "Charlie Frye",
+      "note": "3 starts (2009)"
+     },
+     "00-0020405": {
+      "name": "Marques Tuiasosopo",
+      "note": "2 starts (2003–2005)"
+     }
+    },
+    "prior": {
+     "00-0005741": 14.59,
+     "00-0003292": 15.17,
+     "00-0025388": 6.34,
+     "00-0023504": 2.59,
+     "00-0021206": 7.25,
+     "00-0011378": 2.5,
+     "00-0001823": 7.77,
+     "00-0003739": 9.07,
+     "00-0024408": 1.65,
+     "00-0023502": 1.72,
+     "00-0020405": 0.59
+    },
+    "fact": "11 different quarterbacks started for the Las Vegas Raiders in the 2000s. Rich Gannon started the most (58)."
+   },
+   "role": "play"
+  },
+  {
+   "type": "name_one",
+   "answer_kind": "player",
+   "season": "2000s",
+   "prompt": "Name a QB who started a game for the Denver Broncos in the 2000s.",
+   "hint": "There are 8 right answers.",
+   "answers": 8,
+   "reveal": {
+    "valid": {
+     "00-0013042": {
+      "name": "Jake Plummer",
+      "note": "54 starts (2003–2006)"
+     },
+     "00-0006423": {
+      "name": "Brian Griese",
+      "note": "37 starts (2000–2002)"
+     },
+     "00-0024226": {
+      "name": "Jay Cutler",
+      "note": "37 starts (2006–2008)"
+     },
+     "00-0023541": {
+      "name": "Kyle Orton",
+      "note": "15 starts (2009)"
+     },
+     "00-0005589": {
+      "name": "Gus Frerotte",
+      "note": "8 starts (2000–2001)"
+     },
+     "00-0001218": {
+      "name": "Steve Beuerlein",
+      "note": "5 starts (2002–2003)"
+     },
+     "00-0009007": {
+      "name": "Danny Kanell",
+      "note": "3 starts (2003)"
+     },
+     "00-0022005": {
+      "name": "Chris Simms",
+      "note": "1 start (2009)"
+     }
+    },
+    "prior": {
+     "00-0013042": 21.29,
+     "00-0006423": 15.38,
+     "00-0024226": 22.85,
+     "00-0023541": 9.32,
+     "00-0005589": 4.86,
+     "00-0001218": 3.79,
+     "00-0009007": 1.31,
+     "00-0022005": 1.12
+    },
+    "fact": "8 different quarterbacks started for the Denver Broncos in the 2000s. Jake Plummer started the most (54)."
+   },
+   "role": "play"
+  },
+  {
+   "type": "name_one",
+   "answer_kind": "player",
+   "season": "Since 1999",
+   "prompt": "Name a player who played for both the Seattle Seahawks and the San Francisco 49ers.",
+   "hint": "QB, RB, WR or TE since 1999. There are 10 right answers.",
+   "answers": 10,
+   "reveal": {
+    "valid": {
+     "00-0004293": {
+      "name": "Trent Dilfer",
+      "note": "QB · Seahawks 2001–2004, 49ers 2007"
+     },
+     "00-0013639": {
+      "name": "Jerry Rice",
+      "note": "WR · Seahawks 2004, 49ers 1999–2000"
+     },
+     "00-0019663": {
+      "name": "Darrell Jackson",
+      "note": "WR · Seahawks 2000–2006, 49ers 2007"
+     },
+     "00-0024315": {
+      "name": "Michael Robinson",
+      "note": "FB · Seahawks 2010–2013, 49ers 2006–2009"
+     },
+     "00-0027905": {
+      "name": "Will Tukuafu",
+      "note": "FB · Seahawks 2014–2016, 49ers 2012"
+     },
+     "00-0030068": {
+      "name": "Marquise Goodwin",
+      "note": "WR · Seahawks 2022, 49ers 2017–2019"
+     },
+     "00-0031045": {
+      "name": "Carlos Hyde",
+      "note": "RB · Seahawks 2020, 49ers 2014–2017"
+     },
+     "00-0032063": {
+      "name": "Mike Davis",
+      "note": "RB · Seahawks 2017–2018, 49ers 2015–2016"
+     },
+     "00-0033576": {
+      "name": "Eric Saubert",
+      "note": "TE · Seahawks 2025, 49ers 2024"
+     },
+     "00-0034869": {
+      "name": "Sam Darnold",
+      "note": "QB · Seahawks 2025, 49ers 2023"
+     }
+    },
+    "prior": {
+     "00-0004293": 8.17,
+     "00-0013639": 5.36,
+     "00-0019663": 23.22,
+     "00-0024315": 2.04,
+     "00-0027905": 1.02,
+     "00-0030068": 8.27,
+     "00-0031045": 14.62,
+     "00-0032063": 5.33,
+     "00-0033576": 1.69,
+     "00-0034869": 21.83
+    },
+    "fact": "10 QBs, running backs, receivers and tight ends have played for both since 1999."
+   },
+   "role": "play"
+  },
+  {
+   "type": "name_one",
+   "answer_kind": "player",
+   "season": "Since 1999",
+   "prompt": "Name a player who led the Seattle Seahawks in receiving yards in a season since 1999.",
+   "hint": "There are 13 right answers.",
+   "answers": 13,
+   "reveal": {
+    "valid": {
+     "00-0028434": {
+      "name": "Doug Baldwin",
+      "note": "5 seasons (2011, 2014, 2015, 2016…)"
+     },
+     "00-0019663": {
+      "name": "Darrell Jackson",
+      "note": "4 seasons (2001, 2003, 2004, 2006)"
+     },
+     "00-0032211": {
+      "name": "Tyler Lockett",
+      "note": "3 seasons (2018, 2019, 2021)"
+     },
+     "00-0035640": {
+      "name": "DK Metcalf",
+      "note": "3 seasons (2020, 2022, 2023)"
+     },
+     "00-0004077": {
+      "name": "Sean Dawkins",
+      "note": "2 seasons (1999, 2000)"
+     },
+     "00-0004915": {
+      "name": "Bobby Engram",
+      "note": "2 seasons (2005, 2007)"
+     },
+     "00-0038543": {
+      "name": "Jaxon Smith-Njigba",
+      "note": "2 seasons (2024, 2025)"
+     },
+     "00-0020490": {
+      "name": "Koren Robinson",
+      "note": "1 season (2002)"
+     },
+     "00-0026178": {
+      "name": "John Carlson",
+      "note": "1 season (2008)"
+     },
+     "00-0020438": {
+      "name": "T.J. Houshmandzadeh",
+      "note": "1 season (2009)"
+     },
+     "00-0023452": {
+      "name": "Mike Williams",
+      "note": "1 season (2010)"
+     },
+     "00-0025431": {
+      "name": "Sidney Rice",
+      "note": "1 season (2012)"
+     },
+     "00-0027891": {
+      "name": "Golden Tate",
+      "note": "1 season (2013)"
+     }
+    },
+    "prior": {
+     "00-0028434": 15.4,
+     "00-0019663": 15.61,
+     "00-0032211": 18.54,
+     "00-0035640": 14.69,
+     "00-0004077": 4.54,
+     "00-0004915": 11.21,
+     "00-0038543": 6.86,
+     "00-0020490": 7.0,
+     "00-0026178": 3.94,
+     "00-0020438": 12.51,
+     "00-0023452": 2.9,
+     "00-0025431": 5.92,
+     "00-0027891": 15.13
+    },
+    "fact": "Doug Baldwin led the Seattle Seahawks in receiving yards 5 times."
+   },
+   "role": "play"
   },
   {
    "type": "name_one",
@@ -709,278 +1136,98 @@
     },
     "fact": "The best of these seasons: A.J. Brown with 1,496 receiving yards in 2022."
    },
-   "role": "pass"
-  },
-  {
-   "type": "name_one",
-   "answer_kind": "player",
-   "season": 2019,
-   "prompt": "Name a running back who ran for 1,200+ yards in 2019.",
-   "hint": "There are 5 right answers.",
-   "answers": 5,
-   "reveal": {
-    "valid": {
-     "00-0032764": {
-      "name": "Derrick Henry",
-      "note": "1,540 yds, Tennessee Titans"
-     },
-     "00-0034791": {
-      "name": "Nick Chubb",
-      "note": "1,494 yds, Cleveland Browns"
-     },
-     "00-0033280": {
-      "name": "Christian McCaffrey",
-      "note": "1,387 yds, Carolina Panthers"
-     },
-     "00-0033045": {
-      "name": "Ezekiel Elliott",
-      "note": "1,357 yds, Dallas Cowboys"
-     },
-     "00-0033594": {
-      "name": "Chris Carson",
-      "note": "1,230 yds, Seattle Seahawks"
-     }
-    },
-    "prior": {
-     "00-0032764": 52.48,
-     "00-0034791": 24.12,
-     "00-0033280": 25.17,
-     "00-0033045": 32.24,
-     "00-0033594": 9.55
-    },
-    "fact": "Derrick Henry led this list with 1,540 for the Tennessee Titans."
-   },
-   "role": "pass"
-  },
-  {
-   "type": "name_one",
-   "answer_kind": "player",
-   "season": 2018,
-   "prompt": "Name a QB who started a game for the 2018 Baltimore Ravens.",
-   "hint": "There are 2 right answers.",
-   "answers": 2,
-   "reveal": {
-    "valid": {
-     "00-0026158": {
-      "name": "Joe Flacco",
-      "note": "9 starts"
-     },
-     "00-0034796": {
-      "name": "Lamar Jackson",
-      "note": "7 starts"
-     }
-    },
-    "prior": {
-     "00-0026158": 11.55,
-     "00-0034796": 5.99
-    },
-    "fact": "The 2018 Baltimore Ravens went 10-6 using 2 starting quarterbacks; Joe Flacco started 9."
-   },
-   "role": "deep"
+   "role": "play"
   },
   {
    "type": "name_one",
    "answer_kind": "player",
    "season": "Since 1999",
-   "prompt": "Whose career is this? (running back, 1999–2025 regular seasons)",
-   "hint": "Type his name.",
-   "clues": [
-    "15 seasons",
-    "14,921 rushing yds",
-    "120 rushing TD",
-    "4.6 yds/carry",
-    "305 catches"
-   ],
-   "answers": 1,
+   "prompt": "Name a player who played for both the Denver Broncos and the Houston Texans.",
+   "hint": "QB, RB, WR or TE since 1999. There are 15 right answers.",
+   "answers": 15,
    "reveal": {
     "valid": {
-     "00-0025394": {
-      "name": "Adrian Peterson",
-      "note": "2007–2021"
+     "00-0011236": {
+      "name": "Billy Miller",
+      "note": "TE · Broncos 1999–2000, Texans 2002–2004"
+     },
+     "00-0019643": {
+      "name": "Ron Dayne",
+      "note": "RB · Broncos 2005, Texans 2006–2007"
+     },
+     "00-0021163": {
+      "name": "Jabar Gaffney",
+      "note": "WR · Broncos 2009–2010, Texans 2002–2005"
+     },
+     "00-0021100": {
+      "name": "Jeb Putzier",
+      "note": "TE · Broncos 2004–2005, Texans 2006–2007"
+     },
+     "00-0021845": {
+      "name": "Cecil Sapp",
+      "note": "RB · Broncos 2005–2007, Texans 2008"
+     },
+     "00-0023630": {
+      "name": "Joel Dreessen",
+      "note": "TE · Broncos 2012–2013, Texans 2007–2011"
+     },
+     "00-0024313": {
+      "name": "Owen Daniels",
+      "note": "TE · Broncos 2015, Texans 2006–2013"
+     },
+     "00-0022613": {
+      "name": "Glenn Martinez",
+      "note": "WR · Broncos 2007, Texans 2009"
+     },
+     "00-0026373": {
+      "name": "Justin Forsett",
+      "note": "RB · Broncos 2016, Texans 2012"
+     },
+     "00-0027874": {
+      "name": "Demaryius Thomas",
+      "note": "WR · Broncos 2010–2017, Texans 2018"
+     },
+     "00-0029682": {
+      "name": "Brock Osweiler",
+      "note": "QB · Broncos 2012–2017, Texans 2016"
+     },
+     "00-0028986": {
+      "name": "Case Keenum",
+      "note": "QB · Broncos 2018, Texans 2013"
+     },
+     "00-0034208": {
+      "name": "Mike Boone",
+      "note": "RB · Broncos 2022, Texans 2023"
+     },
+     "00-0034838": {
+      "name": "Royce Freeman",
+      "note": "RB · Broncos 2018–2020, Texans 2021–2022"
+     },
+     "00-0034959": {
+      "name": "Andrew Beck",
+      "note": "FB · Broncos 2019–2022, Texans 2023"
      }
     },
     "prior": {
-     "00-0025394": 1
+     "00-0011236": 5.85,
+     "00-0019643": 10.26,
+     "00-0021163": 17.3,
+     "00-0021100": 3.38,
+     "00-0021845": 1.35,
+     "00-0023630": 4.6,
+     "00-0024313": 17.18,
+     "00-0022613": 1.34,
+     "00-0026373": 10.81,
+     "00-0027874": 35.31,
+     "00-0029682": 6.47,
+     "00-0028986": 13.9,
+     "00-0034208": 2.0,
+     "00-0034838": 4.67,
+     "00-0034959": 1.41
     },
-    "fact": "From 1999 to 2025, Adrian Peterson ran for 14,921 yards and 120 TDs in 15 seasons (2007–2021), mostly with the Minnesota Vikings."
+    "fact": "15 QBs, running backs, receivers and tight ends have played for both since 1999."
    },
-   "role": "deep"
-  },
-  {
-   "type": "name_one",
-   "answer_kind": "player",
-   "season": "Since 1999",
-   "prompt": "Whose career is this? (receiver, 1999–2025 regular seasons)",
-   "hint": "Type his name.",
-   "clues": [
-    "6 seasons",
-    "571 catches",
-    "7,416 receiving yds",
-    "41 TD"
-   ],
-   "answers": 1,
-   "reveal": {
-    "valid": {
-     "00-0036358": {
-      "name": "CeeDee Lamb",
-      "note": "2020–2025"
-     }
-    },
-    "prior": {
-     "00-0036358": 1
-    },
-    "fact": "From 1999 to 2025, CeeDee Lamb caught 571 passes for 7,416 yards and 41 TDs in 6 seasons (2020–2025), mostly with the Dallas Cowboys."
-   },
-   "role": "deep"
-  },
-  {
-   "type": "name_one",
-   "answer_kind": "player",
-   "season": 2003,
-   "prompt": "Whose 2003 season is this? (running back)",
-   "hint": "Type his name.",
-   "clues": [
-    "1,435 rushing yds",
-    "14 rushing TD",
-    "4.4 yds/carry",
-    "42 catches",
-    "295 receiving yds"
-   ],
-   "answers": 1,
-   "reveal": {
-    "valid": {
-     "00-0019647": {
-      "name": "Shaun Alexander",
-      "note": "Seattle Seahawks"
-     }
-    },
-    "prior": {
-     "00-0019647": 1
-    },
-    "fact": "Shaun Alexander ran for 1,435 yards and 14 TDs for the 2003 Seattle Seahawks (7th in the NFL in rushing yards). The team went 10-6 and lost in the Wild Card round."
-   },
-   "role": "deep"
-  },
-  {
-   "type": "name_one",
-   "answer_kind": "player",
-   "season": 2017,
-   "prompt": "Whose 2017 season is this? (running back)",
-   "hint": "Type his name.",
-   "clues": [
-    "1,305 rushing yds",
-    "13 rushing TD",
-    "4.7 yds/carry",
-    "64 catches",
-    "788 receiving yds"
-   ],
-   "answers": 1,
-   "reveal": {
-    "valid": {
-     "00-0032241": {
-      "name": "Todd Gurley",
-      "note": "Los Angeles Rams"
-     }
-    },
-    "prior": {
-     "00-0032241": 1
-    },
-    "fact": "Todd Gurley ran for 1,305 yards and 13 TDs for the 2017 Los Angeles Rams (2nd in the NFL in rushing yards). The team went 11-5 and lost in the Wild Card round."
-   },
-   "role": "deep"
-  },
-  {
-   "type": "name_one",
-   "answer_kind": "player",
-   "season": 2022,
-   "prompt": "Whose 2022 season is this? (QB)",
-   "hint": "Type his name.",
-   "clues": [
-    "4,547 passing yds",
-    "29 TD",
-    "14 INT",
-    "65.9% completions",
-    "97 rushing yds"
-   ],
-   "answers": 1,
-   "reveal": {
-    "valid": {
-     "00-0029604": {
-      "name": "Kirk Cousins",
-      "note": "Minnesota Vikings"
-     }
-    },
-    "prior": {
-     "00-0029604": 1
-    },
-    "fact": "Kirk Cousins threw for 4,547 yards and 29 TDs for the 2022 Minnesota Vikings (4th in the NFL in passing yards). The team went 13-4 and lost in the Wild Card round."
-   },
-   "role": "deep"
-  },
-  {
-   "type": "head_to_head",
-   "kind": "team",
-   "season": 2004,
-   "prompt": "In 2004, who had the better regular-season record?",
-   "options": [
-    {
-     "name": "Minnesota Vikings",
-     "color": "#4F2683",
-     "color2": "#FFC62F"
-    },
-    {
-     "name": "Detroit Lions",
-     "color": "#0076B6",
-     "color2": "#B0B7BC"
-    }
-   ],
-   "reveal": {
-    "answer": 0,
-    "notes": [
-     "8-8",
-     "6-10"
-    ],
-    "fact": "The 2004 Minnesota Vikings snuck into the playoffs at 8-8. They lost in the Divisional round."
-   },
-   "role": "pat1"
-  },
-  {
-   "type": "odd_one_out",
-   "season": 2000,
-   "prompt": "Which of these teams did NOT make the 2000 playoffs?",
-   "options": [
-    {
-     "name": "Indianapolis Colts",
-     "color": "#002C5F",
-     "color2": "#a5acaf"
-    },
-    {
-     "name": "Denver Broncos",
-     "color": "#002244",
-     "color2": "#FB4F14"
-    },
-    {
-     "name": "Green Bay Packers",
-     "color": "#203731",
-     "color2": "#FFB612"
-    },
-    {
-     "name": "Tennessee Titans",
-     "color": "#4495D2",
-     "color2": "#D50A0A"
-    }
-   ],
-   "reveal": {
-    "answer": 2,
-    "notes": [
-     "10-6 · lost in the Wild Card round",
-     "11-5 · lost in the Wild Card round",
-     "9-7 · missed playoffs",
-     "13-3 · lost in the Divisional round"
-    ],
-    "fact": "Under Mike Sherman, with Brett Favre at QB, the 2000 Green Bay Packers went 9-7. They missed the playoffs."
-   },
-   "role": "pat2"
+   "role": "play"
   }
  ]
 }

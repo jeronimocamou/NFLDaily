@@ -1,15 +1,13 @@
 import { startStadium } from "./stadium.js";
 import { createFieldView } from "./fieldview.js";
-import {
-  RULES, CALLS, CALL_BLURB, CALL_LABEL, canKick, clockText, downText, driveRank, fgDistance, fieldSpot, newDrive,
-  playsLeft, resolve, snap, summary, CODE_EMOJI,
-} from "./drive.js";
+import { RULES, CODE_EMOJI, downText, driveRank, fieldSpot, isCurrent, newDrive, resolve, snap, summary } from "./drive.js";
 
-// Fourth & Daily client. Each day is one drive: 2:00 left, down 21-17, ball
-// on your own 25. Every question is a play. Signed-in players' drives run on
-// the server (/api/drive), which times every play. Anonymous drives run in
-// the browser with the same rules (site/drive.js); answers are graded by
-// /api/answer and progress is kept in localStorage.
+// Fourth & Daily client. Each day is one drive: down 21-17, ball on your own
+// 25. Every play is one question: type a right answer to move the ball
+// (rarer right answers gain more). 4 downs to gain 10 yards; reach the end
+// zone to win. Signed-in drives run on the server (/api/drive), which times
+// every play; anonymous drives run in the browser with the same rules
+// (site/drive.js), graded by /api/answer and saved in localStorage.
 
 const STORE_KEY = "nfldaily:v3";
 const LEGACY_KEY = "nfldaily:v2"; // the original 5-round game
@@ -91,9 +89,9 @@ let store = loadJSON(STORE_KEY, { drives: {} });
 if (!store.drives) store = { drives: {} };
 const legacy = loadJSON(LEGACY_KEY, { games: {} });
 let account = { enabled: false, user: null, stats: null };
-let puzzle = null; // anonymous: every round (no answers); signed in: { number, plays }
+let puzzle = null; // anonymous: every question (no answers); signed in: { number, plays }
 let drive = null; // engine state (site/drive.js)
-let qdata = {}; // per question index: { done, score, guesses, attempts, hint, reveal, error }
+let qdata = {}; // per question index: { done, hit, rarity, guesses, reveal, popular, error }
 let qcache = {}; // signed in: questions as they were served
 let lastPlay = null; // { idx, event } for the result card
 let liveStart = 0; // local time the live play was snapped
@@ -103,7 +101,7 @@ let showFinal = false;
 let crowd = null;
 
 const signedIn = () => Boolean(account.user);
-const layout = () => puzzle.layout;
+const nPlays = () => (puzzle.rounds ? puzzle.rounds.length : puzzle.plays);
 const roundAt = (i) => (puzzle.rounds ? puzzle.rounds[i] : qcache[i]);
 
 const field = createFieldView($("#field"));
@@ -117,7 +115,7 @@ function persistLocal() {
   saveStore();
 }
 
-// ---- Scoreboard and clocks ---------------------------------------------------------------------
+// ---- Scoreboard and timer ---------------------------------------------------------------------
 function elapsed() {
   return drive?.phase === "live" ? (Date.now() - liveStart) / 1000 : 0;
 }
@@ -125,20 +123,14 @@ function elapsed() {
 function updateHud() {
   if (!drive) return;
   $("#game-hud").hidden = false;
-  const live = drive.phase === "live";
-  const t = elapsed();
-  const gameRuns = live && (drive.live.kind === "play" || drive.live.kind === "fg");
   $("#sb-us").textContent = String(RULES.us + drive.points);
   $("#sb-them").textContent = String(RULES.them);
-  $("#sb-clock").textContent = clockText(gameRuns ? Math.max(0, drive.clock - t) : drive.clock);
-  const kind = drive.live?.kind;
-  $("#sb-down").textContent = drive.phase === "over" ? "FINAL"
-    : drive.phase === "pat_choice" || kind === "pat1" || kind === "pat2" ? "TRY"
-    : kind === "fg" ? `FG · ${fgDistance(drive)} YDS` : downText(drive);
+  $("#sb-clock").textContent = `${drive.log.length + (drive.phase === "live" ? 1 : 0)}`;
+  $("#sb-down").textContent = drive.phase === "over" ? "FINAL" : downText(drive);
   $("#sb-spot").textContent = drive.phase === "over" ? `${summary(drive).yards} YDS` : `BALL ${fieldSpot(drive.yl)}`;
   const pc = $("#sb-play");
-  if (live) {
-    const left = Math.max(0, RULES.playClock - t);
+  if (drive.phase === "live") {
+    const left = Math.max(0, RULES.playClock - elapsed());
     pc.textContent = `:${String(Math.ceil(left)).padStart(2, "0")}`;
     pc.classList.toggle("urgent", left <= 5);
     pc.hidden = false;
@@ -163,211 +155,49 @@ function startTicker() {
   }, 200);
 }
 
-// ---- Rendering helpers ---------------------------------------------------------------------
-function optionButton(opt, { onclick, note, disabled, cls, badge } = {}) {
-  return h(
-    "button",
-    { type: "button", class: `team-btn ${cls || ""}`, style: { "--c1": opt.color, "--c2": opt.color2 }, disabled, onclick },
-    h("span", { class: "name" }, opt.name),
-    opt.sub ? h("span", { class: "sub" }, opt.sub) : null,
-    note ? h("span", { class: "note" }, note) : null,
-    badge,
-  );
-}
-
-function callFor(i) {
-  if (drive.phase === "live" && drive.live.round === i) return drive.live.kind;
-  return drive.log.findLast?.((e) => e.round === i)?.kind || [...drive.log].reverse().find((e) => e.round === i)?.kind || roundAt(i)?.role;
-}
-
-function roundShell(round, i, ...body) {
-  const call = callFor(i);
-  const live = drive.phase === "live" && drive.live.round === i;
-  const label = call === "fg" ? `Field goal · ${live ? fgDistance(drive) + " yds" : ""}` : `${CALL_LABEL[call] || "Play"} · ${live ? downText(drive) : `Play ${drive.log.findIndex((e) => e.round === i) + 1}`}`;
-  return h(
-    "article",
-    { class: `card ${live ? "live" : ""}` },
-    live ? h("div", { class: "playclock" }, h("div", { id: "playclock-bar" })) : null,
-    h("div", { class: "round-label" }, h("span", {}, label), h("span", { class: "season-chip" }, String(round.season))),
-    h("h2", { class: "prompt" }, round.prompt),
-    round.hint ? h("p", { class: "hint" }, round.hint) : null,
-    ...body,
-  );
-}
-
+// ---- Cards ------------------------------------------------------------------------------------
 function crowdLine(i) {
   const c = crowd?.rounds?.[i];
-  const round = roundAt(i);
-  if (!c || !round) return null;
+  if (!c) return null;
   const players = `${c.plays.toLocaleString()} player${c.plays === 1 ? "" : "s"}`;
-  let text;
-  if (c.plays === 1) text = "You're the first to run this play!";
-  else if (round.type === "guess_number" || round.type === "rank_four") text = `Players averaged ${c.avg}/100 on this one · ${c.perfectPct}% nailed it (${players})`;
-  else if (round.type === "who_am_i") text = `${c.perfectPct}% got it on the first try (${players})`;
-  else if (round.type === "name_one") text = `${c.perfectPct}% of players named a right answer (${players})`;
-  else text = `${c.perfectPct}% of players got this right (${players})`;
+  const text = c.plays === 1 ? "You're the first to run this play!" : `${c.perfectPct}% of players named a right answer (${players})`;
   return h("p", { class: "crowd" }, "👥 ", text);
 }
 
-const tierOf = (ev) => (ev.td || ev.good ? "good" : ev.yards >= 10 ? "good" : ev.yards > 0 ? "mid" : ev.yards === 0 && !ev.delay ? "low" : "bad");
-
-function resultBox(score, line, fact, i) {
+function resultBox(line, fact, i) {
   const ev = lastPlay?.idx === i ? lastPlay.event : null;
-  const tier = ev ? tierOf(ev) : score >= 100 ? "good" : score > 0 ? "mid" : "bad";
+  const tier = !ev ? "mid" : ev.td || ev.yards >= 15 ? "good" : ev.yards > 0 ? "mid" : "low";
   const code = ev ? drive.log.find((e) => e.round === i)?.code : null;
-  return h(
-    "div",
-    { class: "result", style: { "--tier": `var(--${tier})` } },
-    h("div", { class: "pts" }, `${code ? CODE_EMOJI[code] : ""} ${ev ? ev.text : ""}`.trim()),
+  return h("div", { class: "result", style: { "--tier": `var(--${tier})` } },
+    ev ? h("div", { class: "pts" }, `${code ? CODE_EMOJI[code] : ""} ${ev.text}`.trim()) : null,
     line ? h("p", {}, line) : null,
-    i != null ? crowdLine(i) : null,
-    h("p", { class: "fact" }, fact),
-  );
+    crowdLine(i),
+    fact ? h("p", { class: "fact" }, fact) : null);
 }
 
 function errorLine(msg) {
   return h("p", { class: "error", role: "alert" }, msg);
 }
 
-/** Play-call buttons and other choices for what happens next. */
-function driveButtons() {
+/** The one button: snap the next play, or see the final. */
+function nextButton() {
   const dis = busy || animating;
-  const btn = (label, onclick, primary = true) => h("button", { type: "button", class: `btn ${primary ? "primary" : ""}`, disabled: dis, onclick }, label);
-  const callButtons = () => {
-    const left = playsLeft(drive, layout());
-    return h("div", { class: "calls" }, CALLS.map((c) =>
-      h("button", { type: "button", class: `call call-${c}`, disabled: dis || !left[c], onclick: () => act(c) },
-        h("span", { class: "call-name" }, CALL_LABEL[c]),
-        h("span", { class: "call-blurb" }, CALL_BLURB[c]),
-        h("span", { class: "call-left" }, left[c] ? `${left[c]} left` : "none left"))));
-  };
-  switch (drive.phase) {
-    case "ready":
-      return h("div", { class: "decide" }, h("p", { class: "hint" }, `${downText(drive)} at ${fieldSpot(drive.yl)}. Call the play:`), callButtons());
-    case "decide": {
-      const kick = canKick(drive) ? btn(`Kick a ${fgDistance(drive)}-yd field goal`, () => act("fg"), false) : null;
-      return h("div", { class: "decide" },
-        h("p", { class: "hint" }, drive.down === 4
-          ? (kick ? `4th & ${drive.toGo}. A field goal only cuts it to 21-20 (it's a number guess: longer kicks need closer answers). Or go for it:` : `4th & ${drive.toGo}. Out of field goal range: go for it or the drive is over.`)
-          : `${clockText(drive.clock)} left and you're in field goal range. Kick, or call a play:`),
-        kick, callButtons());
-    }
-    case "pat_choice":
-      return h("div", { class: "decide" },
-        h("p", { class: "hint" }, "Touchdown! Kick the extra point (an easier question) or go for two (a harder one)?"),
-        btn("Kick the extra point (+1)", () => act("pat1")),
-        btn("Go for two (+2)", () => act("pat2"), false));
-    case "over":
-      return btn("See the final ▶", () => { showFinal = true; render(); });
+  if (drive.phase === "over") {
+    return h("button", { type: "button", class: "btn primary", disabled: dis, onclick: () => { showFinal = true; render(); } }, "See the final ▶");
   }
-  return null;
+  return h("button", { type: "button", class: "btn primary", disabled: dis, onclick: () => act() },
+    drive.log.length ? `Next play: ${downText(drive)} ▶` : "Snap the ball ▶");
 }
 
-// ---- Playing ----------------------------------------------------------------------------------
-function applyServer(r) {
-  if (r.now) liveStartFrom(r.state, r.now);
-  drive = r.state;
-  if (r.question) qcache[r.question.index] = r.question;
-}
-
-function liveStartFrom(state, serverNow) {
-  if (state?.phase === "live") liveStart = Date.now() - (serverNow - state.live.servedAt);
-}
-
-async function act(kind) {
-  if (busy || animating) return;
-  busy = true;
-  try {
-    if (signedIn()) {
-      applyServer(await api("drive", { date, action: kind }));
-    } else {
-      const next = snap(drive, kind, Date.now(), layout());
-      if (!next) throw new Error("You can't do that right now.");
-      drive = next;
-      liveStart = drive.live.servedAt;
-      persistLocal();
-    }
-    lastPlay = null;
-    startTicker();
-  } catch (e) {
-    lastPlay = lastPlay && { ...lastPlay };
-    alert(e.message);
-  } finally {
-    busy = false;
-    render();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-}
-
-async function answer(i, guess) {
-  if (busy || animating || drive?.phase !== "live" || drive.live.round !== i) return;
-  busy = true;
-  const prev = qdata[i] || { attempts: 0, guesses: [] };
-  try {
-    if (signedIn()) {
-      const r = await api("drive", { date, action: "answer", guess });
-      if (r.event) {
-        const entry = r.state.log.at(-1);
-        await finishPlay(i, r.state, r.event, r.reveal, entry?.guesses || [], r.popular);
-        return;
-      }
-      applyServer(r);
-      qdata[i] = { done: false, attempts: r.state.live.attempts, guesses: r.state.live.guesses, hint: r.hint };
-    } else if (guess == null) {
-      const s = structuredClone(drive);
-      const { state, event } = resolve(s, roundAt(i), null, RULES.playClock + 1, layout());
-      await finishPlay(i, state, event, null, []);
-      return;
-    } else {
-      const view = await api("answer", { date, round: i, guess, attempt: prev.attempts + 1 });
-      const guesses = [...prev.guesses, guess];
-      if (!view.done) {
-        qdata[i] = { done: false, attempts: prev.attempts + 1, guesses, hint: view.hint };
-        drive.live.attempts += 1;
-        drive.live.guesses = guesses;
-        persistLocal();
-      } else {
-        const secs = (Date.now() - liveStart) / 1000;
-        const s = structuredClone(drive);
-        s.live.guesses = guesses;
-        const { state, event } = resolve(s, roundAt(i), view.result, secs, layout());
-        await finishPlay(i, state, event, view.reveal, guesses, view.popular);
-        return;
-      }
-    }
-  } catch (e) {
-    qdata[i] = { ...prev, error: e.message };
-  } finally {
-    busy = false;
-    render();
-  }
-}
-
-async function finishPlay(i, state, event, reveal, guesses, popular = null) {
-  clearInterval(ticker);
-  const before = drive;
-  qdata[i] = { done: true, score: event.score, hit: event.hit, rarity: event.rarity, guesses, attempts: guesses.length, reveal, popular, timedOut: guesses.length === 0 };
-  drive = state;
-  lastPlay = { idx: i, event };
-  persistLocal();
-  busy = false;
-  animating = true;
-  render();
-  window.scrollTo({ top: 0, behavior: "smooth" });
-  await field.animate(event, before, state);
-  if (event.td || (event.kind === "fg" && event.good)) stadium.cheer();
-  animating = false;
-  if (drive.phase === "over") await onDriveOver();
-  render();
-  refreshCrowd();
-}
-
-async function onDriveOver() {
-  if (signedIn()) {
-    refreshAccount();
-  } else if (account.enabled) {
-    api("stats", { date, log: drive.log }).catch(() => {});
-  }
+function roundShell(round, i, ...body) {
+  const live = drive.phase === "live" && drive.live.round === i;
+  const n = live ? drive.log.length + 1 : drive.log.findIndex((e) => e.round === i) + 1;
+  return h("article", { class: `card ${live ? "live" : ""}` },
+    live ? h("div", { class: "playclock" }, h("div", { id: "playclock-bar" })) : null,
+    h("div", { class: "round-label" }, h("span", {}, `Play ${n} · ${live ? downText(drive) : "result"}`), h("span", { class: "season-chip" }, String(round.season))),
+    h("h2", { class: "prompt" }, round.prompt),
+    round.hint ? h("p", { class: "hint" }, round.hint) : null,
+    ...body);
 }
 
 // ---- Type-ahead answers ("name one" plays) -------------------------------------------------
@@ -422,12 +252,12 @@ function answersList(round, st) {
     rest.length ? h("details", {}, h("summary", {}, `Show ${rest.length} more`), h("ol", { start: 9 }, rest.map(row))) : null);
 }
 
-function renderNameOne(round, i) {
+
+function renderQuestion(round, i) {
   const st = qdata[i] || {};
-  const done = st.done;
   const body = [];
   if (round.clues) body.push(h("ul", { class: "clues" }, round.clues.map((c) => h("li", {}, c))));
-  if (!done) {
+  if (!st.done) {
     let picked = null;
     let results = [];
     let active = 0;
@@ -438,14 +268,7 @@ function renderNameOne(round, i) {
       role: "combobox", "aria-label": "Your answer", "aria-expanded": "false", "aria-controls": listId, "aria-autocomplete": "list",
     });
     const list = h("ul", { class: "suggestions", id: listId, role: "listbox" });
-    const submit = h("button", { type: "button", class: "btn primary", disabled: true }, drive.live?.kind === "deep" ? "Let it fly ▶" : "Throw it ▶");
-    const choose = (n) => {
-      picked = n;
-      input.value = n.name;
-      results = [];
-      draw();
-      submit.disabled = false;
-    };
+    const submit = h("button", { type: "button", class: "btn primary", disabled: true }, "Throw it ▶");
     const draw = () => {
       list.replaceChildren(...results.map((n, k) => h("li", {
         role: "option", id: `${listId}-${k}`, class: k === active ? "active" : "", "aria-selected": String(k === active),
@@ -454,6 +277,13 @@ function renderNameOne(round, i) {
       input.setAttribute("aria-expanded", String(results.length > 0));
       if (results.length) input.setAttribute("aria-activedescendant", `${listId}-${active}`);
       else input.removeAttribute("aria-activedescendant");
+    };
+    const choose = (n) => {
+      picked = n;
+      input.value = n.name;
+      results = [];
+      draw();
+      submit.disabled = false;
     };
     input.addEventListener("input", async () => {
       picked = null;
@@ -480,183 +310,123 @@ function renderNameOne(round, i) {
     const guess = st.guesses?.at(-1);
     const yours = guess ? (st.popular?.answers.find((a) => a.id === guess)?.name || nameFor(round.answer_kind, guess) || "Your answer") : null;
     let line;
-    if (st.timedOut) line = "The play clock ran out.";
+    if (st.timedOut || !guess) line = "Time ran out on that one.";
     else if (st.hit) {
       const mine = st.popular?.answers.find((a) => a.yours);
       line = `${yours} is right!`;
       if (st.popular?.total >= MIN_FOR_PCT && mine) line += ` ${mine.pct}% of players said that.`;
-      if (st.rarity >= 0.6) line += " A rare pull!";
+      if (st.rarity >= 0.6) line += " A rare pull: extra yards!";
       else if (st.rarity <= 0.15) line += " A popular pick.";
     } else line = `${yours} isn't one of the right answers.`;
-    body.push(resultBox(st.score, line, st.reveal?.fact, i), driveButtons(), answersList(round, st));
+    body.push(resultBox(line, st.reveal?.fact, i), nextButton(), answersList(round, st));
   }
-  return roundShell(round, i, ...body);
-}
-
-// ---- Question cards --------------------------------------------------------------------------
-function answerLine(round, st, okText) {
-  if (st.timedOut) return "The play clock ran out.";
-  return okText;
-}
-
-function renderChoice(round, i) {
-  const st = qdata[i] || {};
-  const done = st.done;
-  const rv = st.reveal;
-  const pick = st.guesses?.at(-1);
-  const opts = round.options.map((o, idx) => {
-    let cls = "";
-    if (done && rv) cls = idx === rv.answer ? "correct" : idx === pick ? "wrong" : "dim";
-    return optionButton(o, { cls, note: done && rv ? rv.notes[idx] : null, disabled: done, onclick: () => answer(i, idx) });
-  });
-  const body = [h("div", { class: `options ${round.options.length === 2 ? "two" : ""}` }, opts)];
-  if (st.error) body.push(errorLine(st.error));
-  if (done) {
-    const ok = rv && pick === rv.answer;
-    body.push(resultBox(st.score, answerLine(round, st, ok ? "Correct!" : rv ? `The answer was ${round.options[rv.answer].name}.` : ""), rv?.fact, i), driveButtons());
-  }
-  return roundShell(round, i, ...body);
-}
-
-function renderWho(round, i) {
-  const st = qdata[i] || { attempts: 0, guesses: [] };
-  const done = st.done;
-  const rv = st.reveal;
-  const wrong = new Set(done ? [] : st.guesses || []);
-  const clues = h("ul", { class: "clues" }, round.clues.map((c) => h("li", {}, c)));
-  const opts = round.options.map((o, idx) => {
-    let cls = "plain";
-    if (done && rv) cls += idx === rv.answer ? " correct" : (st.guesses || []).includes(idx) ? " wrong" : " dim";
-    else if (wrong.has(idx)) cls += " wrong";
-    return optionButton(o, { cls, note: done && rv ? rv.notes[idx] : null, disabled: done || wrong.has(idx), onclick: () => answer(i, idx) });
-  });
-  const body = [clues, h("div", { class: "options" }, opts)];
-  if (st.error) body.push(errorLine(st.error));
-  if (!done && st.hint) body.splice(1, 0, h("p", { class: "hint-box" }, h("strong", {}, "Not quite. Hint: "), st.hint, " One more try: hurry!"));
-  if (done) {
-    const got = rv && (st.guesses || []).at(-1) === rv.answer;
-    const line = got ? (st.attempts === 1 ? "Got it on the first try!" : "Got it on the second try.") : rv ? `It was ${round.options[rv.answer].name}.` : "";
-    body.push(resultBox(st.score, answerLine(round, st, line), rv?.fact, i), driveButtons());
-  }
-  return roundShell(round, i, ...body);
-}
-
-function renderNumber(round, i) {
-  const st = qdata[i] || {};
-  const done = st.done;
-  const step = round.step || 1;
-  let value = done && st.guesses?.length ? st.guesses.at(-1) : round.start;
-  const display = h("div", { class: "number-display", "aria-live": "polite" }, value.toLocaleString());
-  const slider = h("input", { type: "range", min: round.min, max: round.max, step, value, disabled: done, "aria-label": "Your guess" });
-  const set = (v) => {
-    value = Math.min(round.max, Math.max(round.min, Math.round(v / step) * step));
-    slider.value = value;
-    display.textContent = value.toLocaleString();
-  };
-  slider.addEventListener("input", () => set(Number(slider.value)));
-  const bump = round.bump || 1;
-  const body = [
-    round.subject ? h("div", { class: "subject", style: { "--c1": round.subject.color, "--c2": round.subject.color2 } },
-      h("span", { class: "name" }, round.subject.name), round.subject.sub ? h("span", { class: "sub" }, round.subject.sub) : null) : null,
-    h("div", { class: "number-input" },
-      h("div", { class: "stepper" },
-        h("button", { type: "button", "aria-label": `Minus ${bump}`, disabled: done, onclick: () => set(value - bump) }, "−"),
-        display,
-        h("button", { type: "button", "aria-label": `Plus ${bump}`, disabled: done, onclick: () => set(value + bump) }, "+")),
-      slider,
-      h("div", { class: "range-ends" }, h("span", {}, round.min.toLocaleString()), h("span", {}, round.max.toLocaleString()))),
-  ];
-  if (st.error) body.push(errorLine(st.error));
-  if (done) {
-    const rv = st.reveal;
-    let line = "";
-    if (rv && st.guesses?.length) {
-      const diff = Math.abs(st.guesses.at(-1) - rv.answer);
-      line = diff === 0 ? `Exactly right: ${rv.answer_label}.` : `Answer: ${rv.answer_label}. You were ${diff.toLocaleString()} off.`;
-    }
-    body.push(resultBox(st.score, answerLine(round, st, line), rv?.fact, i), driveButtons());
-  } else {
-    body.push(h("button", { type: "button", class: "btn primary", onclick: () => answer(i, value) }, "Lock it in"));
-  }
-  return roundShell(round, i, ...body);
-}
-
-const rankDraft = {};
-function renderRank(round, i) {
-  const st = qdata[i] || {};
-  const done = st.done;
-  const order = done ? st.guesses?.at(-1) || [] : (rankDraft[i] ||= []);
-  const card = roundShell(round, i);
-  const list = h("div", { class: "options rank" });
-  const submit = h("button", { type: "button", class: "btn primary", disabled: true }, "Lock it in");
-  const draw = () => {
-    if (done && st.reveal) {
-      const rv = st.reveal;
-      list.replaceChildren(...rv.answer.map((optIdx, pos) => {
-        const ok = order[pos] === optIdx;
-        const yours = order.indexOf(optIdx) + 1;
-        return optionButton(round.options[optIdx], {
-          disabled: true, cls: ok ? "correct" : "wrong",
-          note: `${rv.notes[optIdx]}${ok || !yours ? "" : ` · you had #${yours}`}`,
-          badge: h("span", { class: `badge ${ok ? "ok" : "no"}` }, String(pos + 1)),
-        });
-      }));
-      return;
-    }
-    list.replaceChildren(...round.options.map((o, idx) => {
-      const pos = order.indexOf(idx);
-      return optionButton(o, {
-        disabled: done,
-        onclick: () => {
-          if (pos >= 0) order.splice(pos, 1);
-          else order.push(idx);
-          draw();
-        },
-        badge: pos >= 0 ? h("span", { class: "badge" }, String(pos + 1)) : null,
-      });
-    }));
-    submit.disabled = order.length !== round.options.length;
-  };
-  submit.addEventListener("click", () => answer(i, [...order]));
-  draw();
-  card.append(h("p", { class: "hint" }, done ? "Correct order:" : "Tap from best to worst. Tap again to undo."), list);
-  if (st.error) card.append(errorLine(st.error));
-  if (done) card.append(resultBox(st.score, answerLine(round, st, `You placed ${Math.round(st.score / 25)} of 4 correctly.`), st.reveal?.fact, i), driveButtons());
-  else card.append(submit);
-  return card;
-}
-
-function questionCard(i) {
-  const round = roundAt(i);
-  if (!round) return null;
-  const card = round.type === "name_one" ? renderNameOne(round, i)
-    : round.type === "guess_number" ? renderNumber(round, i)
-    : round.type === "rank_four" ? renderRank(round, i)
-    : round.type === "who_am_i" ? renderWho(round, i)
-    : renderChoice(round, i);
+  const card = roundShell(round, i, ...body);
   // After the play, lead with what happened and what's next; the answers follow.
   const result = card.querySelector(".result");
   if (result) {
     const next = result.nextElementSibling;
-    const anchor = card.querySelector(".prompt + .hint") || card.querySelector(".prompt");
-    anchor.after(result);
+    (card.querySelector(".prompt + .hint") || card.querySelector(".prompt")).after(result);
     if (next) result.after(next);
   }
   return card;
 }
 
-/** Shown before the first snap, or when coming back mid-drive. */
+/** Before the first snap, or when coming back mid-drive. */
 function huddleCard() {
   const intro = drive.log.length === 0;
   return h("article", { class: "card huddle" },
     h("div", { class: "round-label" }, h("span", {}, intro ? "The situation" : "Huddle"), h("span", { class: "season-chip" }, `#${puzzle.number}`)),
     intro
       ? h("div", {},
-          h("h2", { class: "prompt" }, "2:00 left. Down 21-17. Your ball on the 25."),
-          h("p", {}, "You call every play. RUN: guess a number, closer gains more. PASS: name one right answer, rarer answers gain more. DEEP SHOT: name one of a few for a big gain, but a miss is a sack. 25 seconds per play, and the clock runs while you think."),
-          h("p", {}, "Score a touchdown to win it. You can kick a field goal, but that still loses by one."))
-      : h("h2", { class: "prompt" }, `${downText(drive)} at ${fieldSpot(drive.yl)}, ${clockText(drive.clock)} left.`),
-    driveButtons());
+          h("h2", { class: "prompt" }, "Down 21-17. Your ball on the 25. Go win it."),
+          h("p", {}, "Every play is a question. Type a right answer to move the ball: 5 to 20 yards, and rarer answers (ones fewer players think of) go farther. A wrong answer is an incomplete pass."),
+          h("p", {}, "You have 4 downs to gain 10 yards. Reach the end zone to win."))
+      : h("h2", { class: "prompt" }, `${downText(drive)} at ${fieldSpot(drive.yl)}.`),
+    nextButton());
+}
+
+// ---- Playing ----------------------------------------------------------------------------------
+function applyServer(r) {
+  if (r.now && r.state?.phase === "live") liveStart = Date.now() - (r.now - r.state.live.servedAt);
+  drive = r.state;
+  if (r.question) qcache[r.question.index] = r.question;
+}
+
+async function act() {
+  if (busy || animating) return;
+  busy = true;
+  try {
+    if (signedIn()) {
+      applyServer(await api("drive", { date, action: "play" }));
+    } else {
+      const next = snap(drive, Date.now(), nPlays());
+      if (!next) throw new Error("You can't do that right now.");
+      drive = next;
+      liveStart = drive.live.servedAt;
+      persistLocal();
+    }
+    lastPlay = null;
+    startTicker();
+  } catch (e) {
+    alert(e.message);
+  } finally {
+    busy = false;
+    render();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+}
+
+async function answer(i, guess) {
+  if (busy || animating || drive?.phase !== "live" || drive.live.round !== i) return;
+  busy = true;
+  const prev = qdata[i] || {};
+  try {
+    if (signedIn()) {
+      const r = await api("drive", { date, action: "answer", guess });
+      if (!r.event) throw new Error(r.notice || "Something went wrong.");
+      await finishPlay(i, r.state, r.event, r.reveal, guess == null ? [] : [guess], r.popular);
+      return;
+    }
+    const s = structuredClone(drive);
+    if (guess == null) {
+      const { state, event } = resolve(s, roundAt(i), null, RULES.playClock + 2, nPlays());
+      await finishPlay(i, state, event, null, []);
+      return;
+    }
+    const view = await api("answer", { date, round: i, guess, attempt: 1 });
+    s.live.guesses = [guess];
+    const { state, event } = resolve(s, roundAt(i), view.result, (Date.now() - liveStart) / 1000, nPlays());
+    await finishPlay(i, state, event, view.reveal, [guess], view.popular);
+  } catch (e) {
+    qdata[i] = { ...prev, error: e.message };
+  } finally {
+    busy = false;
+    render();
+  }
+}
+
+async function finishPlay(i, state, event, reveal, guesses, popular = null) {
+  clearInterval(ticker);
+  const before = drive;
+  qdata[i] = { done: true, hit: event.hit, rarity: event.rarity, guesses, reveal, popular, timedOut: event.timedOut };
+  drive = state;
+  lastPlay = { idx: i, event };
+  persistLocal();
+  busy = false;
+  animating = true;
+  render();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  await field.animate(event, before, state);
+  if (event.td) stadium.cheer();
+  animating = false;
+  if (drive.phase === "over") await onDriveOver();
+  render();
+  refreshCrowd();
+}
+
+async function onDriveOver() {
+  if (signedIn()) refreshAccount();
+  else if (account.enabled) api("stats", { date, log: drive.log }).catch(() => {});
 }
 
 // ---- The final ----------------------------------------------------------------------------------
@@ -665,8 +435,8 @@ function renderSummary() {
   const us = RULES.us + sum.points;
   const grid = sum.codes.split("").map((c) => CODE_EMOJI[c]).join("");
   const toast = h("p", { class: "toast", role: "status" });
-  const code = `${puzzle.number}-${sum.points}-${sum.yards}-${sum.clock}-${sum.codes || "w"}`;
-  const shareText = `Fourth & Daily #${puzzle.number} 🏈 ${sum.label}\n${sum.points} pts · ${sum.yards} yds · ${clockText(sum.clock)} left\n${grid}\n${location.origin}/s/${code}`;
+  const code = `${puzzle.number}-${sum.points}-${sum.yards}-${sum.plays}-${sum.codes || "w"}`;
+  const shareText = `Fourth & Daily #${puzzle.number} 🏈 ${sum.label}\n${sum.yards} yds in ${sum.plays} plays\n${grid}\n${location.origin}/s/${code}`;
 
   const share = async () => {
     if (navigator.share && matchMedia("(pointer: coarse)").matches) {
@@ -698,20 +468,16 @@ function renderSummary() {
   renderSummary.timer = setInterval(tick, 1000);
 
   let crowdText = null;
-  if (crowd?.players > 1 && crowd.beat != null) {
-    crowdText = `Better than ${crowd.beat}% of ${crowd.players.toLocaleString()} drives today · ${crowd.tdPct}% scored a TD`;
-  } else if (crowd?.players === 1) {
-    crowdText = "You're the first to finish this drive!";
-  }
+  if (crowd?.players > 1 && crowd.beat != null) crowdText = `Better than ${crowd.beat}% of ${crowd.players.toLocaleString()} drives today · ${crowd.tdPct}% scored a TD`;
+  else if (crowd?.players === 1) crowdText = "You're the first to finish this drive!";
   const cta = account.enabled && !signedIn()
     ? h("p", { class: "cta" }, "Want to be on the leaderboard? ", h("button", { type: "button", class: "link", onclick: openProfile }, "Create a free account"), " before tomorrow's drive.")
     : null;
 
-  const plays = drive.log.map((e) => {
+  const plays = drive.log.map((e, k) => {
     const round = roundAt(e.round);
-    const what = e.kind === "pat1" || e.kind === "pat2" ? CALL_LABEL[e.kind] : `${CALL_LABEL[e.kind] || "Play"} (${round?.season ?? ""})`;
-    const yds = CALLS.includes(e.kind) ? `${e.yards > 0 ? "+" : ""}${e.yards} yds` : e.code === "k" || e.code === "p" ? "Good" : "No good";
-    return h("li", {}, h("span", {}, `${CODE_EMOJI[e.code]} ${what}`), h("span", { class: "score" }, yds));
+    const what = round ? round.prompt.replace(/^Name an? /, "").replace(/\.$/, "") : `Play ${k + 1}`;
+    return h("li", {}, h("span", {}, `${CODE_EMOJI[e.code]} ${what}`), h("span", { class: "score" }, e.yards ? `+${e.yards}` : "inc."));
   });
 
   return h("article", { class: "card summary" },
@@ -719,7 +485,7 @@ function renderSummary() {
     h("p", { class: "big" }, sum.label),
     h("p", { class: "final-score" }, `YOU ${us} – ${RULES.them} THEM`),
     h("p", { class: "out-of" }, `${sum.won ? "You win! " : "Final. "}${sum.why}`),
-    h("p", { class: "drive-line" }, `${sum.points} pts · ${sum.yards} yds · ${clockText(sum.clock)} left`),
+    h("p", { class: "drive-line" }, `${sum.yards} yds in ${sum.plays} plays`),
     h("div", { class: "grid", "aria-label": "Drive chart" }, grid),
     crowdText ? h("p", { class: "crowd center" }, "👥 ", crowdText) : null,
     h("button", { type: "button", class: "btn primary", onclick: share }, "Share your drive"),
@@ -738,13 +504,12 @@ function render() {
   if (!puzzle || !drive) return;
   updateHud();
   if (!animating) field.draw(drive);
-  const stage = $("#stage");
   let card;
   if (drive.phase === "over" && (showFinal || !lastPlay)) card = renderSummary();
-  else if (drive.phase === "live") card = questionCard(drive.live.round);
-  else if (lastPlay && roundAt(lastPlay.idx)) card = questionCard(lastPlay.idx);
+  else if (drive.phase === "live" && roundAt(drive.live.round)) card = renderQuestion(roundAt(drive.live.round), drive.live.round);
+  else if (lastPlay && roundAt(lastPlay.idx)) card = renderQuestion(roundAt(lastPlay.idx), lastPlay.idx);
   else card = huddleCard();
-  stage.replaceChildren(card || huddleCard());
+  $("#stage").replaceChildren(card);
 }
 
 function renderBanner() {
@@ -776,28 +541,21 @@ async function loadPuzzle() {
   qdata = {};
   qcache = {};
   lastPlay = null;
-  showFinal = false;
   if (data.user) {
     account.user = data.user;
     const r = await api(`drive?date=${date}`);
     applyServer(r);
-    // Rebuild what we know about earlier plays from the drive log.
-    for (const e of drive.log) qdata[e.round] = { done: true, score: e.score, guesses: e.guesses || [], attempts: (e.guesses || []).length };
-    if (drive.phase === "live") {
-      liveStartFrom(drive, r.now);
-      const live = drive.live;
-      if (live.attempts) qdata[live.round] = { done: false, attempts: live.attempts, guesses: live.guesses, hint: r.question?.hint };
-    }
+    for (const e of drive.log) qdata[e.round] = { done: true, hit: e.hit, rarity: e.rarity, guesses: e.guesses || [] };
   } else {
     let saved = store.drives[date];
-    // Drives saved before play calls existed start over (finished ones are kept).
-    if (saved?.state && !saved.state.used && saved.state.phase !== "over") saved = null;
+    // Drives saved under older rules start over (finished ones are kept).
+    if (saved?.state && !isCurrent(saved.state) && saved.state.phase !== "over") saved = null;
     drive = saved?.state || newDrive();
     qdata = saved?.q || {};
     lastPlay = saved?.last || null;
     if (drive.phase === "live") liveStart = drive.live.servedAt;
   }
-  showFinal = drive.phase === "over"; // coming back to a finished drive: straight to the final
+  showFinal = drive.phase === "over";
   $("#puzzle-meta").textContent = `#${puzzle.number} · ${prettyDate(date)}`;
   crowd = null;
   renderBanner();
@@ -827,7 +585,7 @@ function localStats() {
     drives: sums.length,
     tds: sums.filter((s) => s.points >= 6).length,
     avgYards: sums.length ? Math.round(sums.reduce((n, s) => n + s.yards, 0) / sums.length) : 0,
-    bestDrive: top ? { points: top.points, yards: top.yards, clock: top.clock } : null,
+    bestDrive: top ? { points: top.points, yards: top.yards, clock: top.plays } : null,
     streak,
     best,
   };
@@ -891,7 +649,7 @@ function renderProfile() {
   const parts = [
     h("div", { class: "stat-row" }, stat(s.played, "Played"), stat(s.tds, "Touchdowns"), stat(s.streak, "Streak"), stat(s.best, "Best streak")),
     h("p", { class: "hint center" }, s.drives
-      ? `Average drive: ${s.avgYards} yds · Best: ${b.points} pts, ${b.yards} yds, ${clockText(b.clock)} left`
+      ? `Average drive: ${s.avgYards} yds · Best: ${b.yards} yds in ${b.clock} plays`
       : "No drives yet."),
   ];
   if (signedIn()) {
@@ -970,7 +728,7 @@ async function openLeaderboard(scope = lbScope) {
         h("span", { class: "who" }, r.username),
         h("span", { class: "pts" }, tab === "daily" ? `${r.points} pts` : `${r.total.toLocaleString()} pts`),
         h("span", { class: "extra" }, tab === "daily"
-          ? `${r.yards} yds · ${clockText(r.clock)} left`
+          ? `${r.yards} yds in ${r.clock} plays`
           : `${r.games} drives · ${r.tds} TDs · avg ${r.avg_yards} yds`));
       const rows = board.top.map(row);
       if (board.me && !board.top.some((r) => r.me)) rows.push(h("li", { class: "gap" }, "…"), row(board.me));
