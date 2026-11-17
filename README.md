@@ -120,4 +120,5 @@ Then open http://localhost:3000. Add `?date=2026-11-05` to play a past day.
 - Puzzles are generated in advance. Once a season's star players have all been used, a player can reappear in "Who am I?" or a team as the odd one out, but never with the same answer choices. A question type that runs dry for a season falls back to another type.
 - Days played in the original 5-round format still count toward "played" in stats.
 - Anonymous players are graded statelessly, so someone could probe the API for answers. That's why only signed-in, same-day games reach leaderboards.
+- If the database is unreachable, anonymous play keeps working: the puzzle and grading don't need it, and crowd stats are skipped. Account endpoints answer 503 with a "try again" message, and the browser retries a dropped request once (except signed-in plays, which it re-syncs from the server instead).
 - Data comes from [nflverse](https://github.com/nflverse) (CC-BY 4.0).

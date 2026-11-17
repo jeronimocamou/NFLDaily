@@ -63,13 +63,35 @@ function saveStore() {
 }
 
 // ---- API ----------------------------------------------------------------------------
+const OFFLINE = "No connection. Check your signal and try again.";
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
 async function api(path, body) {
-  const res = await fetch(`/api/${path}`, {
-    method: body ? "POST" : "GET",
-    headers: body ? { "Content-Type": "application/json" } : {},
-    body: body ? JSON.stringify(body) : undefined,
-    credentials: "same-origin",
-  });
+  // Reads and anonymous grading are safe to repeat, so a blip gets one quiet retry.
+  // Signed-in drive actions are not: the server may have taken the first one.
+  const retry = !(path === "drive" && body);
+  let res;
+  for (let attempt = 0; ; attempt++) {
+    try {
+      res = await fetch(`/api/${path}`, {
+        method: body ? "POST" : "GET",
+        headers: body ? { "Content-Type": "application/json" } : {},
+        body: body ? JSON.stringify(body) : undefined,
+        credentials: "same-origin",
+      });
+    } catch {
+      if (retry && attempt === 0 && navigator.onLine !== false) {
+        await sleep(700);
+        continue;
+      }
+      throw Object.assign(new Error(OFFLINE), { status: 0 });
+    }
+    if (retry && attempt === 0 && (res.status === 502 || res.status === 503 || res.status === 504)) {
+      await sleep(900);
+      continue;
+    }
+    break;
+  }
   let data = {};
   try {
     data = await res.json();
@@ -99,6 +121,7 @@ let liveStart = 0; // local time the live play was snapped
 let busy = false;
 let animating = false;
 let showFinal = false;
+let actError = null; // why the last snap failed (shown above the button)
 
 const signedIn = () => Boolean(account.user);
 const nPlays = () => (puzzle.rounds ? puzzle.rounds.length : puzzle.plays);
@@ -260,7 +283,15 @@ function updateHud() {
     pc.classList.toggle("urgent", left <= 5);
     pc.hidden = false;
     const bar = $("#playclock-bar");
-    if (bar) bar.style.transform = `scaleX(${left / RULES.playClock})`;
+    if (bar) {
+      bar.style.transform = `scaleX(${left / RULES.playClock})`;
+      bar.classList.toggle("urgent", left <= 10);
+    }
+    const cc = $("#card-clock");
+    if (cc) {
+      cc.textContent = `⏱ ${Math.ceil(left)}s`;
+      cc.classList.toggle("urgent", left <= 5);
+    }
   } else {
     pc.hidden = true;
   }
@@ -313,8 +344,9 @@ function nextButton() {
   if (drive.phase === "over") {
     return h("button", { type: "button", class: "btn primary", disabled: dis, onclick: () => { showFinal = true; render(); } }, "See the final ▶");
   }
-  return h("button", { type: "button", class: "btn primary", disabled: dis, onclick: () => act() },
+  const btn = h("button", { type: "button", class: "btn primary", disabled: dis, onclick: () => act() },
     drive.log.length ? `Next play: ${downText(drive)} ▶` : "Snap the ball ▶");
+  return actError ? [errorLine(actError), btn] : btn;
 }
 
 function roundShell(round, i, ...body) {
@@ -322,7 +354,8 @@ function roundShell(round, i, ...body) {
   const n = live ? drive.log.length + 1 : drive.log.findIndex((e) => e.round === i) + 1;
   return h("article", { class: `card ${live ? "live" : ""}` },
     live ? h("div", { class: "playclock" }, h("div", { id: "playclock-bar" })) : null,
-    h("div", { class: "round-label" }, h("span", {}, `Play ${n} · ${live ? downText(drive) : "result"}`), h("span", { class: "season-chip" }, String(round.season))),
+    h("div", { class: "round-label" }, h("span", {}, `Play ${n} · ${live ? downText(drive) : "result"}`),
+      live ? h("span", { class: "card-clock", id: "card-clock", "aria-hidden": "true" }) : h("span", { class: "season-chip" }, String(round.season))),
     h("h2", { class: `prompt ${live ? "" : "small"}` }, round.prompt),
     live && round.hint ? h("p", { class: "hint" }, round.hint) : null,
     live ? tierLine(round) : null,
@@ -333,9 +366,20 @@ function roundShell(round, i, ...body) {
 let names = null;
 const normName = (x) => x.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ").trim();
 
-async function loadNames() {
-  if (names) return names;
-  const data = await (await fetch("/names.json")).json();
+let namesLoading = null;
+function loadNames() {
+  // One shared download no matter how many callers ask at once; a failure can be retried.
+  namesLoading ||= fetchNames().catch((e) => {
+    namesLoading = null;
+    throw e;
+  });
+  return namesLoading;
+}
+
+async function fetchNames() {
+  const res = await fetch("/names.json");
+  if (!res.ok) throw new Error(`names.json ${res.status}`);
+  const data = await res.json();
   names = {
     teams: data.teams,
     player: data.players.map(([id, name, pos, start, end]) => ({
@@ -381,7 +425,8 @@ function renderQuestion(round, i) {
   const body = [];
   if (round.clues) body.push(h("ul", { class: "clues" }, round.clues.map((c) => h("li", {}, c))));
   if (!st.done) {
-    let picked = null;
+    // A pick survives a failed throw (e.g. a dropped connection), so retrying is one tap.
+    let picked = st.pending ? { id: st.pending, name: nameFor(round.answer_kind, st.pending) || "" } : null;
     let results = [];
     let active = 0;
     const listId = `sugg-${i}`;
@@ -391,7 +436,8 @@ function renderQuestion(round, i) {
       role: "combobox", "aria-label": "Your answer", "aria-expanded": "false", "aria-controls": listId, "aria-autocomplete": "list",
     });
     const list = h("ul", { class: "suggestions", id: listId, role: "listbox" });
-    const submit = h("button", { type: "button", class: "btn primary", disabled: true }, "Throw it ▶");
+    const submit = h("button", { type: "button", class: "btn primary", disabled: !picked }, "Throw it ▶");
+    if (picked) input.value = picked.name;
     const draw = () => {
       list.replaceChildren(...results.map((n, k) => h("li", {
         role: "option", id: `${listId}-${k}`, class: k === active ? "active" : "", "aria-selected": String(k === active),
@@ -472,9 +518,10 @@ async function act() {
       persistLocal();
     }
     lastPlay = null;
+    actError = null;
     startTicker();
   } catch (e) {
-    alert(e.message);
+    actError = e.message;
   } finally {
     busy = false;
     render();
@@ -504,11 +551,24 @@ async function answer(i, guess) {
     const { state, event } = resolve(s, roundAt(i), view.result, (Date.now() - liveStart) / 1000, nPlays());
     await finishPlay(i, state, event, view.reveal, [guess], view.answers);
   } catch (e) {
-    qdata[i] = { ...prev, error: e.message };
+    qdata[i] = { ...prev, error: e.message, pending: guess };
+    // Signed in and the connection dropped: the server may have taken the throw
+    // anyway, so pick the drive back up from the server instead of guessing.
+    if (signedIn() && e.status === 0) await resyncDrive().catch(() => null);
   } finally {
     busy = false;
     render();
   }
+}
+
+async function resyncDrive() {
+  const r = await api(`drive?date=${date}`);
+  if (r.state.log.length <= drive.log.length) return;
+  applyServer(r);
+  for (const e of drive.log) qdata[e.round] = { done: true, hit: e.hit, rarity: e.rarity, guesses: e.guesses || [] };
+  lastPlay = null;
+  if (drive.phase === "live") startTicker();
+  else clearInterval(ticker);
 }
 
 async function finishPlay(i, state, event, reveal, guesses, answers = null) {
@@ -770,7 +830,7 @@ async function loadPuzzle() {
   showFinal = drive.phase === "over";
   recap = {};
   if (drive.phase === "over") loadRecap();
-  $("#puzzle-meta").textContent = `#${puzzle.number} · ${prettyDate(date)}`;
+  $("#puzzle-meta").textContent = `#${puzzle.number} · ${prettyDate(date, date.slice(0, 4) !== String(new Date().getFullYear()))}`;
   renderBanner();
   render();
   if (drive.phase === "live") startTicker();
@@ -1150,6 +1210,31 @@ if (!["localhost", "127.0.0.1"].includes(location.hostname)) {
   document.head.append(h("script", { src: "/_vercel/insights/script.js", defer: true }));
 }
 
+/** Load the puzzle, or say why not (missing day vs. a connection problem, with a retry). */
+async function loadOrExplain() {
+  try {
+    await loadPuzzle();
+    return true;
+  } catch (e) {
+    let msg;
+    let action;
+    if (e.status === 404 && date === today) {
+      msg = "Today's drive isn't out yet. Check back in a little while.";
+    } else if (e.status === 404) {
+      msg = `No drive for ${prettyDate(date)}.`;
+      action = h("a", { href: "./" }, "Go to today's drive");
+    } else {
+      msg = e.status === 0 ? "No connection. Check your signal and try again." : "We couldn't load the game. Try again in a moment.";
+      action = h("button", { type: "button", class: "btn primary", onclick: async () => {
+        $("#stage").replaceChildren(h("div", { class: "card empty" }, h("p", {}, "Loading…")));
+        if (await loadOrExplain()) maybeShowHelp();
+      } }, "Try again");
+    }
+    $("#stage").replaceChildren(h("div", { class: "card empty" }, h("p", {}, msg), action));
+    return false;
+  }
+}
+
 // ---- Boot ---------------------------------------------------------------------------------------------
 async function boot() {
   $("#puzzle-meta").textContent = prettyDate(date);
@@ -1159,15 +1244,12 @@ async function boot() {
   setupMute();
   await refreshAccount();
   updateStreak();
-  try {
-    await loadPuzzle();
-  } catch {
-    $("#stage").replaceChildren(
-      h("div", { class: "card empty" }, h("p", {}, `No puzzle for ${prettyDate(date)}. `), h("a", { href: "./" }, "Go to today's puzzle")),
-    );
-    return;
-  }
+  if (!(await loadOrExplain())) return;
   if (params.get("join")) return handleJoinLink();
+  maybeShowHelp();
+}
+
+function maybeShowHelp() {
   try {
     if (!localStorage.getItem("nfldaily:seen-help")) {
       localStorage.setItem("nfldaily:seen-help", "1");

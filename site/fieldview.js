@@ -160,7 +160,18 @@ export function createFieldView(canvas, hooks = {}) {
 
   function draw(s) {
     state = { yl: s.yl, toGo: s.toGo, showFirst: s.phase !== "over" };
+    if (s.phase === "over" && s.result === "td") return endZonePose();
     formation(state);
+  }
+
+  /** After a touchdown: the receiver in the end zone, ball held high, nobody in the way. */
+  function endZonePose() {
+    const x = xOf(100) + 4; // just over the goal line, clear of the end zone lettering
+    scene({ yl: 100, toGo: 0, showFirst: false });
+    player(x - 7 * YARD, mid + 20, teams.mine, "up");
+    player(x, mid + 6, teams.mine, "up");
+    ball(x + 1, mid - 24);
+    look(W, 1);
   }
 
   function tween(ms, step) {
