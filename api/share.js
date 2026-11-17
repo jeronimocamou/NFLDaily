@@ -16,10 +16,9 @@ export default function handler(req, res) {
   const host = req.headers["x-forwarded-host"] || req.headers.host;
   const origin = `${proto}://${host}`;
   const grid = share.codes.split("").map((t) => CODE_EMOJI[t]).join("");
-  const clock = `${Math.floor(share.clock / 60)}:${String(share.clock % 60).padStart(2, "0")}`;
   const label = shareLabel(share);
-  const title = `Fourth & Daily #${share.number}: ${label[0] + label.slice(1).toLowerCase()}! ${share.points} pts · ${share.yards} yds`;
-  const desc = `${grid} ${clock} left. Down 4 with 2:00 to go: can you lead a better drive?`;
+  const title = `Fourth & Daily #${share.number}: ${label[0] + label.slice(1).toLowerCase()}! ${share.yards} yds in ${share.plays} plays`;
+  const desc = `${grid} ${share.yards} yards in ${share.plays} plays. Name football answers, drive down the field: can you beat it?`;
   const image = `${origin}/api/og?c=${code}`;
 
   res.statusCode = 200;

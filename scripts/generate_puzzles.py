@@ -33,11 +33,7 @@ FACTS = ROOT / "data" / "facts.json"
 OUT = ROOT / "puzzles"
 LAUNCH = dt.date(2026, 11, 1)  # Puzzle #1
 
-# The daily playbook: how many plays of each call a drive can use.
-#   run  - closest-number questions (steady yards; closer = more)
-#   pass - name-one questions with many right answers (rarer = more yards)
-#   deep - name-one questions with few right answers or one (big gains; a miss is a sack)
-PLAYBOOK = {"run": 10, "pass": 8, "deep": 6}
+PLAYS = 16  # questions per drive (a drive rarely needs more than ~12)
 
 POS_LABEL = {"QB": "quarterback", "RB": "running back", "WR": "wide receiver", "TE": "tight end"}
 
@@ -834,67 +830,27 @@ class Generator(NameOneMixin):
 
     # A day ------------------------------------------------------------------
     def day(self, date):
-        """One drive's playbook: run, pass and deep-shot questions (players pick the
-        call each down and get the next question of that kind), plus the two
-        point-after questions. Everyone gets the same questions in the same order."""
-        rng = random.Random(f"nfldaily-{date.isoformat()}")
+        """One drive: a list of broad "name one" questions, asked in order (how
+        many you use depends on how the drive goes). Everyone gets the same."""
+        rng = random.Random(f"nfldaily-v3-{date.isoformat()}")
         self.today = set()
         self.date = date
-        makers = {"run": self.guess_number, "pass": self.pass_play, "deep": self.deep_play}
-        rounds, layout = [], {}
-        for call, count in PLAYBOOK.items():
-            layout[call] = [len(rounds), count]
-            seasons = rng.sample(self.d.seasons, min(count, len(self.d.seasons)))
-            for season in seasons:
-                r = None
-                for attempt in range(8):
-                    try:
-                        r = makers[call](rng, season if attempt == 0 else rng.choice(self.d.seasons))
-                    except RuntimeError:
-                        r = None
-                    if r:
-                        break
-                if r is None:
-                    # Running low on fresh questions: let older ones come back sooner.
-                    self.relax = True
-                    try:
-                        for _ in range(8):
-                            try:
-                                r = makers[call](rng, rng.choice(self.d.seasons))
-                            except RuntimeError:
-                                r = None
-                            if r:
-                                break
-                    finally:
-                        self.relax = False
-                if r is None:
-                    raise RuntimeError(f"no {call} question left")
-                r["role"] = call
-                rounds.append(r)
-
-        def first_of(makers):
-            for _ in range(20):
-                season = rng.choice(self.d.seasons)
-                for m in makers:
-                    try:
-                        r = m(rng, season)
-                    except RuntimeError:
-                        r = None
-                    if r:
-                        return r
-            raise RuntimeError("no point-after question left")
-
-        # Single-answer multiple choice: the try is one quick guess.
-        pat1 = first_of([self.h2h_teams, self.h2h_players, self.odd_one_out])
-        pat1.update(role="pat1")
-        layout["pat1"] = len(rounds)
-        rounds.append(pat1)
-        pat2 = first_of([self.odd_one_out, self.h2h_players, self.h2h_teams])
-        pat2.update(role="pat2")
-        layout["pat2"] = len(rounds)
-        rounds.append(pat2)
-        return {"date": date.isoformat(), "number": (date - LAUNCH).days + 1, "format": "playbook",
-                "layout": layout, "rounds": rounds}
+        rounds = []
+        for _ in range(PLAYS):
+            r = self.broad_play(rng)
+            if r is None:
+                # Running low on fresh questions: let older ones come back sooner.
+                self.relax = True
+                try:
+                    r = self.broad_play(rng)
+                finally:
+                    self.relax = False
+            if r is None:
+                raise RuntimeError("no question left")
+            r["role"] = "play"
+            rounds.append(r)
+        rng.shuffle(rounds)  # don't serve the same kind of question back to back
+        return {"date": date.isoformat(), "number": (date - LAUNCH).days + 1, "format": "drive3", "rounds": rounds}
 
 
 STATE = OUT / "state.json"  # every question key used so far, so new days never repeat old ones

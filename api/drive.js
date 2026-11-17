@@ -1,13 +1,13 @@
 // Signed-in drives. The server keeps the drive state and times every play.
 // GET  /api/drive?date=YYYY-MM-DD -> { state, question, event }
-// POST /api/drive { date, action: "run" | "pass" | "deep" | "fg" | "pat1" | "pat2" | "answer", guess }
+// POST /api/drive { date, action: "play" | "answer", guess }
 import { handler, send } from "../lib/http.js";
 import { db, dbEnabled } from "../lib/db.js";
 import { currentUser } from "../lib/auth.js";
 import { isPlayable, loadPuzzle } from "../lib/puzzles.js";
 import { act, getDrive } from "../lib/drives.js";
 
-const ACTIONS = new Set(["run", "pass", "deep", "fg", "pat1", "pat2", "answer"]);
+const ACTIONS = new Set(["play", "answer"]);
 
 export default handler(["GET", "POST"], async (req, res) => {
   if (!dbEnabled) return send(res, 503, { error: "Accounts aren't set up yet." });

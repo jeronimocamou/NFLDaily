@@ -1,30 +1,28 @@
 # Fourth & Daily
 
-A daily football trivia game played as one drive. **2:00 left in the 4th, down 21–17, ball on your own 25.** You call every play, and the call decides the kind of question:
+A daily football trivia game played as one drive. **You're down 21–17 with the ball on your own 25.** Every play is one question you answer by typing a name:
 
-| Call | Question | Yards |
-|---|---|---|
-| **Run** | Guess a number (a team's wins, a player's season or career stat, a franchise record) | Closer = more, up to 12. Way off: −3 |
-| **Pass** | Name one of several right answers ("Name a QB who started for the Browns since 1999") | 4–18. **Rarer answers gain more**. Wrong: incomplete |
-| **Deep shot** | Name one of a few, or the only one ("Who led the NFL in rushing in 2004?", "Whose career is this?") | 12–30 for rarer picks. Miss: sack −6 |
+- *"Name a QB who started a game for the Cleveland Browns since 1999"* (42 right answers)
+- *"Name a player who played for both the Jets and the Patriots"*
+- *"Name a running back who ran for 1,500+ yards in a season in the 2010s"*
 
-Answers are typed with autocomplete over every player and team (1999–2025), so the list doesn't give anything away. **Rarity is Krillion-style:** each right answer starts with a built-in estimate of how obvious it is (career fame, starts, team success), and real answers take over as people play. The more players who named the same answer before you, the fewer yards it's worth. After each play you see every right answer and how often players named it.
+A right answer gains **5 to 20 yards**, and **rarer answers go farther** (Krillion-style). Each answer starts with a built-in estimate of how obvious it is, and real answers from players take over as people play. A wrong answer, or running out the 30-second timer, is an incomplete pass. You have **4 downs to gain 10 yards**, and reaching the end zone wins it (touchdown plus automatic extra point = 7). After each play you see every right answer and how often players named it.
 
-You have 4 downs to gain 10 yards and a 25-second play clock (running it out is delay of game, −5). The game clock runs while you think. Answering a gain within 8 seconds adds 2 hurry-up yards. On 4th down you can go for it or kick a field goal, which uses a run question: any credit from 35 yards or less, half credit from 36–45, 80% from 46–55. A touchdown wins it, then you choose a 1-point kick or a 2-point try (quick multiple choice). Results rank by **points, then yards, then time left**. About 40% of questions are about careers, franchises or decades rather than a single season. All-time questions say "since 1999", because the stats data starts there.
+Questions are always broad, covering a franchise or a span like "since 1999" or "in the 2010s", never a single season. Each has at least 6 right answers (usually 10+). Results rank by **points, then yards, then fewer plays**.
 
-Players also get a pixel-art broadcast field that animates every play, a shareable drive chart (🟩🟨⬜🟥🏈✅) with a link preview, streaks and stats, "how everyone else did", a calendar of past drives, optional accounts with daily and all-time leaderboards, friends leagues, and an installable home-screen app.
+Players also get a pixel-art broadcast field that animates every play, a shareable drive chart (🟩🟨⬜🏈) with a link preview, streaks and stats, "how everyone else did", a calendar of past drives, optional accounts with daily and all-time leaderboards, friends leagues, and an installable home-screen app.
 
 ## How it works
 
 ```
 scripts/build_db.py         downloads nflverse data -> data/nfl.sqlite
-scripts/generate_puzzles.py data/nfl.sqlite + data/facts.json -> puzzles/YYYY-MM-DD.json (a playbook: 10 runs, 8 passes, 6 deep shots + 2 point-after questions a day) and site/names.json (autocomplete)
+scripts/generate_puzzles.py data/nfl.sqlite + data/facts.json -> puzzles/YYYY-MM-DD.json (16 broad name-one questions a day) and site/names.json (autocomplete)
 scripts/playbook.py         the open-ended "name one" question types
 puzzles/                    full puzzles with answers (private; never served directly)
 api/                        Vercel serverless functions
 lib/                        shared server code (grading, accounts, leaderboards)
 site/                       static website (index.html, style.css, app.js)
-site/drive.js               the rules of a drive (play calls, yards from closeness and rarity, downs, clock, scoring), shared by browser and server
+site/drive.js               the rules of a drive (yards from rarity, downs, scoring), shared by browser and server
 lib/plays.js                grading a play, including answer rarity from the answer_counts table
 site/fieldview.js           the animated broadcast field
 site/pixel.js               pixel-art stadium renderer (shared by the site background and share images)
