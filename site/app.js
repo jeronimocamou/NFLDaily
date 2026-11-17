@@ -401,8 +401,40 @@ async function finishPlay(i, state, event, reveal, guesses, answers = null) {
 }
 
 async function onDriveOver() {
-  if (signedIn()) refreshAccount();
+  if (signedIn()) {
+    refreshAccount();
+    loadRecap();
+  }
   else if (account.enabled) api("stats", { date, log: drive.log }).catch(() => {});
+}
+
+// ---- End-of-drive recap ----------------------------------------------------------------------
+let recap = {}; // question index -> every right answer with its tier (signed-in, from /api/recap)
+
+/** Every right answer to one question, grouped by tier, with yours highlighted. */
+function recapAnswers(answers, e) {
+  const yourId = e.hit ? e.guesses?.[0] : null;
+  const groups = [...TIERS].reverse().map((t) => {
+    const items = answers.filter((a) => a.tier === t.key);
+    if (!items.length) return null;
+    return h("div", { class: "tier-group" },
+      h("p", { class: `tier-head tier-${t.key}` }, `${TIER_EMOJI[t.key]} ${t.name}`, h("span", {}, `+${t.yards}`)),
+      h("ul", { class: "recap-names" }, items.map((a) =>
+        h("li", { class: a.id === yourId || a.yours ? "yours" : "" }, a.name))));
+  });
+  const missed = !e.hit && e.guesses?.[0] ? h("p", { class: "recap-miss" }, `You said ${nameFor("player", e.guesses[0]) || nameFor("team", e.guesses[0]) || "something else"}`) : null;
+  return h("div", { class: "recap-body" }, missed, groups);
+}
+
+async function loadRecap() {
+  if (!signedIn() || drive?.phase !== "over") return;
+  if (drive.log.every((e) => recap[e.round] || qdata[e.round]?.answers)) return;
+  try {
+    recap = (await api(`recap?date=${date}`)).recap || {};
+    if (!animating) render();
+  } catch {
+    /* the recap is a nice-to-have */
+  }
 }
 
 // ---- The final ----------------------------------------------------------------------------------
@@ -449,8 +481,13 @@ function renderSummary() {
 
   const plays = drive.log.map((e, k) => {
     const round = roundAt(e.round);
-    const what = round ? round.prompt.replace(/^Name an? /, "").replace(/\.$/, "") : `Play ${k + 1}`;
-    return h("li", {}, h("span", {}, `${CODE_EMOJI[e.code]} ${what}`), h("span", { class: "score" }, e.yards ? `+${e.yards}` : "inc."));
+    const answers = recap[e.round] || qdata[e.round]?.answers;
+    const head = h("summary", {},
+      h("span", { class: "rc-what" }, `${CODE_EMOJI[e.code]} ${round?.prompt || `Play ${k + 1}`}`),
+      h("span", { class: "score" }, e.yards ? `+${e.yards}` : "inc."));
+    return h("li", {}, answers?.length
+      ? h("details", { class: "recap" }, head, recapAnswers(answers, e))
+      : h("div", { class: "recap-plain" }, head.childNodes[0], head.childNodes[1]));
   });
 
   return h("article", { class: "card summary" },
@@ -463,7 +500,8 @@ function renderSummary() {
     h("button", { type: "button", class: "btn primary", onclick: share }, "Share your drive"),
     toast,
     cta,
-    h("ol", { class: "summary-list" }, plays),
+    h("p", { class: "recap-title" }, "Your drive · tap a play to see every right answer"),
+    h("ol", { class: "summary-list recap-list" }, plays),
     h("div", { class: "row-btns" },
       h("button", { type: "button", class: "btn", onclick: () => openLeaderboard() }, "Leaderboard"),
       h("button", { type: "button", class: "btn", onclick: openArchive }, "Past drives")),
@@ -514,6 +552,8 @@ async function loadPuzzle() {
     if (drive.phase === "live") liveStart = drive.live.servedAt;
   }
   showFinal = drive.phase === "over";
+  recap = {};
+  if (drive.phase === "over") loadRecap();
   $("#puzzle-meta").textContent = `#${puzzle.number} · ${prettyDate(date)}`;
   renderBanner();
   render();
