@@ -54,3 +54,14 @@ test("future puzzles are not playable", () => {
   assert.equal(isPlayable("../etc"), false);
 });
 
+
+test("drives open with an easy question", () => {
+  // Days from 2026-11-19 on (earlier ones were already live when this rule arrived).
+  for (const p of puzzles.filter((x) => x.date >= "2026-11-19")) {
+    const [first, second] = p.rounds;
+    assert.ok(!first.prompt.includes("played for both"), `${p.date}: opener ${first.prompt}`);
+    assert.ok(!second.prompt.includes("played for both"), `${p.date}: play 2 ${second.prompt}`);
+    const leagueWide = first.answer_kind === "team" || !/ for the | led the /.test(first.prompt);
+    assert.ok(leagueWide || first.prompt.startsWith("Name a QB who started a game for"), `${p.date}: opener ${first.prompt}`);
+  }
+});
