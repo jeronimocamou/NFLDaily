@@ -1,6 +1,6 @@
 import { startStadium } from "./stadium.js";
 import { createFieldView } from "./fieldview.js";
-import { RULES, CODE_EMOJI, downText, driveRank, fieldSpot, isCurrent, newDrive, resolve, snap, summary } from "./drive.js";
+import { RULES, CODE_EMOJI, TIERS, downText, driveRank, fieldSpot, isCurrent, newDrive, resolve, snap, summary, tierFor } from "./drive.js";
 
 // Fourth & Daily client. Each day is one drive: down 21-17, ball on your own
 // 25. Every play is one question: type a right answer to move the ball
@@ -197,6 +197,7 @@ function roundShell(round, i, ...body) {
     h("div", { class: "round-label" }, h("span", {}, `Play ${n} · ${live ? downText(drive) : "result"}`), h("span", { class: "season-chip" }, String(round.season))),
     h("h2", { class: "prompt" }, round.prompt),
     round.hint ? h("p", { class: "hint" }, round.hint) : null,
+    tierLine(round),
     ...body);
 }
 
@@ -233,20 +234,40 @@ function searchNames(kind, q) {
 
 const nameFor = (kind, id) => names?.[kind]?.find((n) => n.id === id)?.name;
 
+const TIER_EMOJI = { check: "🟨", seam: "🟩", bomb: "💣" };
+
+/** "4 check-downs · 3 seams · 3 bombs" under each question. */
+function tierLine(round) {
+  if (!round.tiers) return null;
+  const parts = [
+    [round.tiers.bomb, "bomb", "bombs"],
+    [round.tiers.seam, "seam", "seams"],
+    [round.tiers.check, "check-down", "check-downs"],
+  ].filter(([n]) => n).map(([n, one, many]) => `${n} ${n === 1 ? one : many}`);
+  return h("p", { class: "tier-line" }, parts.join(" · "));
+}
+
+/** Every right answer, grouped by tier, with yours highlighted. */
 function answersList(round, st) {
   const list = st.answers
     || (st.reveal ? Object.entries(st.reveal.valid).map(([id, v]) => ({ id, name: v.name, note: v.note })) : []);
   if (!list.length) return null;
   const row = (a) => h("li", { class: a.yours ? "yours" : "" },
     h("span", { class: "a-name" }, a.name),
-    h("span", { class: "a-note" }, a.note || ""),
-    a.yards != null ? h("span", { class: "a-pct" }, `+${a.yards}`) : null);
-  const top = list.slice(0, 8);
-  const rest = list.slice(8);
-  return h("div", { class: "answers" },
-    h("p", { class: "hint" }, list.length === 1 ? "The answer" : `All ${list.length} right answers, deepest cuts first, with the yards each was worth`),
-    h("ol", {}, top.map(row)),
-    rest.length ? h("details", {}, h("summary", {}, `Show ${rest.length} more`), h("ol", { start: 9 }, rest.map(row))) : null);
+    h("span", { class: "a-note" }, a.note || ""));
+  if (!list[0].tier) {
+    return h("div", { class: "answers" }, h("p", { class: "hint" }, `All ${list.length} right answers`), h("ol", {}, list.map(row)));
+  }
+  const groups = [...TIERS].reverse().map((t) => {
+    const items = list.filter((a) => a.tier === t.key);
+    if (!items.length) return null;
+    const head = h("p", { class: `tier-head tier-${t.key}` }, `${TIER_EMOJI[t.key]} ${t.name}`, h("span", {}, `+${t.yards} yds`));
+    const shown = items.slice(0, 6);
+    const more = items.slice(6);
+    return h("div", { class: "tier-group" }, head, h("ol", {}, shown.map(row)),
+      more.length ? h("details", {}, h("summary", {}, `${more.length} more`), h("ol", {}, more.map(row))) : null);
+  });
+  return h("div", { class: "answers" }, h("p", { class: "hint" }, `All ${list.length} right answers`), groups);
 }
 
 function renderQuestion(round, i) {
@@ -308,9 +329,8 @@ function renderQuestion(round, i) {
     let line;
     if (st.timedOut || !guess) line = "Time ran out on that one.";
     else if (st.hit) {
-      line = `${yours} is right!`;
-      if (st.rarity >= 0.7) line += " A deep cut: extra yards!";
-      else if (st.rarity <= 0.15) line += " The obvious one: still a gain.";
+      const tier = tierFor(st.rarity);
+      line = `${yours} is right: ${tier.key === "bomb" ? "a deep cut. Bombs away!" : tier.key === "seam" ? "a solid pull up the seam." : "the safe check-down."}`;
     } else line = `${yours} isn't one of the right answers.`;
     body.push(resultBox(line, st.reveal?.fact, i), nextButton(), answersList(round, st));
   }
@@ -319,7 +339,7 @@ function renderQuestion(round, i) {
   const result = card.querySelector(".result");
   if (result) {
     const next = result.nextElementSibling;
-    (card.querySelector(".prompt + .hint") || card.querySelector(".prompt")).after(result);
+    (card.querySelector(".tier-line") || card.querySelector(".prompt + .hint") || card.querySelector(".prompt")).after(result);
     if (next) result.after(next);
   }
   return card;
@@ -333,7 +353,7 @@ function huddleCard() {
     intro
       ? h("div", {},
           h("h2", { class: "prompt" }, "Down 21-17. Your ball on the 25. Go win it."),
-          h("p", {}, "Every play is a question. Type a right answer to move the ball: 5 to 20 yards. The obvious answers gain the least, deep cuts gain the most. A wrong answer is an incomplete pass."),
+          h("p", {}, "Every play is a question. Type a right answer to move the ball. The obvious answers are a check-down (7 yards), less obvious ones a seam route (20), and the deepest cuts are the bomb (40). A wrong answer is an incomplete pass."),
           h("p", {}, "You have 4 downs to gain 10 yards. Reach the end zone to win."))
       : h("h2", { class: "prompt" }, `${downText(drive)} at ${fieldSpot(drive.yl)}.`),
     nextButton());

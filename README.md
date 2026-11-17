@@ -6,11 +6,19 @@ A daily football trivia game played as one drive. **You're down 21–17 with the
 - *"Name a player who played for both the Jets and the Patriots"*
 - *"Name a running back who ran for 1,500+ yards in a season in the 2010s"*
 
-A right answer gains **5 to 20 yards**: the obvious answers gain the least and **deep cuts gain the most**. How obvious an answer is comes from our own stats, not from other players, so it works from day one and every player gets the same yards for the same answer. Each right answer carries an "obviousness" weight (career totals, how many times the player fits the question, starts, seasons leading the team, team success), and the answers to each question are ranked by it and spread evenly from 5 yards (most obvious) to 20 (deepest cut). A wrong answer, or running out the 30-second timer, is an incomplete pass. You have **4 downs to gain 10 yards**, and reaching the end zone wins it (touchdown plus automatic extra point = 7). After each play you see every right answer and what each was worth.
+A right answer is a pass, and how far it goes depends on how deep a cut it is:
+
+| Tier | Which right answers | Yards |
+|---|---|---|
+| 🟨 **Check Down** | the most obvious ~40% | 7 (two make a first down) |
+| 🟩 **Seam Route** | the middle ~35% | 20 |
+| 💣 **The Bomb** | the deepest ~25%, or a question's only answer | 40 |
+
+How obvious an answer is comes from our own stats, not from other players, so it works from day one and everyone gets the same yards for the same answer. Each right answer carries an "obviousness" weight (career production since 1999, how many times the player fits the question, starts, seasons leading the team, team success). Answers to each question are ranked by it and split into the three tiers. Each question shows its split ("3 bombs · 3 seams · 4 check-downs"). A wrong answer, or running out the 30-second timer, is an incomplete pass. You have **4 downs to gain 10 yards**, and reaching the end zone wins it (touchdown plus automatic extra point = 7). After each play you see every right answer, grouped by tier.
 
 Questions are always broad, covering a franchise or a span like "since 1999" or "in the 2010s", never a single season. Each has at least 6 right answers (usually 10+). Results rank by **points, then yards, then fewer plays**.
 
-Players also get a pixel-art broadcast field that animates every play, a shareable drive chart (🟩🟨⬜🏈) with a link preview, streaks and stats, "how everyone else did", a calendar of past drives, optional accounts with daily and all-time leaderboards, friends leagues, and an installable home-screen app.
+Players also get a pixel-art broadcast field that animates every play, a shareable drive chart (💣🟩🟨⬜🏈) with a link preview, streaks and stats, "how everyone else did", a calendar of past drives, optional accounts with daily and all-time leaderboards, friends leagues, and an installable home-screen app.
 
 ## How it works
 

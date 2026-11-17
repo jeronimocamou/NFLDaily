@@ -3,7 +3,8 @@
 // source of truth for leaderboards) always agree.
 //
 // You're down 21-17 with the ball on your own 25. Every play is one question:
-// type a right answer to gain 5-20 yards (less obvious answers gain more).
+// type a right answer to gain yards: a check-down (7), seam route (20) or bomb (40),
+// depending on how deep a cut the answer is.
 // A wrong answer, or running out the 30-second timer, is an incomplete pass.
 // You have 4 downs to gain 10 yards. Reach the end zone to win (touchdown +
 // automatic extra point = 7 points).
@@ -11,18 +12,31 @@
 export const RULES = {
   start: 25, // own 25 (touchback)
   playClock: 30, // seconds to answer each question
-  minGain: 5, // a right answer gains at least this...
-  maxGain: 20, // ...and up to this for the deepest cuts
   them: 21,
   us: 17,
 };
 
 export const VERSION = 3; // drives saved by older rule sets restart
 
+/**
+ * Every right answer falls in one of three tiers, by how deep a cut it is
+ * within its question (see rarityOf): the most obvious ~40% are check-downs,
+ * the next ~35% seam routes, and the deepest ~25% (or a question's only
+ * answer) bombs.
+ */
+export const TIERS = [
+  { key: "check", name: "Check Down", yards: 7, code: "m", upTo: 0.4 },
+  { key: "seam", name: "Seam Route", yards: 20, code: "g", upTo: 0.75 },
+  { key: "bomb", name: "The Bomb", yards: 40, code: "b", upTo: 1 },
+];
+
+export function tierFor(rarity) {
+  return TIERS.find((t) => (rarity ?? 0) < t.upTo) || TIERS[TIERS.length - 1];
+}
+
 /** Yards for a graded answer: { hit, rarity 0-1 }. */
 export function gainFor(result) {
-  if (!result?.hit) return 0;
-  return RULES.minGain + Math.round((RULES.maxGain - RULES.minGain) * (result.rarity ?? 0));
+  return result?.hit ? tierFor(result.rarity).yards : 0;
 }
 
 export function newDrive() {
@@ -83,7 +97,7 @@ export function resolve(state, round, result, secs, nPlays) {
   } else {
     if (timedOut) ev.text = "Time's up. Incomplete.";
     else if (!ev.yards) ev.text = "Incomplete pass.";
-    else ev.text = ev.yards >= 15 ? `Big play! ${ev.yards} yards!` : `Gain of ${ev.yards}.`;
+    else ev.text = `${tierFor(ev.rarity).name}! ${ev.yards} yards.`;
     if (ev.yards >= s.toGo) {
       s.down = 1;
       s.toGo = Math.min(10, 100 - s.yl);
@@ -93,7 +107,7 @@ export function resolve(state, round, result, secs, nPlays) {
       s.down += 1;
       s.toGo -= ev.yards;
     }
-    code = ev.yards >= 15 ? "g" : ev.yards > 0 ? "m" : "w";
+    code = ev.hit ? tierFor(ev.rarity).code : "w";
     if (s.down > 4) {
       s.phase = "over";
       s.result = "downs";
@@ -147,7 +161,7 @@ export function driveRank(sum) {
   return sum.points * 1000000 + (sum.yards + 100) * 1000 + (100 - sum.plays);
 }
 
-export const CODE_EMOJI = { g: "🟩", m: "🟨", w: "⬜", t: "🏈" };
+export const CODE_EMOJI = { m: "🟨", g: "🟩", b: "💣", w: "⬜", t: "🏈" }; // check down, seam, bomb, incomplete, TD
 
 // ---- Rarity -------------------------------------------------------------------------
 /**
@@ -169,6 +183,16 @@ export function rarityOf(id, prior) {
 /** Every right answer with the yards it's worth, deepest cuts first. */
 export function answerYards(valid, prior) {
   return Object.entries(valid)
-    .map(([id, v]) => ({ id, name: v.name, note: v.note, yards: gainFor({ hit: true, rarity: rarityOf(id, prior) }) }))
+    .map(([id, v]) => {
+      const tier = tierFor(rarityOf(id, prior));
+      return { id, name: v.name, note: v.note, yards: tier.yards, tier: tier.key, tierName: tier.name };
+    })
     .sort((a, b) => b.yards - a.yards || a.name.localeCompare(b.name));
+}
+
+/** How many answers to a question fall in each tier, e.g. { check: 4, seam: 3, bomb: 3 }. */
+export function tierCounts(prior) {
+  const out = { check: 0, seam: 0, bomb: 0 };
+  for (const id of Object.keys(prior)) out[tierFor(rarityOf(id, prior)).key] += 1;
+  return out;
 }
