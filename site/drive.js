@@ -161,7 +161,7 @@ export function driveRank(sum) {
   return sum.points * 1000000 + (sum.yards + 100) * 1000 + (100 - sum.plays);
 }
 
-export const CODE_EMOJI = { m: "🟨", g: "🟩", b: "💣", w: "⬜", t: "🏈" }; // check down, seam, bomb, incomplete, TD
+export const CODE_EMOJI = { m: "🟨", g: "🟩", b: "💣", w: "❌", t: "🏈" }; // check down, seam, bomb, incomplete, TD
 
 // ---- Rarity -------------------------------------------------------------------------
 /**

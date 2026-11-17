@@ -402,10 +402,14 @@ async function finishPlay(i, state, event, reveal, guesses, answers = null) {
 
 async function onDriveOver() {
   if (signedIn()) {
-    refreshAccount();
     loadRecap();
+    await refreshAccount();
+  } else if (account.enabled) {
+    api("stats", { date, log: drive.log }).catch(() => {});
   }
-  else if (account.enabled) api("stats", { date, log: drive.log }).catch(() => {});
+  updateStreak();
+  $("#streak")?.classList.add("bump");
+  setTimeout(() => $("#streak")?.classList.remove("bump"), 900);
 }
 
 // ---- End-of-drive recap ----------------------------------------------------------------------
@@ -437,17 +441,114 @@ async function loadRecap() {
   }
 }
 
+// ---- Sharing and friend challenges --------------------------------------------------------------
+const SHARE_RE = /^(\d{1,4})-(\d)-(-?\d{1,2})-(\d{1,3})-([a-z]{1,40})(?:-s(\d{1,4}))?$/;
+
+function parseShare(code) {
+  const m = SHARE_RE.exec(code || "");
+  if (!m) return null;
+  return { code, number: +m[1], points: +m[2], yards: +m[3], plays: +m[4], codes: m[5], streak: m[6] ? +m[6] : 0 };
+}
+
+/** 8-cell progress bar from your 25 to the end zone. */
+function progressBar(yards, td) {
+  const cells = 8;
+  const filled = td ? cells : Math.max(0, Math.min(cells, Math.round((yards / 75) * cells)));
+  return "🟩".repeat(filled) + "⬜".repeat(cells - filled) + (td ? "🏈" : "🏁");
+}
+
+function buildShareText(sum, streak, url) {
+  const grid = sum.codes.split("").map((c) => CODE_EMOJI[c] || "").join("");
+  const head = sum.won ? `TOUCHDOWN! Won ${RULES.us + sum.points}–${RULES.them}` : `${sum.yards} yds · came up short`;
+  return [
+    `🏈 Fourth & Daily #${puzzle.number}`,
+    head,
+    `${grid} ${sum.plays} play${sum.plays === 1 ? "" : "s"}`,
+    progressBar(sum.yards, sum.won),
+    streak > 1 ? `🔥 ${streak}-day streak` : null,
+    `Beat my drive 👉 ${url}`,
+  ].filter(Boolean).join("\n");
+}
+
+// A friend's drive from a shared link (?vs=CODE), kept for that puzzle.
+let challenge = null;
+function loadChallenge() {
+  const fromUrl = params.get("vs");
+  if (fromUrl && parseShare(fromUrl)) {
+    try { localStorage.setItem("nfldaily:vs", fromUrl); } catch { /* ignore */ }
+    const q = new URLSearchParams(location.search);
+    q.delete("vs");
+    history.replaceState(null, "", location.pathname + (q.toString() ? `?${q}` : ""));
+  }
+  let code = fromUrl;
+  if (!code) { try { code = localStorage.getItem("nfldaily:vs"); } catch { code = null; } }
+  challenge = parseShare(code);
+}
+
+const chartOf = (codes) => codes.split("").map((c) => CODE_EMOJI[c] || "").join("");
+
+function challengeBanner() {
+  if (!challenge || !puzzle) return null;
+  const theirs = challenge.points ? `a touchdown in ${challenge.plays} plays` : `${challenge.yards} yards in ${challenge.plays} plays`;
+  if (challenge.number !== puzzle.number) {
+    const target = addDays(date, challenge.number - puzzle.number);
+    if (target > today || drive?.phase === "over") return null;
+    return h("p", { class: "banner challenge" }, `🆚 A friend went for ${theirs} on drive #${challenge.number}. `,
+      h("a", { href: target === today ? "./" : `./?date=${target}` }, "Play that drive →"));
+  }
+  return h("div", { class: "banner challenge" },
+    h("strong", {}, "🆚 Beat your friend's drive"),
+    h("div", {}, `${chartOf(challenge.codes)} · ${theirs}`));
+}
+
+function challengeCompare(sum) {
+  if (!challenge || challenge.number !== puzzle.number) return null;
+  const mine = driveRank(sum);
+  const theirs = driveRank({ points: challenge.points, yards: challenge.yards, plays: challenge.plays });
+  const verdict = mine > theirs ? "🏆 You beat your friend's drive!" : mine === theirs ? "🤝 Dead even with your friend." : "😬 Your friend's drive was better.";
+  const line = (who, s) => h("div", { class: "vs-row" }, h("span", {}, who), h("span", {}, chartOf(s.codes)), h("strong", {}, s.points ? `TD · ${s.plays} plays` : `${s.yards} yds`));
+  return h("div", { class: "vs-card" }, h("p", { class: "vs-verdict" }, verdict),
+    line("You", sum), line("Friend", challenge));
+}
+
+// ---- Streak ----------------------------------------------------------------------------------------
+function currentStreak() {
+  return (signedIn() && account.stats ? account.stats.streak : localStats().streak) || 0;
+}
+
+function updateStreak() {
+  const el = $("#streak");
+  if (!el) return;
+  const n = currentStreak();
+  el.textContent = `🔥 ${n}`;
+  el.classList.toggle("cold", n === 0);
+  el.title = n ? `${n}-day streak` : "Play today to start a streak";
+}
+
 // ---- The final ----------------------------------------------------------------------------------
 function renderSummary() {
   const sum = summary(drive);
   const us = RULES.us + sum.points;
   const grid = sum.codes.split("").map((c) => CODE_EMOJI[c]).join("");
   const toast = h("p", { class: "toast", role: "status" });
-  const code = `${puzzle.number}-${sum.points}-${sum.yards}-${sum.plays}-${sum.codes || "w"}`;
-  const shareText = `Fourth & Daily #${puzzle.number} 🏈 ${sum.label}\n${sum.yards} yds in ${sum.plays} plays\n${grid}\n${location.origin}/s/${code}`;
+  const streak = currentStreak();
+  const code = `${puzzle.number}-${sum.points}-${sum.yards}-${sum.plays}-${sum.codes || "w"}${streak > 1 ? `-s${streak}` : ""}`;
+  const url = `${location.origin}/s/${code}`;
+  const shareText = buildShareText(sum, streak, url);
 
   const share = async () => {
     if (navigator.share && matchMedia("(pointer: coarse)").matches) {
+      // Attach the scoreboard picture where the share sheet supports files.
+      try {
+        const blob = await (await fetch(`/api/og?c=${code}`)).blob();
+        const file = new File([blob], `fourth-and-daily-${puzzle.number}.png`, { type: "image/png" });
+        if (navigator.canShare?.({ files: [file] })) {
+          await navigator.share({ files: [file], text: shareText });
+          return;
+        }
+      } catch (e) {
+        if (e.name === "AbortError") return;
+      }
       try {
         await navigator.share({ text: shareText });
         return;
@@ -496,6 +597,8 @@ function renderSummary() {
     h("p", { class: "final-score" }, `YOU ${us} – ${RULES.them} THEM`),
     h("p", { class: "out-of" }, `${sum.won ? "You win! " : "Final. "}${sum.why}`),
     h("p", { class: "drive-line" }, `${sum.yards} yds in ${sum.plays} plays`),
+    streak > 1 ? h("p", { class: "streak-line" }, `🔥 ${streak}-day streak`) : null,
+    challengeCompare(sum),
     h("div", { class: "grid", "aria-label": "Drive chart" }, grid),
     h("button", { type: "button", class: "btn primary", onclick: share }, "Share your drive"),
     toast,
@@ -524,10 +627,12 @@ function render() {
 
 function renderBanner() {
   const banner = $("#banner");
-  if (date === today) return banner.replaceChildren();
+  const vs = challengeBanner();
+  if (date === today) return banner.replaceChildren(...(vs ? [vs] : []));
   banner.replaceChildren(
     h("p", { class: "banner" }, `Archive drive from ${prettyDate(date)}. It won't count toward streaks or leaderboards. `,
       h("a", { href: "./" }, "Play today's →")),
+    ...(vs ? [vs] : []),
   );
 }
 
@@ -938,7 +1043,9 @@ if (!["localhost", "127.0.0.1"].includes(location.hostname)) {
 async function boot() {
   $("#puzzle-meta").textContent = prettyDate(date);
   loadNames().catch(() => {});
+  loadChallenge();
   await refreshAccount();
+  updateStreak();
   try {
     await loadPuzzle();
   } catch {

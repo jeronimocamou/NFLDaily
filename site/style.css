@@ -510,3 +510,19 @@ table.yards small { display: block; color: var(--muted); }
 .recap-names li.yours { font-weight: 800; color: var(--good); }
 .recap-names li.yours::before { content: "✓ "; }
 .recap-miss { margin: 4px 0 6px; color: var(--muted); font-size: .9rem; }
+
+/* ---- Streak flame ---- */
+.streak { display: inline-block; margin-left: 6px; font-weight: 800; color: #ffb35c; }
+.streak:not(.cold) { animation: flicker 1.6s ease-in-out infinite; }
+.streak.cold { color: #6b7685; filter: grayscale(1); }
+.streak.bump { animation: bump .8s cubic-bezier(.2, 1.6, .4, 1); }
+@keyframes flicker { 0%, 100% { text-shadow: 0 0 4px #ff6b1a; } 50% { text-shadow: 0 0 10px #ffb35c; } }
+@keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.8); } 100% { transform: scale(1); } }
+.streak-line { margin: 2px 0 6px; font-weight: 800; color: #e0701a; }
+
+/* ---- Friend challenge ---- */
+.challenge { display: grid; gap: 4px; }
+.vs-card { margin: 10px 0 4px; padding: 12px; border-radius: 12px; border: 3px solid var(--edge); background: var(--surface-2); }
+.vs-verdict { margin: 0 0 6px; font-weight: 800; }
+.vs-row { display: grid; grid-template-columns: 56px 1fr auto; gap: 8px; align-items: center; padding: 4px 0; text-align: left; }
+@media (prefers-reduced-motion: reduce) { .streak, .streak.bump { animation: none; } }
