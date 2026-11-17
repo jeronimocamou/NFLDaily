@@ -11,7 +11,7 @@ lists every player and team, so the list doesn't give answers away.
 """
 
 MAX_PER_KIND = 3  # at most this many of one question type per drive
-NAME_REUSE_DAYS = 45  # a question can come back after about six weeks
+NAME_REUSE_DAYS = 30  # a question can come back after a month
 
 
 def fmt(n):
@@ -47,26 +47,24 @@ ERA_FEATS = [
     (("WR", "TE"), "receiving_tds", "caught {t}+ touchdown passes in a season", [16]),
 ]
 CAREER_LISTS = [
-    (("QB",), "passing_yards", "has {t}+ career passing yards", [30000, 40000]),
-    (("QB",), "passing_tds", "has {t}+ career touchdown passes", [200, 250]),
-    (("RB",), "rushing_yards", "has {t}+ career rushing yards", [7000, 9000]),
-    (("RB",), "rushing_tds", "has {t}+ career rushing touchdowns", [60, 80]),
-    (("WR", "TE"), "receiving_yards", "has {t}+ career receiving yards", [8000, 10000]),
-    (("WR", "TE"), "receptions", "has {t}+ career catches", [600, 750]),
-    (("WR", "TE"), "receiving_tds", "has {t}+ career touchdown catches", [60, 75]),
+    (("QB",), "passing_yards", "has {t}+ career passing yards", [25000, 30000]),
+    (("QB",), "passing_tds", "has {t}+ career touchdown passes", [150, 200]),
+    (("RB",), "rushing_yards", "has {t}+ career rushing yards", [6000, 7000]),
+    (("RB",), "rushing_tds", "has {t}+ career rushing touchdowns", [50, 60]),
+    (("WR", "TE"), "receiving_yards", "has {t}+ career receiving yards", [7000, 8000]),
+    (("WR", "TE"), "receptions", "has {t}+ career catches", [500, 600]),
+    (("WR", "TE"), "receiving_tds", "has {t}+ career touchdown catches", [40, 50]),
 ]
 # Single-season feats over a whole span of years: lots of right answers.
 SPAN_FEATS = [
-    (("QB",), "passing_yards", "threw for {t}+ yards in a season", [4500, 4000]),
-    (("QB",), "passing_tds", "threw {t}+ touchdown passes in a season", [35, 30]),
-    (("QB",), "rushing_yards", "ran for {t}+ yards in a season", [600, 500]),
-    (("RB",), "rushing_yards", "ran for {t}+ yards in a season", [1500, 1300]),
-    (("RB",), "rushing_tds", "ran for {t}+ touchdowns in a season", [15, 13]),
-    (("RB",), "receptions", "caught {t}+ passes in a season", [70, 60]),
-    (("WR", "TE"), "receiving_yards", "had {t}+ receiving yards in a season", [1500, 1300]),
-    (("WR", "TE"), "receptions", "caught {t}+ passes in a season", [110, 100]),
-    (("WR", "TE"), "receiving_tds", "caught {t}+ touchdown passes in a season", [13, 12]),
-    (("TE",), "receiving_yards", "had {t}+ receiving yards in a season", [1000, 900]),
+    (("QB",), "passing_yards", "threw for {t}+ yards in a season", [4000, 3500]),
+    (("QB",), "passing_tds", "threw {t}+ touchdown passes in a season", [30, 25]),
+    (("RB",), "rushing_yards", "ran for {t}+ yards in a season", [1200, 1000]),
+    (("RB",), "rushing_tds", "ran for {t}+ touchdowns in a season", [12, 10]),
+    (("WR", "TE"), "receiving_yards", "had {t}+ receiving yards in a season", [1200, 1000]),
+    (("WR", "TE"), "receptions", "caught {t}+ passes in a season", [90, 80]),
+    (("WR", "TE"), "receiving_tds", "caught {t}+ touchdown passes in a season", [10, 8]),
+    (("TE",), "receiving_yards", "had {t}+ receiving yards in a season", [800, 700]),
 ]
 DECADES = [(1999, 2025, "since 1999"), (2000, 2009, "in the 2000s"), (2010, 2019, "in the 2010s"), (2020, 2025, "in the 2020s")]
 
@@ -121,7 +119,7 @@ class NameOneMixin:
 
     # ---- passes: lots of right answers -------------------------------------------------
     def pass_season_list(self, rng, season):
-        for _ in range(12):
+        for _ in range(60):
             pos, stat, label, ts = rng.choice(SEASON_LISTS)
             t = rng.choice(ts)
             hits = sorted((p for p in self.d.players_by_season[season] if p["position"] in pos and p[stat] >= t),
@@ -162,7 +160,7 @@ class NameOneMixin:
         return None
 
     def pass_franchise_qbs(self, rng):
-        for _ in range(10):
+        for _ in range(60):
             f = rng.choice(self.d.franchises)
             lo, hi, when = rng.choice(DECADES)
             rows = self._cached(("qbs", f["franchise"], lo, hi), lambda: [r for r in self.d.qb_starts if r["franchise"] == f["franchise"] and lo <= r["season"] <= hi])
@@ -171,7 +169,7 @@ class NameOneMixin:
                 b = by.setdefault(r["player_id"], {"name": r["name"], "starts": 0, "first": r["season"], "last": r["season"]})
                 b["starts"] += r["starts"]
                 b["first"], b["last"] = min(b["first"], r["season"]), max(b["last"], r["season"])
-            if not 7 <= len(by) <= 45 or not self.fresh(("n1q", f["franchise"], lo), NAME_REUSE_DAYS):
+            if not 10 <= len(by) <= 45 or not self.fresh(("n1q", f["franchise"], lo), NAME_REUSE_DAYS):
                 continue
             items = [(pid, b["name"], f"{b['starts']} start{'s' if b['starts'] != 1 else ''} ({b['first']}{'' if b['first'] == b['last'] else '–' + str(b['last'])})")
                      for pid, b in sorted(by.items(), key=lambda kv: -kv[1]["starts"])]
@@ -187,13 +185,13 @@ class NameOneMixin:
         return None
 
     def pass_franchise_1000(self, rng):
-        for _ in range(10):
+        for _ in range(60):
             f = rng.choice(self.d.franchises)
             stat, word = rng.choice([("rushing_yards", "ran for"), ("receiving_yards", "had")])
             tail = "yards" if stat == "rushing_yards" else "receiving yards"
             hits = self._cached(("k", f["franchise"], stat), lambda: [p for p in self.d.players if p["franchise"] == f["franchise"] and p[stat] >= 1000])
             ids = {p["player_id"] for p in hits}
-            if not 6 <= len(ids) <= 25 or not self.fresh(("n1k", f["franchise"], stat), NAME_REUSE_DAYS):
+            if not 8 <= len(ids) <= 30 or not self.fresh(("n1k", f["franchise"], stat), NAME_REUSE_DAYS):
                 continue
             items = [(p["player_id"], p["name"], f"{fmt(p[stat])} in {p['season']}") for p in sorted(hits, key=lambda p: p["season"])]
             valid, prior = self.player_answers(items)
@@ -204,11 +202,11 @@ class NameOneMixin:
         return None
 
     def pass_career_list(self, rng):
-        for _ in range(10):
+        for _ in range(60):
             pos, stat, label, ts = rng.choice(CAREER_LISTS)
             t = rng.choice(ts)
             hits = sorted((c for c in self.d.careers if c["position"] in pos and c[stat] >= t), key=lambda c: -c[stat])
-            if not 8 <= len(hits) <= 40 or not self.fresh(("n1c", stat, "".join(pos), t), NAME_REUSE_DAYS):
+            if not 12 <= len(hits) <= 60 or not self.fresh(("n1c", stat, "".join(pos), t), NAME_REUSE_DAYS):
                 continue
             unit = "catches" if stat == "receptions" else "TD" if stat.endswith("tds") else "yds"
             valid, prior = self.player_answers((c["player_id"], c["name"], f"{fmt(c[stat])} {unit} ({c['start']}–{c['end']})") for c in hits)
@@ -293,7 +291,7 @@ class NameOneMixin:
         return None
 
     def deep_era_feat(self, rng):
-        for _ in range(10):
+        for _ in range(60):
             pos, stat, label, ts = rng.choice(ERA_FEATS)
             t = rng.choice(ts)
             hits = sorted((p for p in self.d.players if p["position"] in pos and p[stat] >= t), key=lambda p: -p[stat])
@@ -371,13 +369,13 @@ class NameOneMixin:
     # ---- Broad questions (the simplified drive) ----------------------------------------
     def broad_span_feat(self, rng):
         """'Name a running back who ran for 1,500+ yards in a season since 1999 / in the 2010s.'"""
-        for _ in range(12):
+        for _ in range(60):
             pos, stat, label, ts = rng.choice(SPAN_FEATS)
             t = rng.choice(ts)
             lo, hi, when = rng.choice(DECADES)
             hits = self._cached(("span", stat, pos, t, lo, hi), lambda: sorted(
                 (p for p in self.d.players if p["position"] in pos and p[stat] >= t and lo <= p["season"] <= hi), key=lambda p: -p[stat]))
-            if not 10 <= len({p["player_id"] for p in hits}) <= 120:
+            if not 15 <= len({p["player_id"] for p in hits}) <= 150:
                 continue
             if not self.fresh(("bsf", stat, "".join(pos), t, lo), NAME_REUSE_DAYS):
                 continue
@@ -398,10 +396,10 @@ class NameOneMixin:
                     out.setdefault(p["player_id"], {}).setdefault(p["franchise"], []).append(p)
             return out
         teams_of = self._cached(("teams_of",), build)
-        for _ in range(20):
+        for _ in range(60):
             a, b = rng.sample(self.d.franchises, 2)
             hits = [(pid, t) for pid, t in teams_of.items() if a["franchise"] in t and b["franchise"] in t]
-            if not 10 <= len(hits) <= 80:
+            if not 12 <= len(hits) <= 90:
                 continue
             if not self.fresh(("bbt", *sorted((a["franchise"], b["franchise"]))), NAME_REUSE_DAYS):
                 continue
@@ -419,7 +417,7 @@ class NameOneMixin:
 
     def broad_franchise_leaders(self, rng):
         """'Name a player who led the Bears in rushing in a season since 1999.'"""
-        for _ in range(10):
+        for _ in range(60):
             f = rng.choice(self.d.franchises)
             stat, word, pos = rng.choice([("rushing_yards", "rushing", ("RB", "QB", "WR")), ("receiving_yards", "receiving", ("WR", "TE", "RB")),
                                           ("passing_yards", "passing", ("QB",))])
@@ -432,7 +430,7 @@ class NameOneMixin:
                         out.setdefault(top["player_id"], []).append(top)
                 return out
             leaders = self._cached(("leaders", f["franchise"], stat), build)
-            if not 7 <= len(leaders) <= 40 or not self.fresh(("bfl", f["franchise"], stat), NAME_REUSE_DAYS):
+            if not 9 <= len(leaders) <= 40 or not self.fresh(("bfl", f["franchise"], stat), NAME_REUSE_DAYS):
                 continue
             items = [(pid, rows[0]["name"], f"{len(rows)} season{'s' if len(rows) > 1 else ''} ({', '.join(str(r['season']) for r in rows[:4])}{'…' if len(rows) > 4 else ''})")
                      for pid, rows in sorted(leaders.items(), key=lambda kv: -len(kv[1]))]
@@ -452,26 +450,26 @@ class NameOneMixin:
         return cache[key]
 
     FRANCHISE_SEASON = [
-        (("QB",), "passing_tds", 20, "threw 20+ touchdown passes"),
-        (("QB",), "passing_yards", 3500, "threw for 3,500+ yards"),
-        (("RB",), "rushing_yards", 800, "ran for 800+ yards"),
-        (("RB",), "receptions", 40, "caught 40+ passes"),
-        (("WR",), "receiving_yards", 800, "had 800+ receiving yards"),
-        (("WR",), "receptions", 60, "caught 60+ passes"),
-        (("TE",), "receptions", 40, "caught 40+ passes"),
-        (("WR", "TE", "RB"), "receiving_tds", 8, "caught 8+ touchdown passes"),
-        (("RB", "QB"), "rushing_tds", 8, "ran for 8+ touchdowns"),
+        (("QB",), "passing_tds", 15, "threw 15+ touchdown passes"),
+        (("QB",), "passing_yards", 3000, "threw for 3,000+ yards"),
+        (("RB",), "rushing_yards", 700, "ran for 700+ yards"),
+        (("RB",), "receptions", 35, "caught 35+ passes"),
+        (("WR",), "receiving_yards", 700, "had 700+ receiving yards"),
+        (("WR",), "receptions", 50, "caught 50+ passes"),
+        (("TE",), "receptions", 35, "caught 35+ passes"),
+        (("WR", "TE", "RB"), "receiving_tds", 6, "caught 6+ touchdown passes"),
+        (("RB", "QB"), "rushing_tds", 6, "ran for 6+ touchdowns"),
     ]
 
     def broad_franchise_stat(self, rng):
         """'Name a receiver who had 800+ receiving yards in a season for the Bears since 1999.'"""
-        for _ in range(12):
+        for _ in range(60):
             f = rng.choice(self.d.franchises)
             pos, stat, t, label = rng.choice(self.FRANCHISE_SEASON)
             hits = self._cached(("fs", f["franchise"], stat, pos, t), lambda: sorted(
                 (p for p in self.d.players if p["franchise"] == f["franchise"] and p["position"] in pos and p[stat] >= t),
                 key=lambda p: -p[stat]))
-            if not 6 <= len({p["player_id"] for p in hits}) <= 60:
+            if not 12 <= len({p["player_id"] for p in hits}) <= 80:
                 continue
             if not self.fresh(("bfs", f["franchise"], stat, "".join(pos)), NAME_REUSE_DAYS):
                 continue

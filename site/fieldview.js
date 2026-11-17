@@ -77,54 +77,85 @@ export function createFieldView(canvas) {
   }
 
   /** Animate a play from the old state to the new one. */
+  // Big pixel text with a dark outline, centered on x (art pixels).
+  function callout(text, x, color, scale = 2) {
+    const w = (text.length * 6 - 1) * scale;
+    const cx = Math.max(2, Math.min(W - w - 2, Math.round(x - w / 2)));
+    const cy = Math.round(mid - 3.5 * scale);
+    for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [1, 1], [-1, 1], [1, -1]]) {
+      drawText(r, text, cx + dx, cy + dy, PALETTE.board, scale);
+    }
+    drawText(r, text, cx, cy, color, scale);
+  }
+
+  const TIER_COLOR = { check: "#ffd23f", seam: "#5ef08a", bomb: "#ff9a3c" };
+  const tierOf = (rarity) => (rarity >= 0.75 ? "bomb" : rarity >= 0.4 ? "seam" : "check");
+
+  /** A pass: drop back, the ball flies on an arc (higher and longer for deeper throws). */
+  async function throwBall(old, fromX, toX, peak, ms, { drop = 0, bounce = false } = {}) {
+    const qbX = fromX - 6;
+    await tween(180, (p) => frame({ ...old, ballX: fromX + (qbX - fromX) * p }));
+    await tween(ms, (p) => {
+      const e = ease(p);
+      const x = qbX + (toX - qbX) * e;
+      const y = mid - Math.sin(Math.PI * p) * peak + drop * p * p;
+      frame({ ...old, ballX: x, ballY: y });
+      r(Math.round(x) - 1, mid + 4, 3, 1, "#1b4d1a"); // shadow on the grass
+    });
+    if (bounce) {
+      const x0 = toX;
+      await tween(320, (p) => frame({ ...old, ballX: x0 + 6 * p, ballY: mid + drop - Math.abs(Math.sin(Math.PI * 2 * p)) * 4 }));
+    }
+  }
+
+  async function hold(ms) {
+    await sleep(reduceMotion.matches ? 0 : ms);
+  }
+
+  /** Animate a play from the old state to the new one. */
   async function animate(event, before, after) {
     const fromX = xOf(before.yl);
     const old = { yl: before.yl, toGo: before.toGo };
-    if (event.kind === "fg") {
-      // The kick flies toward the goal posts; a miss hooks wide.
-      const postX = xOf(110) - 2;
-      await tween(900, (p) => {
-        const e = ease(p);
-        const x = fromX + (postX - fromX) * e;
-        const drift = event.good ? 0 : (mid - top - 4) * p * p;
-        frame({ ...old, ballX: x, ballY: mid - Math.sin(Math.PI * e) * 10 - drift });
-        r(postX, mid - 9, 1, 18, FIRST);
-      });
-      if (event.good) await flashEnd(PALETTE.scoreText, "GOOD");
-      frame({ ...old, showFirst: false });
-      return;
-    }
-    if (event.kind === "pat1" || event.kind === "pat2") {
-      if (event.good) await flashEnd(PALETTE.scoreText, event.kind === "pat1" ? "+1" : "+2");
+
+    if (!event.yards) {
+      // Incomplete: the ball sails, hits the turf and bounces away.
+      await throwBall(old, fromX, fromX + 24, 8, 520, { drop: 10, bounce: true });
+      frame(old);
+      callout(event.timedOut ? "TIME" : "INC", fromX + 20, "#f4f4ec");
+      await hold(650);
       draw(after);
       return;
     }
-    if (event.delay || event.yards < 0) {
-      // Sack or penalty: the ball gets pushed back.
-      const toX = xOf(after.yl);
-      await tween(500, (p) => frame({ ...old, ballX: fromX + (toX - fromX) * ease(p), trail: [fromX, fromX + (toX - fromX) * p, "#e04848"] }));
-      await sleep(150);
-      draw(after);
-      return;
-    }
-    if (event.yards === 0) {
-      // Incomplete: the pass sails and falls short, ball comes back.
-      await tween(650, (p) => {
-        const x = fromX + Math.sin(Math.PI * p) * 18;
-        frame({ ...old, ballX: x, ballY: mid - Math.sin(Math.PI * p) * 8 });
-      });
-      draw(after);
-      return;
-    }
-    // A gain: the better the play, the faster the ball moves downfield.
+
+    // A completion: deeper throws fly higher, farther and faster.
+    const tier = tierOf(event.rarity);
     const toX = xOf(after.yl);
-    const ms = 450 + event.yards * 22;
-    await tween(ms, (p) => {
-      const x = fromX + (toX - fromX) * ease(p);
-      frame({ ...old, ballX: x, trail: [fromX, x, PALETTE.line] });
-    });
-    if (event.td) await flashEnd(PALETTE.scoreText, "TD");
-    else if (event.firstDown) await sleep(120);
+    const peak = { check: 5, seam: 11, bomb: 18 }[tier];
+    const ms = { check: 520, seam: 620, bomb: 760 }[tier];
+    await throwBall(old, fromX, toX, peak, ms);
+    // The catch: a burst of white pixels, then the yardage callout.
+    for (const [dx, dy] of [[-3, -3], [3, -3], [-3, 3], [3, 3], [0, -4], [0, 4], [-4, 0], [4, 0]]) r(toX + dx, mid + dy, 1, 1, PALETTE.line);
+    if (event.td) {
+      await flashEnd(PALETTE.scoreText, "TD");
+      frame({ yl: 99, toGo: 0, showFirst: false, ballX: xOf(105) });
+      callout("TOUCHDOWN", W / 2, PALETTE.scoreText);
+      await hold(1100);
+      draw(after);
+      return;
+    }
+    callout(`+${event.yards}`, toX, TIER_COLOR[tier], tier === "bomb" ? 3 : 2);
+    await hold(tier === "bomb" ? 900 : 650);
+    if (event.firstDown) {
+      draw(after);
+      const fx = xOf(Math.min(after.yl + after.toGo, 99));
+      for (let i = 0; i < 2; i++) {
+        r(fx - 1, top, 3, bottom - top, FIRST);
+        callout("1ST DOWN", (toX + fx) / 2, FIRST, 1);
+        await hold(220);
+        draw(after);
+        await hold(120);
+      }
+    }
     draw(after);
   }
 
@@ -133,9 +164,9 @@ export function createFieldView(canvas) {
     for (let i = 0; i < 3; i++) {
       frame({ ...state, yl: Math.min(state.yl, 99), showFirst: false, flash: { x, w: 10 * YARD - 1, color } });
       drawText(r, text, x + Math.round((10 * YARD - text.length * 6) / 2), mid - 3, PALETTE.board, 1);
-      await sleep(reduceMotion.matches ? 0 : 160);
+      await hold(160);
       frame({ ...state, yl: Math.min(state.yl, 99), showFirst: false });
-      await sleep(reduceMotion.matches ? 0 : 110);
+      await hold(110);
     }
   }
 

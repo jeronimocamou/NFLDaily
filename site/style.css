@@ -475,3 +475,20 @@ table.yards small { display: block; color: var(--muted); }
 .tier-seam { background: color-mix(in srgb, var(--good) 20%, transparent); }
 .tier-check { background: color-mix(in srgb, var(--mid) 22%, transparent); }
 .tier-group details summary { padding: 6px 10px; }
+
+/* ---- Compact play result ---- */
+.prompt.small { font-size: 1rem; color: var(--muted); font-weight: 600; }
+.play-result {
+  margin-top: 14px; padding: 16px; border-radius: 12px; text-align: center;
+  border: 3px solid var(--edge); background: var(--surface-2);
+  animation: pop .35s cubic-bezier(.2, 1.6, .4, 1);
+}
+.pr-big { font-family: var(--pixel); font-size: 1.05rem; line-height: 1.4; }
+.pr-sub { margin-top: 8px; font-weight: 700; }
+.pr-bomb { background: color-mix(in srgb, #ff8a1f 25%, var(--surface-2)); }
+.pr-seam { background: color-mix(in srgb, var(--good) 22%, var(--surface-2)); }
+.pr-check { background: color-mix(in srgb, var(--mid) 25%, var(--surface-2)); }
+.pr-td { background: color-mix(in srgb, #ffd23f 35%, var(--surface-2)); }
+.pr-miss { background: var(--surface-2); color: var(--muted); }
+@keyframes pop { from { transform: scale(.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .play-result { animation: none; } }

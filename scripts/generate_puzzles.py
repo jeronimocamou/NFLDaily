@@ -33,7 +33,7 @@ FACTS = ROOT / "data" / "facts.json"
 OUT = ROOT / "puzzles"
 LAUNCH = dt.date(2026, 11, 1)  # Puzzle #1
 
-PLAYS = 16  # questions per drive (a drive rarely needs more than ~12)
+PLAYS = 12  # questions per drive (a drive rarely needs more than ~10)
 
 POS_LABEL = {"QB": "quarterback", "RB": "running back", "WR": "wide receiver", "TE": "tight end"}
 
@@ -368,7 +368,7 @@ class Generator(NameOneMixin):
         if key and key[0] in ALL_TIME_KEYS:
             window = min(window, ALL_TIME_REUSE_DAYS)
         if getattr(self, "relax", False):
-            window = min(window, 30)
+            window = min(window, 10)
         if last is not None and (self.date - last).days < window:
             return False
         self.used[key] = self.date

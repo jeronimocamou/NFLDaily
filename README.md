@@ -10,13 +10,13 @@ A right answer is a pass, and how far it goes depends on how deep a cut it is:
 
 | Tier | Which right answers | Yards |
 |---|---|---|
-| 🟨 **Check Down** | the most obvious ~40% | 7 (two make a first down) |
+| 🟨 **Check Down** | the most obvious ~40% | 10 (always a first down) |
 | 🟩 **Seam Route** | the middle ~35% | 20 |
 | 💣 **Bomb** | the deepest ~25%, or a question's only answer | 40 |
 
-How obvious an answer is comes from our own stats, not from other players, so it works from day one and everyone gets the same yards for the same answer. Each right answer carries an "obviousness" weight (career production since 1999, how many times the player fits the question, starts, seasons leading the team, team success). Answers to each question are ranked by it and split into the three tiers. Each question shows its split ("3 bombs · 3 seams · 4 check-downs"). A wrong answer, or running out the 30-second timer, is an incomplete pass. You have **4 downs to gain 10 yards**, and reaching the end zone wins it (touchdown plus automatic extra point = 7). After each play you see every right answer, grouped by tier.
+How obvious an answer is comes from our own stats, not from other players, so it works from day one and everyone gets the same yards for the same answer. Each right answer carries an "obviousness" weight (career production since 1999, how many times the player fits the question, starts, seasons leading the team, team success). Answers to each question are ranked by it and split into the three tiers. Each question shows its split ("3 bombs · 3 seams · 4 check-downs"). A wrong answer, or running out the 30-second timer, is an incomplete pass. You have **4 downs to gain 10 yards**, and reaching the end zone wins it (touchdown plus automatic extra point = 7). After each play you see the tier and yards you earned, animated on the field.
 
-Questions are always broad, covering a franchise or a span like "since 1999" or "in the 2010s", never a single season. Each has at least 6 right answers (usually 10+). Results rank by **points, then yards, then fewer plays**.
+Questions are always broad, covering a franchise or a span like "since 1999" or "in the 2010s", never a single season. Each has at least 9 right answers, usually 12 or more, so there's always an obvious one. Results rank by **points, then yards, then fewer plays**.
 
 Players also get a pixel-art broadcast field that animates every play, a shareable drive chart (💣🟩🟨⬜🏈) with a link preview, streaks and stats, "how everyone else did", a calendar of past drives, optional accounts with daily and all-time leaderboards, friends leagues, and an installable home-screen app.
 
@@ -24,7 +24,7 @@ Players also get a pixel-art broadcast field that animates every play, a shareab
 
 ```
 scripts/build_db.py         downloads nflverse data -> data/nfl.sqlite
-scripts/generate_puzzles.py data/nfl.sqlite + data/facts.json -> puzzles/YYYY-MM-DD.json (16 broad name-one questions a day) and site/names.json (autocomplete)
+scripts/generate_puzzles.py data/nfl.sqlite + data/facts.json -> puzzles/YYYY-MM-DD.json (12 broad name-one questions a day) and site/names.json (autocomplete)
 scripts/playbook.py         the open-ended "name one" question types
 puzzles/                    full puzzles with answers (private; never served directly)
 api/                        Vercel serverless functions
