@@ -519,5 +519,5 @@ class NameOneMixin:
             else:
                 p = players[r["player_id"]]
                 p[3], p[4] = min(p[3], r["season"]), max(p[4], r["season"])
-        teams = [[f["franchise"], f["name"], sorted(f["old_names"])] for f in self.d.franchises]
+        teams = [[f["franchise"], f["name"], sorted(f["old_names"]), f["color"], f["color2"]] for f in self.d.franchises]
         return {"players": sorted(players.values(), key=lambda p: p[1]), "teams": sorted(teams, key=lambda t: t[1])}

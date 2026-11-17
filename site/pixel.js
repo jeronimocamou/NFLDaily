@@ -110,7 +110,7 @@ function drawDigits3(r, str, x, y, color) {
  * lines across the box (end zones at top and bottom); otherwise end zones are
  * left and right. Midfield sits at the box's center; `yard` is pixels per yard.
  */
-export function drawField(r, x, y, w, h, { vertical = true, yard = 3 } = {}) {
+export function drawField(r, x, y, w, h, { vertical = true, yard = 3, ends = null, logo = true } = {}) {
   const L = vertical ? h : w; // along the field
   const Wd = vertical ? w : h; // across the field
   // Map (along, across, alongLen, acrossLen) into screen space.
@@ -131,11 +131,25 @@ export function drawField(r, x, y, w, h, { vertical = true, yard = 3 } = {}) {
 
   // Grass stripes every 5 yards, end zones, and grass beyond the end lines.
   for (let yd = 0; yd < 100; yd += 5) R(at(yd), inner0, 5 * yard, innerW, (yd / 5) % 2 ? PALETTE.grass1 : PALETTE.grass2);
-  for (const [start, c1, c2] of [[-10, PALETTE.endzoneA, PALETTE.endzoneA2], [100, PALETTE.endzoneB, PALETTE.endzoneB2]]) {
+  // End zones: team colors and a stacked team label when given.
+  const zones = [
+    [-10, ends?.[0]?.c1 || PALETTE.endzoneA, ends?.[0]?.c2 || PALETTE.endzoneA2, ends?.[0]?.label],
+    [100, ends?.[1]?.c1 || PALETTE.endzoneB, ends?.[1]?.c2 || PALETTE.endzoneB2, ends?.[1]?.label],
+  ];
+  for (const [start, c1, c2, label] of zones) {
     R(at(start), inner0, 10 * yard, innerW, c1);
     // Diagonal stripes in the end zone.
     for (let a = 0; a < 10 * yard; a++) {
       for (let c = 0; c < innerW; c++) if ((a + c) % 8 < 2) R(at(start) + a, inner0 + c, 1, 1, c2);
+    }
+    if (label && !vertical) {
+      const letters = label.slice(0, 3).toUpperCase().split("");
+      const lx = x + Math.round(at(start) + 5 * yard - 2.5);
+      const ly = y + Math.round(Wd / 2 - (letters.length * 8 - 1) / 2);
+      letters.forEach((ch, k) => {
+        drawText(r, ch, lx + 1, ly + k * 8 + 1, "#00000088".slice(0, 7), 1);
+        drawText(r, ch, lx, ly + k * 8, PALETTE.line, 1);
+      });
     }
   }
   // Sidelines and end lines.
@@ -172,6 +186,7 @@ export function drawField(r, x, y, w, h, { vertical = true, yard = 3 } = {}) {
   }
 
   // Midfield logo: a pixel football.
+  if (!logo) return;
   const ball = ["..####..", ".######.", "##.#.#.#", "##.....#", ".######.", "..####.."];
   const laces = ["........", "........", "..#.#.#.", "..#####.", "........", "........"];
   const bw = 8, bh = 6;

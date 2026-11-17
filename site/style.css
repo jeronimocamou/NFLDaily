@@ -526,3 +526,28 @@ table.yards small { display: block; color: var(--muted); }
 .vs-verdict { margin: 0 0 6px; font-weight: 800; }
 .vs-row { display: grid; grid-template-columns: 56px 1fr auto; gap: 8px; align-items: center; padding: 4px 0; text-align: left; }
 @media (prefers-reduced-motion: reduce) { .streak, .streak.bump { animation: none; } }
+
+/* ---- Celebrations, mute, team picker ---- */
+#game-hud { position: relative; }
+#game-hud.shake { animation: shake .45s cubic-bezier(.36, .07, .19, .97); }
+@keyframes shake {
+  10%, 90% { transform: translate(-1px, 1px); }
+  20%, 80% { transform: translate(3px, -2px); }
+  30%, 50%, 70% { transform: translate(-5px, 2px); }
+  40%, 60% { transform: translate(5px, -1px); }
+}
+.confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 4; }
+.confetti i {
+  position: absolute; top: -8px; width: 6px; height: 6px;
+  animation: fall var(--d) ease-in var(--delay) forwards;
+}
+@keyframes fall { to { transform: translate(var(--x), 260px) rotate(540deg); opacity: .2; } }
+.mute-btn {
+  border: 0; background: none; cursor: pointer; font-size: .95rem; padding: 0 0 0 6px; line-height: 1;
+}
+.team-pick { display: grid; gap: 6px; margin-top: 16px; font-weight: 700; font-size: .9rem; text-align: left; }
+.team-select {
+  font: inherit; padding: 10px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface-2); color: var(--text);
+}
+@media (prefers-reduced-motion: reduce) { #game-hud.shake { animation: none; } }
