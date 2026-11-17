@@ -564,3 +564,23 @@ table.yards small { display: block; color: var(--muted); }
   .brand h1 { font-size: .6rem; white-space: nowrap; }
   .meta { font-size: .72rem; white-space: nowrap; }
 }
+
+/* Commentary under each play result */
+.pr-call { margin: 8px 0 0; font-size: .9rem; font-style: italic; color: var(--muted); }
+
+/* Badges */
+.badge-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+.badge { display: grid; grid-template-columns: auto 1fr; column-gap: 8px; align-items: center; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface-2); text-align: left; }
+.badge .b-emoji { grid-row: span 2; font-size: 1.5rem; line-height: 1; }
+.badge .b-name { font-weight: 700; font-size: .85rem; }
+.badge .b-desc { font-size: .72rem; color: var(--muted); line-height: 1.25; }
+.badge.locked { opacity: .55; }
+.badge.locked .b-emoji { filter: grayscale(1); }
+.badge.fresh { border-color: #ffd23f; box-shadow: 0 0 0 2px rgb(255 210 63 / .35); animation: badge-pop .5s cubic-bezier(.3, 1.6, .5, 1) both; }
+@keyframes badge-pop { from { transform: scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .badge.fresh { animation: none; } }
+.new-badges { margin: 12px 0 4px; }
+.nb-head { margin: 0; font-weight: 800; text-align: center; }
+.new-badges .badge-list { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.badge-case { margin: 12px 0; }
+.badge-case > summary { cursor: pointer; font-weight: 700; padding: 6px 0; }
