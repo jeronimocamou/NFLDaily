@@ -1,6 +1,6 @@
 // GET /s/:code (rewritten to /api/share?c=:code) -> a tiny page whose link
 // preview shows the shared score, then sends people on to the game.
-import { parseShareCode, shareLabel } from "../lib/og.js";
+import { parseShareCode } from "../lib/og.js";
 
 import { CODE_EMOJI } from "../site/drive.js";
 
@@ -15,10 +15,11 @@ export default function handler(req, res) {
   const proto = String(req.headers["x-forwarded-proto"] || "https").split(",")[0];
   const host = req.headers["x-forwarded-host"] || req.headers.host;
   const origin = `${proto}://${host}`;
-  const grid = share.codes.split("").map((t) => CODE_EMOJI[t]).join("");
-  const label = shareLabel(share);
-  const title = `Fourth & Daily #${share.number}: ${label[0] + label.slice(1).toLowerCase()}! ${share.yards} yds in ${share.plays} plays`;
-  const desc = `${grid} ${share.yards} yards in ${share.plays} plays. Name football answers, drive down the field: can you beat it?`;
+  const grid = share.codes.split("").map((c) => CODE_EMOJI[c] || "").join("");
+  const title = share.points
+    ? `Fourth & Daily #${share.number}: Touchdown in ${share.plays} plays 🏈`
+    : `Fourth & Daily #${share.number}: ${share.yards} yards in ${share.plays} plays`;
+  const desc = `${grid}${share.streak > 1 ? ` · 🔥 ${share.streak}-day streak` : ""} · Can you beat my drive? Name football answers to march down the field.`;
   const image = `${origin}/api/og?c=${code}`;
 
   res.statusCode = 200;
@@ -43,11 +44,11 @@ export default function handler(req, res) {
 <meta name="twitter:title" content="${title.replace("&", "&amp;")}">
 <meta name="twitter:description" content="${desc}">
 <meta name="twitter:image" content="${image}">
-<meta http-equiv="refresh" content="0; url=/">
+<meta http-equiv="refresh" content="0; url=/?vs=${code}">
 </head>
 <body style="background:#0f141c;color:#f4f4ec;font-family:system-ui;text-align:center;padding:40px">
 <p>${title.replace("&", "&amp;")} ${grid}</p>
-<p><a href="/" style="color:#ffd23f">Play today's Fourth &amp; Daily →</a></p>
+<p><a href="/?vs=${code}" style="color:#ffd23f">Play today's Fourth &amp; Daily →</a></p>
 </body>
 </html>`);
 }
