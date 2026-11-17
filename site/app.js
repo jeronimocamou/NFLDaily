@@ -658,17 +658,7 @@ function renderSummary() {
 
   const share = async () => {
     if (navigator.share && matchMedia("(pointer: coarse)").matches) {
-      // Attach the scoreboard picture where the share sheet supports files.
-      try {
-        const blob = await (await fetch(`/api/og?c=${code}`)).blob();
-        const file = new File([blob], `fourth-and-daily-${puzzle.number}.png`, { type: "image/png" });
-        if (navigator.canShare?.({ files: [file] })) {
-          await navigator.share({ files: [file], text: shareText });
-          return;
-        }
-      } catch (e) {
-        if (e.name === "AbortError") return;
-      }
+      // Just the text: the link's own preview shows the scoreboard picture.
       try {
         await navigator.share({ text: shareText });
         return;
