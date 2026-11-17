@@ -1,5 +1,6 @@
 import { startStadium } from "./stadium.js";
 import { createFieldView } from "./fieldview.js";
+import * as sound from "./sound.js";
 import { RULES, CODE_EMOJI, TIERS, downText, driveRank, fieldSpot, isCurrent, newDrive, resolve, snap, summary, tierFor } from "./drive.js";
 
 // Fourth & Daily client. Each day is one drive: down 21-17, ball on your own
@@ -103,8 +104,133 @@ const signedIn = () => Boolean(account.user);
 const nPlays = () => (puzzle.rounds ? puzzle.rounds.length : puzzle.plays);
 const roundAt = (i) => (puzzle.rounds ? puzzle.rounds[i] : qcache[i]);
 
-const field = createFieldView($("#field"));
 const stadium = startStadium($("#stadium"));
+const field = createFieldView($("#field"), {
+  onCatch: () => sound.pop(),
+  onIncomplete: () => sound.thud(),
+  onFirstDown: () => sound.chime(),
+  onBomb: () => {
+    sound.roar(false);
+    shake();
+    confetti(18);
+  },
+  onTouchdown: () => {
+    sound.roar(true);
+    confetti(70);
+    stadium.cheer();
+  },
+});
+
+// ---- Celebrations ---------------------------------------------------------------------------------
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+
+function shake() {
+  if (reduceMotion.matches) return;
+  const hud = $("#game-hud");
+  hud.classList.remove("shake");
+  void hud.offsetWidth; // restart the animation
+  hud.classList.add("shake");
+}
+
+/** Pixel confetti falling over the scoreboard. */
+function confetti(n) {
+  if (reduceMotion.matches) return;
+  const colors = ["#ffd23f", "#ff6b5a", "#5ef08a", "#4aa3ff", "#f4f4ec", "#ff9a3c"];
+  const box = h("div", { class: "confetti", "aria-hidden": "true" });
+  for (let i = 0; i < n; i++) {
+    box.append(h("i", { style: {
+      left: `${Math.random() * 100}%`, background: colors[i % colors.length],
+      "--d": `${0.9 + Math.random() * 1.1}s`, "--x": `${(Math.random() - 0.5) * 80}px`, "--delay": `${Math.random() * 0.3}s`,
+    } }));
+  }
+  $("#game-hud").append(box);
+  setTimeout(() => box.remove(), 2600);
+}
+
+// ---- Teams: your favorite (left end zone, jerseys) and today's opponent (right) ---------------------
+const TEAM_KEY = "nfldaily:team";
+let favorite = null;
+try { favorite = localStorage.getItem(TEAM_KEY); } catch { /* ignore */ }
+
+function teamInfo(code) {
+  const t = names?.teams.find((x) => x[0] === code);
+  return t ? { code: t[0], name: t[1], c1: t[3], c2: t[4] } : null;
+}
+
+/** The same opponent for everyone each day (never your own team). */
+function opponentFor(day) {
+  const list = (names?.teams || []).filter((t) => t[0] !== favorite);
+  if (!list.length) return null;
+  let hash = 0;
+  for (const ch of day) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+  return teamInfo(list[hash % list.length][0]);
+}
+
+async function applyTeams() {
+  await loadNames().catch(() => null);
+  const mine = (favorite && teamInfo(favorite)) || { code: "", c1: "#1d3f8a", c2: "#f4f4ec" };
+  const them = opponentFor(date) || { code: "", c1: "#b3262e", c2: "#f4f4ec" };
+  field.setTeams({ mine, them });
+  $("#sb-us-label").textContent = mine.code || "YOU";
+  $("#sb-them-label").textContent = them.code || "THEM";
+  $("#sb-them-label").title = them.name || "";
+}
+
+function teamPicker() {
+  const select = h("select", { class: "team-select", "aria-label": "Your team" },
+    h("option", { value: "" }, "No favorite team"),
+    (names?.teams || []).map((t) => h("option", { value: t[0], selected: t[0] === favorite }, t[1])));
+  select.addEventListener("change", () => {
+    favorite = select.value || null;
+    try { favorite ? localStorage.setItem(TEAM_KEY, favorite) : localStorage.removeItem(TEAM_KEY); } catch { /* ignore */ }
+    applyTeams();
+  });
+  return h("label", { class: "team-pick" }, h("span", {}, "Your team (end zone and jerseys)"), select);
+}
+
+function setupMute() {
+  const btn = $("#mute-btn");
+  const paint = () => {
+    btn.textContent = sound.isMuted() ? "🔇" : "🔊";
+    btn.setAttribute("aria-label", sound.isMuted() ? "Unmute sounds" : "Mute sounds");
+  };
+  btn.addEventListener("click", () => {
+    sound.setMuted(!sound.isMuted());
+    if (!sound.isMuted()) {
+      sound.unlock();
+      sound.chime();
+    }
+    paint();
+  });
+  paint();
+}
+
+// ---- Drive replay ----------------------------------------------------------------------------------
+async function replayDrive() {
+  if (animating || !drive?.log.length) return;
+  animating = true;
+  render();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  field.setSpeed(0.85);
+  let s = { yl: RULES.start, toGo: 10, down: 1 };
+  field.draw({ ...s, phase: "ready" });
+  await new Promise((res) => setTimeout(res, 500));
+  for (const [k, e] of drive.log.entries()) {
+    const before = { ...s, phase: "ready" };
+    const td = e.code === "t";
+    const yl = Math.min(100, s.yl + e.yards);
+    const firstDown = !td && e.yards >= s.toGo;
+    const next = firstDown ? { yl, toGo: Math.min(10, 100 - yl), down: 1 } : { yl, toGo: s.toGo - e.yards, down: s.down + 1 };
+    $("#sb-clock").textContent = String(k + 1);
+    sound.whistle();
+    await new Promise((res) => setTimeout(res, 250));
+    await field.animate({ yards: e.yards, rarity: e.rarity, hit: e.hit, td, firstDown, timedOut: !e.hit && !e.guesses?.length }, before, { ...next, phase: td ? "over" : "ready" });
+    s = next;
+  }
+  field.setSpeed(1);
+  animating = false;
+  render();
+}
 
 function persistLocal() {
   if (signedIn()) return;
@@ -211,6 +337,7 @@ async function loadNames() {
   if (names) return names;
   const data = await (await fetch("/names.json")).json();
   names = {
+    teams: data.teams,
     player: data.players.map(([id, name, pos, start, end]) => ({
       id, name, sub: `${pos} · ${start === end ? start : `${start}–${end}`}`, key: normName(name), span: end - start,
     })),
@@ -332,6 +459,8 @@ function applyServer(r) {
 async function act() {
   if (busy || animating) return;
   busy = true;
+  sound.unlock();
+  sound.whistle();
   try {
     if (signedIn()) {
       applyServer(await api("drive", { date, action: "play" }));
@@ -394,7 +523,6 @@ async function finishPlay(i, state, event, reveal, guesses, answers = null) {
   render();
   window.scrollTo({ top: 0, behavior: "smooth" });
   await field.animate(event, before, state);
-  if (event.td) stadium.cheer();
   animating = false;
   if (drive.phase === "over") await onDriveOver();
   render();
@@ -605,6 +733,7 @@ function renderSummary() {
     cta,
     h("p", { class: "recap-title" }, "Your drive · tap a play to see every right answer"),
     h("ol", { class: "summary-list recap-list" }, plays),
+    h("button", { type: "button", class: "btn replay-btn", disabled: animating, onclick: replayDrive }, "▶ Replay your drive"),
     h("div", { class: "row-btns" },
       h("button", { type: "button", class: "btn", onclick: () => openLeaderboard() }, "Leaderboard"),
       h("button", { type: "button", class: "btn", onclick: openArchive }, "Past drives")),
@@ -764,7 +893,7 @@ function renderProfile() {
   } else if (account.enabled) {
     parts.push(h("p", { class: "hint center" }, "These stats are saved on this device only."), authForm());
   }
-  parts.push(installPrompt());
+  parts.push(teamPicker(), installPrompt());
   $("#profile-body").replaceChildren(...parts.filter(Boolean));
 }
 
@@ -1044,6 +1173,8 @@ async function boot() {
   $("#puzzle-meta").textContent = prettyDate(date);
   loadNames().catch(() => {});
   loadChallenge();
+  applyTeams();
+  setupMute();
   await refreshAccount();
   updateStreak();
   try {
