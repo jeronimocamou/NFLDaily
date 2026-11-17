@@ -6,7 +6,7 @@ A daily football trivia game played as one drive. **You're down 21–17 with the
 - *"Name a player who played for both the Jets and the Patriots"*
 - *"Name a running back who ran for 1,500+ yards in a season in the 2010s"*
 
-A right answer gains **5 to 20 yards**, and **rarer answers go farther** (Krillion-style). Each answer starts with a built-in estimate of how obvious it is, and real answers from players take over as people play. A wrong answer, or running out the 30-second timer, is an incomplete pass. You have **4 downs to gain 10 yards**, and reaching the end zone wins it (touchdown plus automatic extra point = 7). After each play you see every right answer and how often players named it.
+A right answer gains **5 to 20 yards**: the obvious answers gain the least and **deep cuts gain the most**. How obvious an answer is comes from our own stats, not from other players, so it works from day one and every player gets the same yards for the same answer. Each right answer carries an "obviousness" weight (career totals, how many times the player fits the question, starts, seasons leading the team, team success), and the answers to each question are ranked by it and spread evenly from 5 yards (most obvious) to 20 (deepest cut). A wrong answer, or running out the 30-second timer, is an incomplete pass. You have **4 downs to gain 10 yards**, and reaching the end zone wins it (touchdown plus automatic extra point = 7). After each play you see every right answer and what each was worth.
 
 Questions are always broad, covering a franchise or a span like "since 1999" or "in the 2010s", never a single season. Each has at least 6 right answers (usually 10+). Results rank by **points, then yards, then fewer plays**.
 
@@ -22,8 +22,8 @@ puzzles/                    full puzzles with answers (private; never served dir
 api/                        Vercel serverless functions
 lib/                        shared server code (grading, accounts, leaderboards)
 site/                       static website (index.html, style.css, app.js)
-site/drive.js               the rules of a drive (yards from rarity, downs, scoring), shared by browser and server
-lib/plays.js                grading a play, including answer rarity from the answer_counts table
+site/drive.js               the rules of a drive (yards from how deep a cut the answer is, downs, scoring), shared by browser and server
+lib/plays.js                grading a play: right or wrong, and how deep a cut the answer is
 site/fieldview.js           the animated broadcast field
 site/pixel.js               pixel-art stadium renderer (shared by the site background and share images)
 ```

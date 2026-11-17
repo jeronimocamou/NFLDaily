@@ -9,16 +9,16 @@ import { gradePlay } from "../lib/plays.js";
 import { publicReveal } from "../lib/drives.js";
 
 export default handler(["POST"], async (req, res) => {
-  const { date, round: idx, guess, attempt } = req.body;
+  const { date, round: idx, guess } = req.body;
   if (!isPlayable(date)) return send(res, 404, { error: "No puzzle for that date" });
   const puzzle = loadPuzzle(date);
   const round = Number.isInteger(idx) ? puzzle?.rounds[idx] : null;
   if (!round) return send(res, 400, { error: "Unknown round" });
 
   const pool = await db();
-  const g = await gradePlay(pool, date, idx, round, guess, Number.isInteger(attempt) ? attempt : 1);
+  const g = await gradePlay(pool, date, idx, round, guess);
   if (!g.valid) return send(res, 400, { error: "Invalid guess" });
   if (!g.done) return send(res, 200, { done: false, hint: g.hint });
   if (pool) await recordRound(pool, date, idx, g.result.score);
-  send(res, 200, { done: true, result: g.result, reveal: publicReveal(round), popular: g.popular ?? null });
+  send(res, 200, { done: true, result: g.result, reveal: publicReveal(round), answers: g.answers });
 });

@@ -4,7 +4,7 @@ import { RULES, CODE_EMOJI, downText, driveRank, fieldSpot, isCurrent, newDrive,
 
 // Fourth & Daily client. Each day is one drive: down 21-17, ball on your own
 // 25. Every play is one question: type a right answer to move the ball
-// (rarer right answers gain more). 4 downs to gain 10 yards; reach the end
+// (less obvious answers gain more). 4 downs to gain 10 yards; reach the end
 // zone to win. Signed-in drives run on the server (/api/drive), which times
 // every play; anonymous drives run in the browser with the same rules
 // (site/drive.js), graded by /api/answer and saved in localStorage.
@@ -91,7 +91,7 @@ const legacy = loadJSON(LEGACY_KEY, { games: {} });
 let account = { enabled: false, user: null, stats: null };
 let puzzle = null; // anonymous: every question (no answers); signed in: { number, plays }
 let drive = null; // engine state (site/drive.js)
-let qdata = {}; // per question index: { done, hit, rarity, guesses, reveal, popular, error }
+let qdata = {}; // per question index: { done, hit, rarity, guesses, reveal, answers, error }
 let qcache = {}; // signed in: questions as they were served
 let lastPlay = null; // { idx, event } for the result card
 let liveStart = 0; // local time the live play was snapped
@@ -202,7 +202,6 @@ function roundShell(round, i, ...body) {
 
 // ---- Type-ahead answers ("name one" plays) -------------------------------------------------
 let names = null;
-const MIN_FOR_PCT = 5; // show "how often players named it" once enough people have answered
 const normName = (x) => x.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ").trim();
 
 async function loadNames() {
@@ -235,23 +234,20 @@ function searchNames(kind, q) {
 const nameFor = (kind, id) => names?.[kind]?.find((n) => n.id === id)?.name;
 
 function answersList(round, st) {
-  const pop = st.popular?.answers
-    || (st.reveal ? Object.entries(st.reveal.valid).map(([id, v]) => ({ id, name: v.name, note: v.note, pct: 0, n: 0 })) : []);
-  if (!pop.length) return null;
-  const total = st.popular?.total >= MIN_FOR_PCT ? st.popular.total : 0;
+  const list = st.answers
+    || (st.reveal ? Object.entries(st.reveal.valid).map(([id, v]) => ({ id, name: v.name, note: v.note })) : []);
+  if (!list.length) return null;
   const row = (a) => h("li", { class: a.yours ? "yours" : "" },
     h("span", { class: "a-name" }, a.name),
     h("span", { class: "a-note" }, a.note || ""),
-    total ? h("span", { class: "a-pct" }, `${a.pct}%`) : null,
-    total ? h("span", { class: "a-bar", style: { "--w": `${a.pct}%` } }) : null);
-  const top = pop.slice(0, 8);
-  const rest = pop.slice(8);
+    a.yards != null ? h("span", { class: "a-pct" }, `+${a.yards}`) : null);
+  const top = list.slice(0, 8);
+  const rest = list.slice(8);
   return h("div", { class: "answers" },
-    h("p", { class: "hint" }, pop.length === 1 ? "The answer" : total ? `All ${pop.length} right answers, by how often players named them` : `All ${pop.length} right answers`),
+    h("p", { class: "hint" }, list.length === 1 ? "The answer" : `All ${list.length} right answers, deepest cuts first, with the yards each was worth`),
     h("ol", {}, top.map(row)),
     rest.length ? h("details", {}, h("summary", {}, `Show ${rest.length} more`), h("ol", { start: 9 }, rest.map(row))) : null);
 }
-
 
 function renderQuestion(round, i) {
   const st = qdata[i] || {};
@@ -308,15 +304,13 @@ function renderQuestion(round, i) {
     setTimeout(() => input.focus({ preventScroll: true }), 50);
   } else {
     const guess = st.guesses?.at(-1);
-    const yours = guess ? (st.popular?.answers.find((a) => a.id === guess)?.name || nameFor(round.answer_kind, guess) || "Your answer") : null;
+    const yours = guess ? (st.answers?.find((a) => a.id === guess)?.name || nameFor(round.answer_kind, guess) || "Your answer") : null;
     let line;
     if (st.timedOut || !guess) line = "Time ran out on that one.";
     else if (st.hit) {
-      const mine = st.popular?.answers.find((a) => a.yours);
       line = `${yours} is right!`;
-      if (st.popular?.total >= MIN_FOR_PCT && mine) line += ` ${mine.pct}% of players said that.`;
-      if (st.rarity >= 0.6) line += " A rare pull: extra yards!";
-      else if (st.rarity <= 0.15) line += " A popular pick.";
+      if (st.rarity >= 0.7) line += " A deep cut: extra yards!";
+      else if (st.rarity <= 0.15) line += " The obvious one: still a gain.";
     } else line = `${yours} isn't one of the right answers.`;
     body.push(resultBox(line, st.reveal?.fact, i), nextButton(), answersList(round, st));
   }
@@ -339,7 +333,7 @@ function huddleCard() {
     intro
       ? h("div", {},
           h("h2", { class: "prompt" }, "Down 21-17. Your ball on the 25. Go win it."),
-          h("p", {}, "Every play is a question. Type a right answer to move the ball: 5 to 20 yards, and rarer answers (ones fewer players think of) go farther. A wrong answer is an incomplete pass."),
+          h("p", {}, "Every play is a question. Type a right answer to move the ball: 5 to 20 yards. The obvious answers gain the least, deep cuts gain the most. A wrong answer is an incomplete pass."),
           h("p", {}, "You have 4 downs to gain 10 yards. Reach the end zone to win."))
       : h("h2", { class: "prompt" }, `${downText(drive)} at ${fieldSpot(drive.yl)}.`),
     nextButton());
@@ -384,7 +378,7 @@ async function answer(i, guess) {
     if (signedIn()) {
       const r = await api("drive", { date, action: "answer", guess });
       if (!r.event) throw new Error(r.notice || "Something went wrong.");
-      await finishPlay(i, r.state, r.event, r.reveal, guess == null ? [] : [guess], r.popular);
+      await finishPlay(i, r.state, r.event, r.reveal, guess == null ? [] : [guess], r.answers);
       return;
     }
     const s = structuredClone(drive);
@@ -396,7 +390,7 @@ async function answer(i, guess) {
     const view = await api("answer", { date, round: i, guess, attempt: 1 });
     s.live.guesses = [guess];
     const { state, event } = resolve(s, roundAt(i), view.result, (Date.now() - liveStart) / 1000, nPlays());
-    await finishPlay(i, state, event, view.reveal, [guess], view.popular);
+    await finishPlay(i, state, event, view.reveal, [guess], view.answers);
   } catch (e) {
     qdata[i] = { ...prev, error: e.message };
   } finally {
@@ -405,10 +399,10 @@ async function answer(i, guess) {
   }
 }
 
-async function finishPlay(i, state, event, reveal, guesses, popular = null) {
+async function finishPlay(i, state, event, reveal, guesses, answers = null) {
   clearInterval(ticker);
   const before = drive;
-  qdata[i] = { done: true, hit: event.hit, rarity: event.rarity, guesses, reveal, popular, timedOut: event.timedOut };
+  qdata[i] = { done: true, hit: event.hit, rarity: event.rarity, guesses, reveal, answers, timedOut: event.timedOut };
   drive = state;
   lastPlay = { idx: i, event };
   persistLocal();

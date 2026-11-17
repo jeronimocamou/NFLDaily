@@ -129,6 +129,17 @@ class Data:
         self.career_by_id = {c["player_id"]: c for c in self.careers}
         self.franchise_by_code = {f["franchise"]: f for f in self.franchises}
         self.qb_starts = [dict(r) for r in con.execute("SELECT * FROM qb_starts")]
+        # The game data and the stats data occasionally use different ids for the
+        # same quarterback; point those starts at the id with his stats.
+        qb_by_name = {}
+        for c in self.careers:
+            if c["position"] == "QB":
+                qb_by_name.setdefault(c["name"].lower(), c["player_id"])
+        name_of = {c["player_id"]: c["name"].lower() for c in self.careers}
+        for r in self.qb_starts:
+            wrong_id = name_of.get(r["player_id"]) != r["name"].lower()
+            if wrong_id and r["name"].lower() in qb_by_name:
+                r["player_id"] = qb_by_name[r["name"].lower()]
         for f in self.franchises:
             f["qb_count"] = len({r["player_id"] for r in self.qb_starts if r["franchise"] == f["franchise"]})
 

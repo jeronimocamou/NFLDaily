@@ -3,7 +3,7 @@
 // source of truth for leaderboards) always agree.
 //
 // You're down 21-17 with the ball on your own 25. Every play is one question:
-// type a right answer to gain 5-20 yards (rarer right answers gain more).
+// type a right answer to gain 5-20 yards (less obvious answers gain more).
 // A wrong answer, or running out the 30-second timer, is an incomplete pass.
 // You have 4 downs to gain 10 yards. Reach the end zone to win (touchdown +
 // automatic extra point = 7 points).
@@ -12,7 +12,7 @@ export const RULES = {
   start: 25, // own 25 (touchback)
   playClock: 30, // seconds to answer each question
   minGain: 5, // a right answer gains at least this...
-  maxGain: 20, // ...and up to this for the rarest answers
+  maxGain: 20, // ...and up to this for the deepest cuts
   them: 21,
   us: 17,
 };
@@ -150,20 +150,25 @@ export function driveRank(sum) {
 export const CODE_EMOJI = { g: "🟩", m: "🟨", w: "⬜", t: "🏈" };
 
 // ---- Rarity -------------------------------------------------------------------------
-const PRIOR_N = 25; // how many "imaginary" answers the starting estimate is worth
-
 /**
- * How rare an answer is, 0 (the most common answer) to 1 (nobody else said
- * it). Blends each answer's built-in obviousness (`prior` weights) with what
- * players actually answered (`counts`), so it works on day one and gets more
- * accurate as people play.
+ * How deep a cut an answer is, 0 (the most obvious answer to this question) to
+ * 1 (the least obvious), from our stats alone: each right answer carries an
+ * "obviousness" weight (career fame, starts, seasons leading the team...).
+ * Answers are ranked by it and spread evenly, so the most obvious answer gains
+ * the fewest yards and the deepest cut the most. No crowd data needed, and the
+ * same answer is always worth the same yards.
  */
-export function rarityOf(id, prior, counts = {}) {
+export function rarityOf(id, prior) {
   const ids = Object.keys(prior);
-  if (ids.length <= 1) return 1;
-  const priorSum = ids.reduce((n, k) => n + prior[k], 0) || 1;
-  const total = ids.reduce((n, k) => n + (counts[k] || 0), 0);
-  const p = (k) => ((PRIOR_N * prior[k]) / priorSum + (counts[k] || 0)) / (PRIOR_N + total);
-  const max = Math.max(...ids.map(p));
-  return Math.max(0, Math.min(1, 1 - p(id) / max));
+  if (ids.length <= 1 || !(id in prior)) return ids.length <= 1 ? 1 : 0;
+  // Rank = how many answers are more obvious than this one (ties share a rank).
+  const above = ids.filter((k) => prior[k] > prior[id]).length;
+  return above / (ids.length - 1);
+}
+
+/** Every right answer with the yards it's worth, deepest cuts first. */
+export function answerYards(valid, prior) {
+  return Object.entries(valid)
+    .map(([id, v]) => ({ id, name: v.name, note: v.note, yards: gainFor({ hit: true, rarity: rarityOf(id, prior) }) }))
+    .sort((a, b) => b.yards - a.yards || a.name.localeCompare(b.name));
 }
