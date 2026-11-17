@@ -492,3 +492,21 @@ table.yards small { display: block; color: var(--muted); }
 .pr-miss { background: var(--surface-2); color: var(--muted); }
 @keyframes pop { from { transform: scale(.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .play-result { animation: none; } }
+
+/* ---- End-of-drive recap ---- */
+.recap-title { margin: 18px 0 0; font-weight: 700; color: var(--muted); font-size: .9rem; text-align: left; }
+.recap-list li { display: block; padding: 0; }
+.recap > summary, .recap-plain {
+  display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; cursor: pointer; list-style: none;
+}
+.recap > summary::-webkit-details-marker { display: none; }
+.recap > summary .rc-what::after { content: " ▸"; color: var(--muted); }
+.recap[open] > summary .rc-what::after { content: " ▾"; }
+.recap-plain { cursor: default; }
+.rc-what { text-align: left; }
+.recap-body { padding: 0 0 12px; text-align: left; }
+.recap-names { list-style: none; padding: 4px 10px 0; margin: 0; display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.recap-names li { padding: 2px 0; border: 0; font-size: .92rem; }
+.recap-names li.yours { font-weight: 800; color: var(--good); }
+.recap-names li.yours::before { content: "✓ "; }
+.recap-miss { margin: 4px 0 6px; color: var(--muted); font-size: .9rem; }
