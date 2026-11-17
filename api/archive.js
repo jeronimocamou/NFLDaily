@@ -1,12 +1,12 @@
 // GET /api/archive -> every playable puzzle date (newest first) and, for
 // signed-in players, their score on each.
 import { handler, send } from "../lib/http.js";
-import { db } from "../lib/db.js";
+import { tryDb } from "../lib/db.js";
 import { currentUser } from "../lib/auth.js";
 import { archiveDates } from "../lib/puzzles.js";
 
 export default handler(["GET"], async (req, res) => {
-  const pool = await db();
+  const pool = await tryDb();
   const user = await currentUser(pool, req);
   let mine = null;
   if (user) {

@@ -395,7 +395,11 @@ dialog h2 { margin-top: 0; }
 }
 .card.live { position: relative; overflow: hidden; }
 .playclock { position: absolute; left: 0; right: 0; top: 0; height: 5px; background: rgb(0 0 0 / .08); }
-#playclock-bar { height: 100%; background: var(--accent); transform-origin: left; transition: transform .2s linear; }
+#playclock-bar { height: 100%; background: var(--accent); transform-origin: left; transition: transform .2s linear, background-color .3s; }
+#playclock-bar.urgent { background: #e2523f; }
+.card-clock { font: 400 .7rem/1 var(--pixel); color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.card-clock.urgent { color: #e2523f; animation: blink .5s steps(2) infinite; }
+@media (prefers-reduced-motion: reduce) { .card-clock.urgent { animation: none; } }
 .decide { display: grid; gap: 0; }
 .decide .hint { margin: 16px 0 0; }
 .huddle p { margin: 8px 0; }
@@ -514,7 +518,7 @@ table.yards small { display: block; color: var(--muted); }
 /* ---- Streak flame ---- */
 .streak { display: inline-block; margin-left: 6px; font-weight: 800; color: #ffb35c; }
 .streak:not(.cold) { animation: flicker 1.6s ease-in-out infinite; }
-.streak.cold { color: #6b7685; filter: grayscale(1); }
+.streak.cold { color: #8f9aa8; filter: grayscale(1); }
 .streak.bump { animation: bump .8s cubic-bezier(.2, 1.6, .4, 1); }
 @keyframes flicker { 0%, 100% { text-shadow: 0 0 4px #ff6b1a; } 50% { text-shadow: 0 0 10px #ffb35c; } }
 @keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.8); } 100% { transform: scale(1); } }
@@ -551,3 +555,12 @@ table.yards small { display: block; color: var(--muted); }
   background: var(--surface-2); color: var(--text);
 }
 @media (prefers-reduced-motion: reduce) { #game-hud.shake { animation: none; } }
+
+/* Narrow phones (iPhone SE and smaller): keep the header on one line each. */
+@media (max-width: 374px) {
+  .topbar { padding: 8px 10px; gap: 6px; }
+  .icons { gap: 6px; }
+  .icon-btn { width: 34px; height: 34px; }
+  .brand h1 { font-size: .6rem; white-space: nowrap; }
+  .meta { font-size: .72rem; white-space: nowrap; }
+}
