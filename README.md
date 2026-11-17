@@ -93,7 +93,7 @@ python3 scripts/generate_puzzles.py
 
 A question can come back after a year (`REUSE_DAYS`), never sooner, and no answer repeats among the all-time questions within one drive. To redo days nobody has played yet, use `--from YYYY-MM-DD`.
 
-A GitHub Action (`.github/workflows/puzzles.yml`) does this on the 1st of every month. It refreshes the trivia data (so new seasons show up after each Super Bowl), adds puzzles, runs the tests and commits to `main`, which redeploys the site. You can also run it from the repo's **Actions** tab. `--rebuild` regenerates every day from launch (puzzle #1 = 2026-11-01) and changes past puzzles, so avoid it once players have played.
+A GitHub Action (`.github/workflows/puzzles.yml`) does this on the 1st of every month. It refreshes the trivia data (so new seasons show up after each Super Bowl), adds puzzles, runs the tests and commits to `main`, which redeploys the site. You can also run it from the repo's **Actions** tab. `--rebuild` regenerates every day from launch (puzzle #1 = 2026-11-17) and changes past puzzles, so avoid it once players have played.
 
 Install dependencies:
 

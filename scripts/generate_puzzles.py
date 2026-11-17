@@ -31,7 +31,7 @@ ROOT = Path(__file__).resolve().parent.parent
 DB = ROOT / "data" / "nfl.sqlite"
 FACTS = ROOT / "data" / "facts.json"
 OUT = ROOT / "puzzles"
-LAUNCH = dt.date(2026, 11, 1)  # Puzzle #1
+LAUNCH = dt.date(2026, 11, 17)  # Puzzle #1
 
 PLAYS = 12  # questions per drive (a drive rarely needs more than ~10)
 
