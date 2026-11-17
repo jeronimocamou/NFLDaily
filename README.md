@@ -12,7 +12,7 @@ A right answer is a pass, and how far it goes depends on how deep a cut it is:
 |---|---|---|
 | 🟨 **Check Down** | the most obvious ~40% | 7 (two make a first down) |
 | 🟩 **Seam Route** | the middle ~35% | 20 |
-| 💣 **The Bomb** | the deepest ~25%, or a question's only answer | 40 |
+| 💣 **Bomb** | the deepest ~25%, or a question's only answer | 40 |
 
 How obvious an answer is comes from our own stats, not from other players, so it works from day one and everyone gets the same yards for the same answer. Each right answer carries an "obviousness" weight (career production since 1999, how many times the player fits the question, starts, seasons leading the team, team success). Answers to each question are ranked by it and split into the three tiers. Each question shows its split ("3 bombs · 3 seams · 4 check-downs"). A wrong answer, or running out the 30-second timer, is an incomplete pass. You have **4 downs to gain 10 yards**, and reaching the end zone wins it (touchdown plus automatic extra point = 7). After each play you see every right answer, grouped by tier.
 

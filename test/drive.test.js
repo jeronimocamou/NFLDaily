@@ -14,7 +14,7 @@ function play(s, result, secs = 10) {
 
 test("three tiers: check-down 7, seam route 20, bomb 40; wrong is incomplete", () => {
   assert.deepEqual([0, 0.39, 0.4, 0.74, 0.75, 1].map((r) => gainFor(hit(r))), [7, 7, 20, 20, 40, 40]);
-  assert.deepEqual([0, 0.5, 1].map((r) => tierFor(r).name), ["Check Down", "Seam Route", "The Bomb"]);
+  assert.deepEqual([0, 0.5, 1].map((r) => tierFor(r).name), ["Check Down", "Seam Route", "Bomb"]);
   assert.equal(gainFor(miss), 0);
   // 10 answers split 4 / 3 / 3
   const prior = Object.fromEntries([...Array(10)].map((_, k) => [`p${k}`, 10 - k]));

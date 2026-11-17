@@ -27,7 +27,7 @@ export const VERSION = 3; // drives saved by older rule sets restart
 export const TIERS = [
   { key: "check", name: "Check Down", yards: 7, code: "m", upTo: 0.4 },
   { key: "seam", name: "Seam Route", yards: 20, code: "g", upTo: 0.75 },
-  { key: "bomb", name: "The Bomb", yards: 40, code: "b", upTo: 1 },
+  { key: "bomb", name: "Bomb", yards: 40, code: "b", upTo: 1 },
 ];
 
 export function tierFor(rarity) {
