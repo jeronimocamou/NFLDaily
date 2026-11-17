@@ -27,6 +27,6 @@ export default handler(["GET", "POST"], async (req, res) => {
   if (out.error && !out.state) return send(res, 409, { error: out.error });
   send(res, 200, {
     state: out.state, question: out.question ?? null, event: out.event ?? null,
-    reveal: out.reveal ?? null, popular: out.popular ?? null, hint: out.hint ?? null, notice: out.error ?? null, now: Date.now(),
+    reveal: out.reveal ?? null, answers: out.answers ?? null, hint: out.hint ?? null, notice: out.error ?? null, now: Date.now(),
   });
 });

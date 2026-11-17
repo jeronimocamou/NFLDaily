@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { newDrive, snap, resolve, summary, driveRank, downText, fieldSpot, gainFor, rarityOf, isCurrent } from "../site/drive.js";
+import { newDrive, snap, resolve, summary, driveRank, downText, fieldSpot, gainFor, rarityOf, answerYards, isCurrent } from "../site/drive.js";
 
 const N = 16;
 const Q = { type: "name_one" };
@@ -61,12 +61,14 @@ test("running out of questions ends the drive", () => {
   assert.equal(s.result, "out");
 });
 
-test("rarity: obvious answers are worth less, rare and unique ones more", () => {
-  const prior = { brady: 10, manning: 8, backup: 1 };
+test("rarity comes from our stats: ranked by obviousness, 5 yards to 20", () => {
+  const prior = { brady: 10, manning: 8, backup: 1, other: 1 };
   assert.equal(rarityOf("brady", prior), 0);
-  assert.ok(rarityOf("backup", prior) > 0.8);
-  assert.ok(rarityOf("backup", prior, { backup: 200 }) < 0.05);
+  assert.equal(rarityOf("manning", prior), 1 / 3);
+  assert.equal(rarityOf("backup", prior), 2 / 3, "ties share a rank");
   assert.equal(rarityOf("only", { only: 1 }), 1);
+  const ys = answerYards({ brady: { name: "Brady" }, backup: { name: "Backup" } }, { brady: 10, backup: 1 });
+  assert.deepEqual(ys.map((a) => [a.name, a.yards]), [["Backup", 20], ["Brady", 5]]);
 });
 
 test("ranking: points, then yards, then fewer plays", () => {

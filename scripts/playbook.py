@@ -91,14 +91,19 @@ class NameOneMixin:
         return 1 + 2 * f["sb_wins"] + f["playoff_apps"] / 4
 
     def player_answers(self, items):
-        """items: [(player_id, name, note)] -> valid dict + priors."""
-        valid, prior = {}, {}
+        """items: [(player_id, name, note)] -> valid dict + "obviousness" priors.
+        A player who fits the question several times (e.g. five 1,000-yard
+        seasons) is a more obvious answer than one who fits it once."""
+        valid, prior, times = {}, {}, {}
         for pid, name, note in items:
             if pid in valid:
                 valid[pid]["note"] += f", {note}"
+                times[pid] += 1
                 continue
             valid[pid] = {"name": name, "note": note}
-            prior[pid] = round(self.player_weight(pid), 2)
+            times[pid] = 1
+        for pid in valid:
+            prior[pid] = round(self.player_weight(pid) * (1 + 0.6 * (times[pid] - 1)), 2)
         return valid, prior
 
     def name_one(self, role, season, prompt, kind, valid, prior, fact, hint=None, clues=None):
