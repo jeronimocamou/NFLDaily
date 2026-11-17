@@ -578,13 +578,6 @@ function parseShare(code) {
   return { code, number: +m[1], points: +m[2], yards: +m[3], plays: +m[4], codes: m[5], streak: m[6] ? +m[6] : 0 };
 }
 
-/** 8-cell progress bar from your 25 to the end zone. */
-function progressBar(yards, td) {
-  const cells = 8;
-  const filled = td ? cells : Math.max(0, Math.min(cells, Math.round((yards / 75) * cells)));
-  return "🟩".repeat(filled) + "⬜".repeat(cells - filled) + (td ? "🏈" : "🏁");
-}
-
 function buildShareText(sum, streak, url) {
   const grid = sum.codes.split("").map((c) => CODE_EMOJI[c] || "").join("");
   const head = sum.won ? `TOUCHDOWN! Won ${RULES.us + sum.points}–${RULES.them}` : `${sum.yards} yds · came up short`;
@@ -592,7 +585,6 @@ function buildShareText(sum, streak, url) {
     `🏈 Fourth & Daily #${puzzle.number}`,
     head,
     `${grid} ${sum.plays} play${sum.plays === 1 ? "" : "s"}`,
-    progressBar(sum.yards, sum.won),
     streak > 1 ? `🔥 ${streak}-day streak` : null,
     `Beat my drive 👉 ${url}`,
   ].filter(Boolean).join("\n");
