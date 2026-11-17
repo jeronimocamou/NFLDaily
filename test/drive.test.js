@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { newDrive, snap, resolve, summary, driveRank, downText, fieldSpot, gainFor, rarityOf, answerYards, isCurrent } from "../site/drive.js";
+import { newDrive, snap, resolve, summary, driveRank, downText, fieldSpot, gainFor, rarityOf, answerYards, isCurrent, tierFor, tierCounts } from "../site/drive.js";
 
 const N = 16;
 const Q = { type: "name_one" };
@@ -12,9 +12,13 @@ function play(s, result, secs = 10) {
   return resolve(live, Q, result, secs, N);
 }
 
-test("right answers gain 5-20 yards by rarity; wrong answers are incomplete", () => {
-  assert.deepEqual([0, 0.5, 1].map((r) => gainFor(hit(r))), [5, 13, 20]);
+test("three tiers: check-down 7, seam route 20, bomb 40; wrong is incomplete", () => {
+  assert.deepEqual([0, 0.39, 0.4, 0.74, 0.75, 1].map((r) => gainFor(hit(r))), [7, 7, 20, 20, 40, 40]);
+  assert.deepEqual([0, 0.5, 1].map((r) => tierFor(r).name), ["Check Down", "Seam Route", "The Bomb"]);
   assert.equal(gainFor(miss), 0);
+  // 10 answers split 4 / 3 / 3
+  const prior = Object.fromEntries([...Array(10)].map((_, k) => [`p${k}`, 10 - k]));
+  assert.deepEqual(tierCounts(prior), { check: 4, seam: 3, bomb: 3 });
 });
 
 test("questions come in order and move the chains", () => {
@@ -22,13 +26,13 @@ test("questions come in order and move the chains", () => {
   assert.ok(isCurrent(s));
   const live = snap(s, 0, N);
   assert.equal(live.live.round, 0);
-  s = resolve(live, Q, hit(1), 5, N).state;
+  s = resolve(live, Q, hit(0.5), 5, N).state; // seam route
   assert.equal(s.yl, 45);
   assert.equal(downText(s), "1st & 10");
   assert.equal(snap(s, 0, N).live.round, 1);
-  s = play(s, hit(0)).state;
-  assert.equal(downText(s), "2nd & 5");
-  assert.equal(fieldSpot(s.yl), "50");
+  s = play(s, hit(0)).state; // check-down
+  assert.equal(downText(s), "2nd & 3");
+  assert.equal(fieldSpot(s.yl), "OPP 48");
 });
 
 test("four misses is a turnover on downs; running out of time is incomplete", () => {
@@ -46,12 +50,14 @@ test("four misses is a turnover on downs; running out of time is incomplete", ()
 
 test("touchdown wins with an automatic extra point", () => {
   let s = newDrive();
-  for (let i = 0; i < 4; i++) s = play(s, hit(1)).state; // 20 yds each
+  s = play(s, hit(1)).state; // bomb: 40
+  s = play(s, hit(0)).state; // check-down: 7
+  s = play(s, hit(1)).state; // bomb: touchdown
   assert.equal(s.phase, "over");
   assert.equal(s.result, "td");
   const sum = summary(s);
-  assert.deepEqual([sum.points, sum.yards, sum.plays, sum.won], [7, 75, 4, true]);
-  assert.equal(sum.codes, "gggt");
+  assert.deepEqual([sum.points, sum.yards, sum.plays, sum.won], [7, 75, 3, true]);
+  assert.equal(sum.codes, "bmt");
 });
 
 test("running out of questions ends the drive", () => {
@@ -61,14 +67,14 @@ test("running out of questions ends the drive", () => {
   assert.equal(s.result, "out");
 });
 
-test("rarity comes from our stats: ranked by obviousness, 5 yards to 20", () => {
+test("rarity comes from our stats: answers ranked by obviousness", () => {
   const prior = { brady: 10, manning: 8, backup: 1, other: 1 };
   assert.equal(rarityOf("brady", prior), 0);
   assert.equal(rarityOf("manning", prior), 1 / 3);
   assert.equal(rarityOf("backup", prior), 2 / 3, "ties share a rank");
   assert.equal(rarityOf("only", { only: 1 }), 1);
   const ys = answerYards({ brady: { name: "Brady" }, backup: { name: "Backup" } }, { brady: 10, backup: 1 });
-  assert.deepEqual(ys.map((a) => [a.name, a.yards]), [["Backup", 20], ["Brady", 5]]);
+  assert.deepEqual(ys.map((a) => [a.name, a.yards, a.tier]), [["Backup", 40, "bomb"], ["Brady", 7, "check"]]);
 });
 
 test("ranking: points, then yards, then fewer plays", () => {

@@ -11,7 +11,7 @@ test("share codes are validated", () => {
 });
 
 test("preview images are 1200x630 PNGs", () => {
-  for (const share of [null, parseShareCode("17-7-75-9-gmwggmgt"), parseShareCode("17-0-12-6-wmwwmw")]) {
+  for (const share of [null, parseShareCode("17-7-75-9-gmwggmgt"), parseShareCode("17-0-12-6-wmwwmw"), parseShareCode("17-7-75-4-gwbt")]) {
     const png = renderOgPng(share);
     assert.deepEqual([...png.subarray(0, 8)], [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
     assert.equal(png.readUInt32BE(16), 1200);
